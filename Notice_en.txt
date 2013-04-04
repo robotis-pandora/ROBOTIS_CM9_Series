@@ -1,0 +1,9 @@
+Copyright (C) 2012 ROBOTIS, Co., Ltd.
+
+
+CM-9 serise is open-source hardward and software. If you want to get more information, 
+please visit the cm9 circle in www.robotsource.org
+
+http://www.robotsource.org/xe/Circle_CM9_Developer_World
+
+This "Source" includes software developed by ROBOTIS Co., Ltd., third parties, and released under their respective licenses.
