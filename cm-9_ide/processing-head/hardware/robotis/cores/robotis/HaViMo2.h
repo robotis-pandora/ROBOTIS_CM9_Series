@@ -1,6 +1,6 @@
 /*
  *******************************************************************************
- *  HaViMo2.h - 2012-12-12-1636
+ *  HaViMo2.h - 2013-04-05-1402
  *******************************************************************************
  *  A header file of questionable quality for using the HaViMo2
  *  
@@ -8,9 +8,6 @@
  *  LEGAL STUFF
  *******************************************************************************
  *  
- *  Just to be safe:
- *   'AVR', 'ATmega' are property of Atmel, Inc.
- *      http://www.atmel.com
  *   'Dynamixel' is property of Robotis, Inc.
  *      http://www.robotis.com
  *  
