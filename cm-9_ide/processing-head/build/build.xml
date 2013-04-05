@@ -194,7 +194,7 @@
       <fileset file="shared/revisions.txt" />
     </copy>
 
-    <!-- Unzip AVR tools -->
+    <!-- Unzip ARM tools -->
     <!-- <unzip dest="macosx/work/ROBOTIS.app/Contents/Resources/Java/hardware" src="macosx/dist/tools-universal.zip" overwrite="false"/> -->
 
     <exec executable="unzip">
@@ -205,9 +205,11 @@
       <arg value="macosx/dist/tools-universal.zip" />
     </exec>
 
+<!--
     <copy todir="macosx/work/ROBOTIS.app/Contents/Resources/Java/hardware/tools/avr/avr/include/avr">    
       <fileset file="macosx/dist/eeprom.h" />
     </copy>
+-->
 
     <antcall target="assemble">
       <param name="target.path" value="macosx/work/ROBOTIS.app/Contents/Resources/Java" />
@@ -264,6 +266,7 @@
 
     <!-- The ant copy command does not preserve permissions. -->
     <chmod file="macosx/working_dir/ROBOTIS.app/Contents/MacOS/JavaApplicationStub" perm="+x" />
+<!--
     <chmod perm="+x">
       <fileset dir="macosx/working_dir/ROBOTIS.app/Contents/Resources/Java/hardware/tools/avr/bin" includes="**/*" />
       <fileset dir="macosx/working_dir/ROBOTIS.app/Contents/Resources/Java/hardware/tools/avr/avr/bin" includes="**/*" />
@@ -272,6 +275,7 @@
       <fileset dir="macosx/working_dir/ROBOTIS.app/Contents/Resources/Java/hardware/tools/avr/libexec/gcc/avr/3.4.6/" includes="**/cc1*" />
       <fileset dir="macosx/working_dir/ROBOTIS.app/Contents/Resources/Java/hardware/tools/avr/libexec/gcc/avr/4.3.2/" includes="**/cc1*" />
     </chmod>
+-->
 
     <!-- Pause briefly for the OS to catch up with the DMG changes. 
 	 This prevents "hdiutil: couldn't eject "disk3" - Resource busy"
@@ -353,10 +357,10 @@
   </target>
 
   <target name="linux32-build" depends="linux-build" description="Build linux (32-bit) version">
-    <!-- Unzip AVR tools -->
+    <!-- Unzip ARM tools -->
     <exec executable="tar" dir="linux/work/hardware">
       <arg value="-xjf"/>
-      <arg value="../../avr_tools_linux32.tar.bz2"/>
+      <arg value="../../arm_tools_linux32.tar.bz2"/>
     </exec>
   </target>
 
@@ -366,10 +370,10 @@
 
     <!-- <chmod perm="755" file="linux/work/hardware/tools/avrdude" /> -->
 
-    <!-- Unzip AVR tools -->
+    <!-- Unzip ARM tools -->
     <exec executable="tar" dir="linux/work/hardware">
       <arg value="-xjf"/>
-      <arg value="../../avr_tools_linux64.tar.bz2"/>
+      <arg value="../../arm_tools_linux64.tar.bz2"/>
     </exec>
   </target>
   
@@ -482,13 +486,13 @@
       <fileset dir="windows/dist" includes="drivers/**" />
     </copy>
     
-    <!-- Unzip AVR tools -->
-    <unzip dest="windows/work/hardware" src="windows/avr_tools.zip" overwrite="false"/>
-
+    <!-- Unzip ARM tools -->
+    <unzip dest="windows/work/hardware" src="windows/arm_tools.zip" overwrite="false"/>
+<!--
     <copy todir="windows/work/hardware/tools/avr/avr/include/avr">
       <fileset file="windows/eeprom.h" />
     </copy>
-
+-->
     <antcall target="assemble">
       <param name="target.path" value="windows/work" />
     </antcall>
