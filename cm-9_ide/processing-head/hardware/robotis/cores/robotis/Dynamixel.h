@@ -89,7 +89,7 @@ public:
      * @param id HaViMo2 camera ID (fixed as 100 in HaViMo2 firmware).
      * @see dxl_recover() and havGet()
      */
-    	void havCap(uint8_t id);
+    void havCap(uint8_t id);
     /**
      * Wrapper function to retrieve an image buffer from a HaViMo2 camera module.
      * @param id HaViMo2 camera ID (fixed as 100 in HaViMo2 firmware).
@@ -97,7 +97,7 @@ public:
      * @see havCap()
      * @return The number of valid regions found in the image.
      */
-    	uint8_t havGet(uint8_t id, HaViMo2_Region_Buffer_t* hvm2rb);
+    uint8_t havGet(uint8_t id, HaViMo2_Region_Buffer_t* hvm2rb);
 
 
 };

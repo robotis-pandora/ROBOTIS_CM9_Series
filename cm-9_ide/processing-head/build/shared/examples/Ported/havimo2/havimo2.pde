@@ -15,8 +15,8 @@
  */
 
 #define VERBOSE_IMAGE_PROCESSING
-#include <HaViMo2.h>
-#include <dynamixel_address_tables.h>
+//#include <HaViMo2.h>
+#include <dxl_devices.h>
 int ProcessImage(uint8_t TrackingColor);
 HaViMo2_Region_Buffer_t h2rb;
 
