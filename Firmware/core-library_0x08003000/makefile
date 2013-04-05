@@ -82,7 +82,7 @@ MAIN_OBJS = exc.o lib/src/adc.o lib/src/bkp.o \
  lib/src/wirish_math.o \
  lib/src/wirish_shift.o \
  lib/src/wirish_time.o \
- templete.o \
+ template.o \
  main.o \
  lib/src/CM900.o \
  lib/src/dxl_hal.o \
