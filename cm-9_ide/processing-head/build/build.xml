@@ -518,7 +518,7 @@
   
   <target name="windows-run" depends="windows-build" 
 	  description="Run windows version">
-    <exec executable="windows/work/Robotis.exe" 
+    <exec executable="windows/work/ROBOTIS_CM9.exe" 
 	  dir="windows/work" spawn="true"/>
   </target>
 
