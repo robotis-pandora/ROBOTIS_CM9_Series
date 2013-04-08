@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="Arduino" default="build">
+<project name="ROBOTIS CM9" default="build">
   <!--echo message="os.name = ${os.name}" /-->
   <!--echo message="os.arch = ${os.arch}" /-->
   <!--echo message="os.version = ${os.version}" /-->
@@ -515,7 +515,9 @@
       <fileset dir="windows/work" includes="**/*.html, **/*.dll, **/*.exe" />
     </chmod>
   </target>
-  
+  <!-- 
+  [ROBOTIS][CHANGE] 2013-04-08 change to run exe file name from ROBOTIS.exe to ROBOTIS_CM9.exe
+   -->
   <target name="windows-run" depends="windows-build" 
 	  description="Run windows version">
     <exec executable="windows/work/ROBOTIS_CM9.exe" 
@@ -540,6 +542,8 @@
 	 destfile="windows/arduino-${version}-expert.zip" 
 	 excludes="java/**" />
     -->
+    
+    <!--[ROBOTIS][CHANGE[START] 2013-04-08 change dest file name from arduino XXX to ROBOTIS XXX
 
     <zip destfile="windows/arduino-${version}-windows.zip">
       <zipfileset dir="windows/work" 
@@ -549,6 +553,18 @@
     <zip destfile="windows/arduino-${version}-windows-expert.zip">
       <zipfileset dir="windows/work" 
 		  prefix="arduino-${version}" 
+		  excludes="java/**" />
+    </zip>
+    [ROBOTIS][CHANGE[END] 2013-04-08 change dest file name from arduino XXX to ROBOTIS XXX
+    -->
+	<zip destfile="windows/ROBOTIS-${version}-windows.zip">
+      <zipfileset dir="windows/work" 
+		  prefix="ROBOTIS-${version}" />
+    </zip>
+
+    <zip destfile="windows/ROBOTIS-${version}-windows-expert.zip">
+      <zipfileset dir="windows/work" 
+		  prefix="ROBOTIS-${version}" 
 		  excludes="java/**" />
     </zip>
     
