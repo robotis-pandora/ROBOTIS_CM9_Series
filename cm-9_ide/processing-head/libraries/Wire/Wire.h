@@ -34,6 +34,8 @@
 #ifndef _WIRE_H_
 #define _WIRE_H_
 
+#define uint8_t uint8
+
 typedef struct {
   uint8 scl;
   uint8 sda;
