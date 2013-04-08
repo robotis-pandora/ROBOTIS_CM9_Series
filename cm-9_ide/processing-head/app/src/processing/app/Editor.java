@@ -2310,7 +2310,7 @@ public class Editor extends JFrame implements RunnerListener {
     // Set the title of the window to "sketch_070752a - Processing 0126"
     setTitle(
       I18n.format(
-	_("{0} | ROBOTIS {1}"),//Arduino {1}"),  //[ROBOTIS][CHANGE] change title
+	_("{0} | ROBOTIS CM9 {1}"),//Arduino {1}"),  //[ROBOTIS][CHANGE] change title
 	sketch.getName(),
 	Base.VERSION_NAME
       )
