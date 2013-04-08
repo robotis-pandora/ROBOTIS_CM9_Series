@@ -1111,7 +1111,9 @@ public class Editor extends JFrame implements RunnerListener {
       });
     menu.add(item);
     */
-
+    
+  //[ROBOTIS][CHANGE][START] 2013-4-08 Remove some menus relating Arduino for not needing in CM-9 series  
+/*
     item = new JMenuItem(_("Getting Started"));
     item.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
@@ -1161,7 +1163,9 @@ public class Editor extends JFrame implements RunnerListener {
           Base.showFAQ();
         }
       });
-    menu.add(item);
+    menu.add(item);*/
+  //[ROBOTIS][CHANGE][END] 2013-4-08 Remove some menus relating Arduino for not needing in CM-9 series
+    
 //[ROBOTIS][START] change and add to visit menu item family vendor's site
     item = new JMenuItem(_("Visit RobotSource.org"));
     item.addActionListener(new ActionListener() {
