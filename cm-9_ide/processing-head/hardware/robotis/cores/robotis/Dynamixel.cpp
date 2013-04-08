@@ -190,3 +190,12 @@ void Dynamixel::txrxPacket(void){
 	dxl_txrx_packet();
 }
 
+
+void Dynamixel::havCap(uint8_t id)
+{
+	dxl_write_byte(id, 0, 0);
+}
+uint8_t Dynamixel::havGet(uint8_t id, HaViMo2_Region_Buffer_t* hvm2rb)
+{
+	return dxl_recover(id, hvm2rb);
+}

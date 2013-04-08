@@ -1,6 +1,6 @@
 /*
  *******************************************************************************
- *  dynamixel_address_tables.h - 2012-11-13-1441
+ *  dxl_devices.h - 2013-04-05-1300
  *******************************************************************************
  *  A header file of questionable quality containing the address tables of
  *    several Dynamixel devices.  It should work with the AX-12/18, AX-S1,
@@ -11,14 +11,11 @@
  *  LEGAL STUFF
  *******************************************************************************
  *  
- *  Just to be safe:
- *   'AVR', 'ATmega' are property of Atmel, Inc.
- *      http://www.atmel.com
  *   'Dynamixel' is property of Robotis, Inc.
  *      http://www.robotis.com
  *  
  *  
- *  Copyright (c) 2011, 2012 Matthew Paulishen. All rights reserved.
+ *  Copyright (c) 2011, 2012, 2013 Matthew Paulishen. All rights reserved.
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,8 +33,8 @@
  *******************************************************************************
  */
  
-#ifndef _DXL_ADDR_TABLE_H_
-#define _DXL_ADDR_TABLE_H_
+#ifndef _DXL_DEVS_H_
+#define _DXL_DEVS_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,275 +42,6 @@ extern "C" {
 
 #include <stdint.h>
 
-/*
-#ifndef BROADCAST_ID
-#define BROADCAST_ID                    254
-#endif
-
-#ifndef INST_PING
-#define INST_PING                       0x01
-#endif
-#ifndef INST_READ
-#define INST_READ                       0x02
-#endif
-#ifndef INST_WRITE
-#define INST_WRITE                      0x03
-#endif
-#ifndef INST_REG_WRITE
-#define INST_REG_WRITE                  0x04
-#endif
-#ifndef INST_ACTION
-#define INST_ACTION                     0x05
-#endif
-#ifndef INST_RESET
-#define INST_RESET                      0x06
-#endif
-#ifndef INST_DIGITAL_RESET
-#define INST_DIGITAL_RESET              0x07
-#endif
-#ifndef INST_SYSTEM_READ
-#define INST_SYSTEM_READ                0x0C
-#endif
-#ifndef INST_SYSTEM_WRITE
-#define INST_SYSTEM_WRITE               0x0D
-#endif
-#ifndef INST_SYNC_WRITE
-#define INST_SYNC_WRITE                 0x83
-#endif
-#ifndef INST_SYNC_REG_WRITE
-#define INST_SYNC_REG_WRITE             0x84
-#endif
-
-#ifndef ERRBIT_VOLTAGE
-#define ERRBIT_VOLTAGE                  (1)
-#endif
-#ifndef ERRBIT_ANGLE
-#define ERRBIT_ANGLE                    (2)
-#endif
-#ifndef ERRBIT_OVERHEAT
-#define ERRBIT_OVERHEAT                 (4)
-#endif
-#ifndef ERRBIT_RANGE
-#define ERRBIT_RANGE                    (8)
-#endif
-#ifndef ERRBIT_CHECKSUM
-#define ERRBIT_CHECKSUM                 (16)
-#endif
-#ifndef ERRBIT_OVERLOAD
-#define ERRBIT_OVERLOAD                 (32)
-#endif
-#ifndef ERRBIT_INSTRUCTION
-#define ERRBIT_INSTRUCTION              (64)
-#endif
-
-#ifndef MAXNUM_RXPARAM
-#define MAXNUM_RXPARAM                  (60)
-#endif
-#ifndef MAXNUM_TXPARAM
-#define MAXNUM_TXPARAM                  (150)
-#endif
-
-
-#ifndef COMM_TXSUCCESS
-#define	COMM_TXSUCCESS                  (0)
-#endif
-#ifndef COMM_RXSUCCESS
-#define COMM_RXSUCCESS                  (1)
-#endif
-#ifndef COMM_TXFAIL
-#define COMM_TXFAIL                     (2)
-#endif
-#ifndef COMM_RXFAIL
-#define COMM_RXFAIL                     (3)
-#endif
-#ifndef COMM_TXERROR
-#define COMM_TXERROR                    (4)
-#endif
-#ifndef COMM_RXWAITING
-#define COMM_RXWAITING                  (5)
-#endif
-#ifndef COMM_RXTIMEOUT
-#define COMM_RXTIMEOUT                  (6)
-#endif
-#ifndef COMM_RXCORRUPT
-#define COMM_RXCORRUPT                  (7)
-#endif
-
-*/
-
-// Instruction Packet (Command Packet)
-// 0xFF -> 0xFF -> ID -> LENGTH -> INSTRUCTION -> PARAM_1 -> PARAM_2 -> PARAM_N -> CHECKSUM
-// LENGTH = ( 1 {ID Byte} + 1 {INSTRUCTION Byte} + N {Number of PARAMETER Bytes} )
-// CHECKSUM = ( ~(ID + LENGTH + INSTRUCTION + PARAM_1 +...+ PARAM_N) ) & (0x00FF)
-
-// Status Packet (Return Packet)
-// 0xFF -> 0xFF -> ID -> LENGTH -> ERROR -> PARAM_1 -> PARAM_2 -> PARAM_N -> CHECKSUM
-// LENGTH = ( 1 {ID Byte} + 1 {ERROR Byte} + N {Number of PARAMETER Bytes} )
-// CHECKSUM = ( ~(ID + LENGTH + ERROR + PARAM_1 +...+ PARAM_N) ) & (0x00FF)
-
-/*
-// Dynamixel Packet byte array offsets
-enum{
-    DXL_PKT_ID                        = 0x02,
-    // Offset to ID byte of packet
-
-    DXL_PKT_LEN                       = 0x03,
-    // Offset to Length byte of packet
-
-    DXL_PKT_INST                      = 0x04,
-    // Offset to Instruction byte of command packet
-
-    DXL_PKT_ERR                       = 0x04,
-    // Offset to Error byte of return packet
-
-    DXL_PKT_PARA                      = 0x05
-    // Offset to first Parameter byte of packet
-};
-
-
-
-// Instruction set
-    // PARAMETERS // TASK
-enum{
-    INST_PING                         = 0x01,
-    // 0        Get status packet
-
-    INST_READ_DATA                    = 0x02,
-    // 2        Read value from device Control Table
-
-    INST_WRITE_DATA                   = 0x03,
-    // 2~       Write value into device Control Table
-
-    INST_REG_WRITE                    = 0x04,
-    // 2~       Write value in standby mode (wait for REG_WRITE)
-
-    INST_ACTION                       = 0x05,
-    // 0        Execute REG_WRITE
-
-    INST_RESET                        = 0x06,
-    // 0        Set all Control Table values to default?
-
-    INST_DIGITAL_RESET                = 0x07,
-    // ?        From HaViMo2 - Embedded-C example
-
-    INST_SYSTEM_READ                  = 0x0C,
-    // ?        From HaViMo2 - Embedded-C example
-
-    INST_SYSTEM_WRITE                 = 0x0D,
-    // ?        From HaViMo2 - Embedded-C example
-
-    INST_CAP_REGION                   = 0x0E,
-    // 0        From HaViMo2 datasheet
-    //          Initiates new image capture and processing
-    //          No return packet generated and non-responsive during processing
-
-    INST_RAW_SAMPLE                   = 0x0F,
-    // 0        From HaViMo2 datasheet
-    //          Sample the Raw Image (used by GUI)
-    //          Response does not follow standard RoboPlust packet
-
-    INST_LUT_MANAGE                   = 0x10,
-    // 0        From HaViMo2 datasheet
-    //          Enter LUT manage mode (used by GUI) (FOR CALIBRATION ONLY.
-    //          NOT RECOMMENDED FOR USE WITH ANY BEHAVIOR/ALGORITHM IMPLEMENTATION)
-
-    INST_RD_FILTHR                    = 0x11,
-    // 2        From HaViMo2 datasheet
-    //          Read noise threshold value (see datasheet for more detail)
-
-    INST_WR_FILTHR                    = 0x12,
-    // 2        From HaViMo2 datasheet
-    //          Write noise threshold value (see datasheet for more detail)
-
-    INST_RD_REGTHR                    = 0x13,
-    // 2        From HaViMo2 datasheet
-    //          Read region threshold value (see datasheet for more detail)
-
-    INST_WR_REGTHR                    = 0x14,
-    // 2        From HaViMo2 datasheet
-    //          Write region threshold value (see datasheet for more detail)
-
-    INST_CAP_GRID                     = 0x15,
-    // 0        From HaViMo2 datasheet
-    //          Invokes gridding algorithm (compresses image to 32*24 cells.
-    //          Each cell given only one object index with lower indices dominating
-    //          higher ['Ball==1' > 'Field==2' > .. > 'Unknown==0'].
-    //          Each cell contains the number of pixels of the specified index.
-
-    INST_READ_GRID                    = 0x16,
-    // 2        From HaViMo2 datasheet
-    //          Retrieve results of the gridded image (address internally
-    //          multiplied by 16, so retrieve 16 bytes at a time to recover
-    //          the entire image.  bits 0-3 are color index, 4-7 are pixel
-    //          [15 is the maximum reported, but may be more]
-    //          Why not bits 0-2 [0,7] for index and bits 3-7 [0,32] for pixels?
-    //          Don't know, so don't ask.
-
-    INST_SAMPLE_FAST                  = 0x17,
-    // 0        From HaViMo2 datasheet
-    //          Download an entire image from the module at 1Mbps
-
-    INST_SYNC_WRITE                   = 0x83,
-    // 4+       Write value to Control Table of multiple dynamixels
-
-    INST_SYNC_REG_WRITE               = 0x84,
-    // ?        Write value to Control Table of multiple dynamixels
-    //            in a standby mode?  From HaViMo2 - Embedded-C example?
-
-    INST_BULK_READ                    = 0x92,
-    // ?        Added to CM-730 in version v1.2.0 of the Darwin Framework
-
-    INST_SYNC_READ                    = 0xD0
-    // 2        Issues an INST_READ_DATA command for each servo in ID
-    //            location and length of all reads same
-};
-
-
-
-// Error bits of Status Packet's ERROR byte
-enum{
-    ERRBIT_INSTRUCTION                = 0x40,
-    // Set to 1 if undefined instruction or register is without REG_WRITE
-
-    ERRBIT_OVERLOAD                   = 0x20,
-    // Set to 1 if specified max torque cannot handle load
-
-    ERRBIT_CHECKSUM                   = 0x10,
-    // Set to 1 if checksum of packet is incorrect
-
-    ERRBIT_RANGE                      = 0x08,
-    // Set to 1 if the instruction sent is out of range
-
-    ERRBIT_OVERHEAT                   = 0x04,
-    // Set to 1 if the module temp is above operating temp defined in control table
-
-    ERRBIT_ANGLE                      = 0x02,
-    // Set to 1 if the Goal position is set out of range
-
-    ERRBIT_VOLTAGE                    = 0x01
-    // Set to 1 if the input voltage is out of range
-};
-
-
-
-// Expanded Dynamixel SDK TX/RX Error code bits
-enum{
-    DXL_TXSUCCESS                     = 0x0001,
-    DXL_RXSUCCESS                     = 0x0002,
-    DXL_TXFAIL                        = 0x0004,
-    DXL_RXFAIL                        = 0x0008,
-    DXL_TXERROR                       = 0x0010,
-    DXL_BAD_INST                      = 0x0020,
-    DXL_BAD_ID                        = 0x0040,
-    DXL_NULL_DATA                     = 0x0080,
-    DXL_NULL_SIZE                     = 0x0100,
-    DXL_RXWAITING                     = 0x0200,
-    DXL_RXTIMEOUT                     = 0x0400,
-    DXL_RXLENGTH                      = 0x0800,
-    DXL_RXCHECKSUM                    = 0x1000
-};
-
-*/
 
 // Default model numbers
 #define MODEL_AX12                      12
@@ -422,38 +150,6 @@ enum{
 };
 
 #include <HaViMo2.h>
-/*
-// HaViMo2
-#define HaViMo2_ID                      100
-typedef enum {
-    Unknown                           = 0,
-    Black                             = 0,
-    Ball                              = 1,
-    Teal                              = 1,
-    Field                             = 2,
-    Red                               = 2,
-    MyGoal                            = 3,
-    Green                             = 3,
-    OppGoal                           = 4,
-    Purple                            = 4,
-    Robot                             = 5,
-    White                             = 5,
-    Cyan                              = 6,
-    Magenta                           = 7
-} HaViMo2_Color_t;
-
-typedef struct {
-    uint8_t     Index, Color;
-    uint16_t    NumPix;
-    uint32_t    SumX, SumY;
-    uint8_t     MaxX, MinX, MaxY, MinY;
-} HaViMo2_Region_t;
-
-typedef struct {
-    uint8_t             valid;
-    HaViMo2_Region_t    rb[15];
-} HaViMo2_Region_Buffer_t;
-*/
 
 // AX-12+/18F address table
 enum{

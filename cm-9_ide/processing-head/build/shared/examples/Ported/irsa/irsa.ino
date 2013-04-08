@@ -14,7 +14,7 @@
  */
 
 // My gigantic dynamixel header file
-#include <dynamixel_address_tables.h>
+#include <dxl_devices.h>
 
 #define DXL_WHEEL_ID	2
 #define DXL_IRSA_ID		100

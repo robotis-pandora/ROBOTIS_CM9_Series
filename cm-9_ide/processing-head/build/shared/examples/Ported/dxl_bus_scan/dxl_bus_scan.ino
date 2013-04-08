@@ -8,7 +8,7 @@
  */
 
 // My gigantic dynamixel header file
-#include <dynamixel_address_tables.h>
+#include <dxl_devices.h>
 
 #define DXL_BAUDRATE_NUMBER 1  // number = 1 is 1000000 bps, 34 is 57600 bps
 

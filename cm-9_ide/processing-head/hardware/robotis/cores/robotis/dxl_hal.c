@@ -143,7 +143,7 @@ void dxl_hal_set_timeout( int NumRcvByte )
 
 	//exceed range of int...
 	timer_resume(TIMER2);
-	StartDiscount(NumRcvByte*100);
+	StartDiscount(NumRcvByte*1);
 }
 
 int dxl_hal_timeout(void)
