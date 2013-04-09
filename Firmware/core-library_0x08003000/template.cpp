@@ -13,11 +13,12 @@
 * After building in eclipse CDT and using ST-LINK you can download to cm-9 series boards
 */
 void setup() {
-
+  //pinMode(16,HIGH);
 
 }
 
 void loop() {
-
+  //toggleLED();
+  //delay(100);
 
 }
