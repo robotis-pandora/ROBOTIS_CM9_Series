@@ -18,7 +18,7 @@
   by Tom Igoe (LeafLabs)
 
   ported from Maple to CM9
-  by ROBOTIS
+  by ROBOTIS,.LTD.
 */
 
 // These constants won't change.  They're used to give names

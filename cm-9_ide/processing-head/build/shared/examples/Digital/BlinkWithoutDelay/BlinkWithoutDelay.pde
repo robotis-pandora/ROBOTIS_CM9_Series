@@ -12,7 +12,7 @@
   modified for Maple 27 May 2011
   by Marti Bolivar
   modified for CM900 15 NOV 2012
-  by Sangmin Lee
+  by ROBOTIS,.LTD.
 */
 
 // Variables:

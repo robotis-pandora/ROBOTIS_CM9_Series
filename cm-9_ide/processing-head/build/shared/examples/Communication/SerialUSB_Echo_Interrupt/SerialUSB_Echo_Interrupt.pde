@@ -7,7 +7,7 @@
   
   
   created 19 Dec 2012
-  by Sangmin Lee
+  by ROBOTIS,.LTD.
 
 */
 

@@ -13,11 +13,11 @@
   You can also find all information about DYNAMIXEL
   http://support.robotis.com/
   
- Ported to CM9 from the ROBOTIS Sample 21 Oct 2012
+ Ported to CM9 from the ROBOTIS E-manual 21 Oct 2012
 */
 
 void setup() {
-    // Initialize the dynamixel SDK:
+    // Initialize the dynamixel bus:
     Dxl.begin(1);
 }
 

@@ -19,7 +19,7 @@
   Ported to the Maple 27 May 2010
   by Bryan Newbold
   Ported to the CM900 15 Nov 2012
-  by Sangmin Lee ROBOTIS
+  by ROBOTIS,.LTD.
 */
 
 // Variables will change:

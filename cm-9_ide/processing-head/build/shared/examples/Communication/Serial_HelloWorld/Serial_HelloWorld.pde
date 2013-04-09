@@ -16,7 +16,7 @@
   You can also find all information about ROBOTIS products
   http://support.robotis.com/
   
-  created 14 Nov. 2012 by ROBOTIS
+  created 14 Nov. 2012 by ROBOTIS,.LTD.
 */
 
 void setup() {

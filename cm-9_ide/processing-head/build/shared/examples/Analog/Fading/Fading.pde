@@ -9,7 +9,7 @@
   By Tom Igoe
 
   Ported to CM9 15 Nov 2012
-  by Sangmin Lee (ROBOTIS)
+  by ROBOTIS,.LTD.
   
   Modified by LeafLabs for Maple
   Modified by ROBITIS for CM900 again

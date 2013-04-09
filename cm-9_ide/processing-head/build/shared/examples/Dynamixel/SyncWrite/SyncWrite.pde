@@ -13,7 +13,7 @@
   You can also find all information about DYNAMIXEL
   http://support.robotis.com/
   
-  created 14 Nov. 2012  ported to CM9  by ROBOTIS
+  created 14 Nov. 2012  ported to CM9  by ROBOTIS,.LTD.
 */
 
 #define P_GOAL_POSITION_L   30

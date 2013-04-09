@@ -13,7 +13,7 @@
   by Tom Igoe and everyone who's ever used Arduino
 
   Ported to Maple 27 May, 2010 by Bryan Newbold
-  Ported to CM9 15 Nov, 2012 by Sangmin Lee (ROBOTIS)
+  Ported to CM9 15 Nov, 2012 by ROBOTIS,.LTD.
 */
 
 // Analog input pin.  You may need to change this number if your board

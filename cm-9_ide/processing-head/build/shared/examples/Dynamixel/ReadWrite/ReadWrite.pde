@@ -13,7 +13,7 @@
   You can also find all information about DYNAMIXEL
   http://support.robotis.com/
 
-  created 14 Nov. 2012  ported to CM9  by ROBOTIS
+  created 14 Nov. 2012  ported to CM9  by ROBOTIS,.LTD.
 */
 
 
@@ -32,7 +32,7 @@ word  GoalPos[2] = {0, 1023};
 
 void setup() {
   Dxl.begin(1);
-  //print to USART2 Zigbee port
+  //for print over the SerialUSB
   SerialUSB.begin();
 }
 

@@ -14,7 +14,7 @@
   by Bryan Newbold; thanks adamfeuer!
   
   ported to CM9 15 Nov 2012
-  by Sangmin Lee ROBOTIS,.LTD.
+  by ROBOTIS,.LTD.
 */
 
 // Variables:

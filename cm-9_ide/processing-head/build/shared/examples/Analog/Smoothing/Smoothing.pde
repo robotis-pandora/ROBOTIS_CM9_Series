@@ -16,7 +16,7 @@
   Ported to Maple 27 May 2010
   by Bryan Newbold
   Ported to CM900 15 Nov 2012
-  by Sangmin Lee (ROBITIS)
+  by ROBOTIS,.LTD.
 */
 
 // Define the number of samples to keep track of.  The higher the number,

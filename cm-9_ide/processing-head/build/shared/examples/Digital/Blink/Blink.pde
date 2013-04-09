@@ -5,7 +5,7 @@
  repeatedly.
 
  Ported to CM9 Series from the Arduino example 27 May 2011
- By Sangmin Lee (ROBOTIS,.LTD.)
+ By ROBOTIS,.LTD.
 */
 
 void setup() {

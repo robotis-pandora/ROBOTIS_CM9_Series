@@ -5,13 +5,14 @@
  pressed.
 
   Cirtuit:
-  Pin 2 is connected to button 
+  CM-9 do not have a built-in button unlike Maple board, 
+  so Pin 2 must be connected to button 
   
  Ported to Maple from the Arduino example 27 May 2011
  by Marti Bolivar
  
   Ported to CM900 from the Maple example 15 Nov 2012
- by Sangmin Lee
+ by ROBOTIS,.LTD.
 */
 
 int buttonPin = 2; // Button pin is connected to pin 2

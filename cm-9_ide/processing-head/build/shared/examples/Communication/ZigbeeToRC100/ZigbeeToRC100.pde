@@ -18,11 +18,11 @@
   You can also find all information about ROBOTIS products
   http://support.robotis.com/
   
-  created 19 Dec 2012 by ROBOTIS
+  created 19 Dec 2012 by ROBOTIS,.LTD.
 */
 void setup() {
   pinMode(BOARD_LED_PIN, OUTPUT);
-  afio_cfg_debug_ports(AFIO_DEBUG_NONE);
+  disableDebugPorts();
   zgbInitialize(0);
   SerialUSB.begin();
 }

@@ -1,6 +1,6 @@
 /*
  *******************************************************************************
- *  Timer Interrupt Example (CM-900 version)
+ *  Timer Interrupt Example (CM-9 version)
  *******************************************************************************
  *  This program is based on Maple tutorial ( www.leaflabs.com )
  *  You can learn how to implement timer interrupt in cm-9 IDE  
@@ -8,7 +8,7 @@
  *  Don't use the channel 1 of timer 2 because it is already used in dynamixel!
  *  Please try to use another timer and its channel.
  *******************************************************************************
- *  modified by ROBOTIS 2012-12-29  
+ *  modified by ROBOTIS,.LTD. 2012-12-29  
  *******************************************************************************
  */
 

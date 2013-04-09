@@ -16,7 +16,7 @@
   by Bryan Newbold
   
   Ported from Maple to CM9 15 Nov 2012
-  by Sangmin Lee (ROBOTIS)
+  by ROBOTIS,.LTD.
 */
 
 int sensorPin = 0;   // Select the input pin for the potentiometer

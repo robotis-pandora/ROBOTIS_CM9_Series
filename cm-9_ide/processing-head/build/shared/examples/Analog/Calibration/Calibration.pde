@@ -24,7 +24,7 @@
   Ported to Maple 27 May 2010
   by Bryan Newbold
   Ported to CM9 15 Nov 2012
-  by sm.lee (ROBOTIS)
+  by ROBOTIS,.LTD.
 */
 
 // Constant (won't change):

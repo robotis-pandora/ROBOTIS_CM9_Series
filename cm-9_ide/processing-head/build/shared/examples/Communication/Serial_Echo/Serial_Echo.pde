@@ -16,11 +16,11 @@
   You can also find all information about ROBOTIS products
   http://support.robotis.com/
   
-  created 19 Dec 2012 by ROBOTIS
+  created 19 Dec 2012 by ROBOTIS,.LTD.
 */
 
 void setup(){
-  //USB Serial initialize
+  //Serial2 Serial initialize
   Serial2.begin(57600);
 }
 void loop(){
