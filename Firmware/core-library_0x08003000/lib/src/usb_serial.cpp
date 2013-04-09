@@ -40,7 +40,11 @@ USBSerial::USBSerial(void) {
 }
 
 void USBSerial::begin(void) {
-    setupUSB();
+	/*
+	 * [ROBOTIS][CHANGE] 2013-04-08 prevent to conflict other devices
+	 * because setupUSB() is already initiated when board turn on.
+	 * */
+    //setupUSB();
 }
 
 void USBSerial::end(void) {
