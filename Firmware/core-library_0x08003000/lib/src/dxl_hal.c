@@ -5,7 +5,6 @@
  * 
  */
 
-
 #include "dxl_hal.h"
 #include "usart.h"
 #include "timer.h"
@@ -37,6 +36,7 @@ int dxl_hal_open( int devIndex, int baudrate )
 	usart_init(USART1);
 	//TxDStringC("USART clock = ");TxDHex32C(STM32_PCLK2);TxDStringC("\r\n");
 	usart_set_baud_rate(USART1, STM32_PCLK2, baudrate);
+	nvic_irq_set_priority(USART1->irq_num, 0);//[ROBOTIS][ADD] 2013-04-10 set to priority 0 to prevent from being preempted by other irq.
 	usart_enable(USART1);
 
 
@@ -144,7 +144,7 @@ void dxl_hal_set_timeout( int NumRcvByte )
 
 	//exceed range of int...
 	timer_resume(TIMER2);
-	StartDiscount(NumRcvByte*100);
+	StartDiscount(NumRcvByte);//[ROBOTIS][CHANGE] decrease timeout interval
 }
 
 int dxl_hal_timeout(void)
