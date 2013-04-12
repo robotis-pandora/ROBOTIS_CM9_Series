@@ -376,11 +376,12 @@ public class Serial implements SerialPortEventListener {
 	        	   
 	        	   //System.out.println("Enter Detected -> buffer is = "+serialReply);
 	        	   if(serialReply.equals(downloadReady)){
-	        		  // System.out.println("Download start ");
+	        		   //System.out.println("[Serial]Download Ready... ");
+	        		   robotisSharedObject.setBoardIsExist(); //notify ready of download to SO(shared object)
 	        		   DownloadBinaryViaSerial();
 	        		 }
 	        	   else if(serialReply.equals(downloadSuccess)){
-	        		   System.out.println("[ROBOTIS] Download is success!");
+	        		   //System.out.println("[Serial] Download is success!");
 	        		   
 	        		   robotisSharedObject.barkingDog(true);
 	       		   
@@ -388,7 +389,7 @@ public class Serial implements SerialPortEventListener {
 	        	   else if(serialReply.equals(downloadFail)){
 	        		   //proxyEditorForThreadControl.unlockExportThread();
 	        		 
-	        		   System.out.println("[ROBOTIS] Download is fail -> try one more");
+	        		   //System.out.println("[Serial] Download is fail -> try one more");
 	        		   robotisSharedObject.barkingDog(false);
 	        		   
 	        		  
@@ -478,7 +479,7 @@ public class Serial implements SerialPortEventListener {
 	    System.out.println("[ROBOTIS]binary size : "+file.length()+"Bytes");*/
 		checkSumByte = ArmCompiler.getChecksumOfBinary(); //[ROBOTIS]2012-12-19 change method to calculate checksum for mac OS x
 		String outTemp = String.format("0x%x", checkSumByte);
-		System.out.println("Checksum : "+outTemp);
+		//System.out.println("Checksum : "+outTemp);
 		//SerialWrite(checkSumByte);
 		port.setDTR(true);
 		write(checkSumByte);

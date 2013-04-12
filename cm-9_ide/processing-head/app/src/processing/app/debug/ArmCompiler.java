@@ -191,7 +191,7 @@ public class ArmCompiler extends Compiler {
     // Compile assembly files
     for (File file : findFilesInPath(sourcePath, "S", recurse)) { //[ROBOTIS] changed "S" -> "s" to compile startup assembly code
       if(verboseOut != true)
-    	  System.out.print(".");
+    	 // System.out.print(".");
       execAsynchronously(getCommandCompilerS(includePaths,
                                              file.getAbsolutePath(),
                                              buildPath,
@@ -204,7 +204,7 @@ public class ArmCompiler extends Compiler {
     for (File file : findFilesInPath(sourcePath, "c", recurse)) {
       //System.out.println("[ArmCompiler]compileFiles() file name : "+file);
       if(verboseOut != true)
-    	  System.out.print(".");
+    	  //System.out.print(".");
       execAsynchronously(getCommandCompilerC(includePaths,
                                              file.getAbsolutePath(),
                                              buildPath,
@@ -216,7 +216,7 @@ public class ArmCompiler extends Compiler {
     // Compile C++ files
     for (File file : findFilesInPath(sourcePath, "cpp", recurse)) {
       if(verboseOut != true)
-      	  System.out.print(".");
+      	  //System.out.print(".");
       execAsynchronously(getCommandCompilerCPP(includePaths,
                                                file.getAbsolutePath(),
                                                buildPath,

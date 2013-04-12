@@ -206,7 +206,7 @@ public class Editor extends JFrame implements RunnerListener {
   Runnable presentHandler;
   Runnable stopHandler;
   Runnable exportHandler;
-  Runnable exportAppHandler;
+  //Runnable exportAppHandler;
 
 
   public Editor(Base ibase, String path, int[] location) {
@@ -1486,12 +1486,12 @@ public class Editor extends JFrame implements RunnerListener {
 
   public void setHandlers(Runnable runHandler, Runnable presentHandler,
                           Runnable stopHandler,
-                          Runnable exportHandler, Runnable exportAppHandler) {
+                          Runnable exportHandler) {
     this.runHandler = runHandler;
     this.presentHandler = presentHandler;
     this.stopHandler = stopHandler;
     this.exportHandler = exportHandler;
-    this.exportAppHandler = exportAppHandler;
+    
   }
 
 
@@ -1500,7 +1500,7 @@ public class Editor extends JFrame implements RunnerListener {
     presentHandler = new DefaultPresentHandler();
     stopHandler = new DefaultStopHandler();
     exportHandler = new DefaultExportHandler();
-    exportAppHandler = new DefaultExportAppHandler();
+   
   }
 
 
@@ -1990,10 +1990,10 @@ public class Editor extends JFrame implements RunnerListener {
     public void run() {
     	
       try {
-    	if(boardPrefs.get("name") != null)
+    	/*if(boardPrefs.get("name") != null)
     		System.out.println(boardPrefs.get("name")+" Start compile");
     	else
-    		System.out.println("[ROBOTIS] Start compile");
+    		System.out.println("[ROBOTIS] Start compile");*/
         sketch.prepare();
         sketch.build(false);        
         statusNotice(_("Done compiling."));
@@ -2505,7 +2505,8 @@ public class Editor extends JFrame implements RunnerListener {
     //status.progress(_("Uploading to I/O Board..."));
     status.progress("Downloading to I/O Board...");
     
-    new Thread(usingProgrammer ? exportAppHandler : exportHandler).start();
+    //new Thread(usingProgrammer ? exportAppHandler : exportHandler).start();
+    new Thread(exportHandler).start();
   }
  
   // DAM: in Arduino, this is upload
@@ -2518,10 +2519,12 @@ public class Editor extends JFrame implements RunnerListener {
       String buildPath = null;
       //System.out.println("Upload Thread start");
 	  try {
-		  if(boardPrefs.get("name") != null)
+		  /*if(boardPrefs.get("name") != null)
 			  System.out.println(boardPrefs.get("name")+" Start download");
 		  else
-			  System.out.println("[ROBOTIS] Start download");
+			  System.out.println("[ROBOTIS] Start download");*/
+		  
+		  statusNotice(boardPrefs.get("name")+" Start download");
 		  uploadSerialRobotis = new Serial(115200, sharedObject);
 		  
 		  uploadSerialRobotis.sendDtrNegativeEdge();
@@ -2554,9 +2557,10 @@ public class Editor extends JFrame implements RunnerListener {
         if (success) {
           //testForPandora.dispose();
           //statusNotice(_("Done uploading."));
-        	statusNotice("Compile finished and flash-writing start");
+        	statusNotice("Compile finished...");
         } else {
-        	System.out.println("[ROBOTIS] Download stop");
+        	//System.out.println("[ROBOTIS] Download stop");
+        	statusError("Compile Error!");
         	uploadSerialRobotis.dispose();
         	return; //stop download
           // error message will already be visible
@@ -2567,8 +2571,9 @@ public class Editor extends JFrame implements RunnerListener {
         else if (serialPrompt()) run();
         else statusNotice(_("Upload canceled."));
       } catch (RunnerException e) {
-    	  System.out.println("[ROBOTIS] Compile error -> Download stop");
-    	  uploadSerialRobotis.dispose();
+    	//System.out.println("[ROBOTIS] Compile error -> Download stop");
+    	statusError("Compile Error!");
+    	uploadSerialRobotis.dispose();
       	  
         //statusError("Error during upload.");
         //e.printStackTrace();
@@ -2579,7 +2584,8 @@ public class Editor extends JFrame implements RunnerListener {
         toolbar.deactivate(EditorToolbar.EXPORT);
         return; //stop download
       } catch (Exception e) {
-    	  System.out.println("[ROBOTIS] Download stop");
+    	  //System.out.println("[ROBOTIS] Download stop");
+    	statusError("Downlod stop!");
         e.printStackTrace();
         uploadSerialRobotis.dispose();
         uploading = false;
@@ -2592,7 +2598,8 @@ public class Editor extends JFrame implements RunnerListener {
 		uploadSerialRobotis = new Serial(115200,sharedObject);
       } catch (SerialException e1) {
 		// TODO Auto-generated catch block
-    	System.out.println("[ROBOTIS] Re-connect fail -> Reset your board and press download button");
+    	//System.out.println("[ROBOTIS] Re-connect fail -> Reset your board and press download button");
+    	statusError("Serial Exception occurs");
 		e1.printStackTrace();
 		uploading = false;
         //toolbar.clear();
@@ -2600,20 +2607,22 @@ public class Editor extends JFrame implements RunnerListener {
 		return;
       }
       if(uploadSerialRobotis.IsConnectedSerial() == false){
-    	  System.out.println("[ROBOTIS] Re-connect fail -> Reset your board and press download button");
+    	  //System.out.println("[ROBOTIS] Re-connect fail -> Reset your board and press download button");
+    	  statusError("Re-connect Fail!");
     	  uploading = false;
           //toolbar.clear();
           toolbar.deactivate(EditorToolbar.EXPORT);
     	  return;
       }
+      statusNotice("Flash-writing started...");
       uploadSerialRobotis.SetBinaryPath(buildPath);
-      System.out.println(buildPath);
+      //System.out.println(buildPath);
       //[ROBOTIS]Failing the flash-download, it downloads infinitely until  dSuccess is true 
       boolean dSuccess = false;
       int count=0;
       while(dSuccess != true){
     	  
-    	  try {
+    	try {
   			Thread.sleep(200);
   		} catch (InterruptedException e) {
   			// TODO Auto-generated catch block
@@ -2623,13 +2632,28 @@ public class Editor extends JFrame implements RunnerListener {
       	  
      	//System.out.println("[ROBOTIS]Transmit the download signal");
      	uploadSerialRobotis.write("AT&LD");
-      		  		
+     	     	
         count++;
-        System.out.println("[ROBOTIS] Download is running...("+count+")");
-        dSuccess = sharedObject.sleepingBaby();
+        //System.out.println("[ROBOTIS] Download is running...("+count+")");
+        dSuccess = sharedObject.sleepingBaby();//we need to check if board is valid status
+        if(sharedObject.getBoardIsExist() == false){
+        	//System.out.println("[ROBOTIS] Download stop");
+        	
+        	status.unprogress();
+        	statusError("Board is not responding");
+        	uploadSerialRobotis.dispose();
+            uploading = false;
+            //toolbar.clear();
+            toolbar.deactivate(EditorToolbar.EXPORT);
+        	return;        	
+        }	
+     	if( dSuccess == false)
+     		statusNotice("Download Fail -> Try again");
+     	else
+     		statusNotice("Download Success");
       }
-      
-      System.out.println("[ROBOTIS] Execute a new application");
+      //statusNotice("Execute application");
+      //System.out.println("[ROBOTIS] Execute a new application");
       try {
   		Thread.sleep(100);
 	  	} catch (InterruptedException e) {
@@ -2639,12 +2663,7 @@ public class Editor extends JFrame implements RunnerListener {
       //System.out.println("[ROBOTIS]Transmit the execution signal");
       uploadSerialRobotis.write("AT&GO");
       statusNotice("Done downloading.");
-	 /* try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-	  }*/
+
 	  uploadSerialRobotis.dispose();
 	  
 	  status.unprogress();
@@ -2654,129 +2673,6 @@ public class Editor extends JFrame implements RunnerListener {
 	 }//end of run()
   }
 
-  // DAM: in Arduino, this is upload (with verbose output)
-  class DefaultExportAppHandler implements Runnable {
-    public void run() {
-
-        String buildPath = null;
-        //System.out.println("Upload Thread start");
-  	  try {
-  		if(boardPrefs.get("name") != null)
-  			System.out.println(boardPrefs.get("name")+" Start download with log output");
-		  else
-			  System.out.println("[ROBOTIS] Start download with log output");
-  		  uploadSerialRobotis = new Serial(115200, sharedObject);
-  		  
-  		  uploadSerialRobotis.sendDtrNegativeEdge();
-  		  
-  	  	//board type CM900 is our first engineering sample, so don't have new bootloader
-  		//[ROBOTIS] changes download sequence. we add sending string to CM9 board in reset procedure.
-  		  
-  		  //System.out.println("[ROBOTIS]Transmit the reset signal");
-  	      uploadSerialRobotis.write("CM9X");      	    
-  		
-  	      uploadSerialRobotis.dispose();
-  		  //uploadSerialRobotis = null;
-  	    	 
-  		} catch (SerialException e) {
-  			// TODO Auto-generated catch block
-  			e.printStackTrace();
-  	  }
-      try {
-        serialMonitor.closeSerialPort();
-        serialMonitor.setVisible(false);
-        
-        uploading = true;
-        
-        
-        boolean success = sketch.exportApplet(true);
-        buildPath = sketch.GetFullBuildBinaryPath();
-        if (success) {
-          //statusNotice(_("Done uploading."));
-        	statusNotice("Comile finished and flash-writing start");
-        } else {
-        	System.out.println("[ROBOTIS] Download stop");
-        	uploadSerialRobotis.dispose();
-        	return; //stop download
-          // error message will already be visible
-        }
-      } catch (SerialNotFoundException e) {
-        populateSerialMenu();
-        if (serialMenu.getItemCount() == 0) statusError(e);
-        else if (serialPrompt()) run();
-        else statusNotice(_("Upload canceled."));
-      } catch (RunnerException e) {
-        //statusError("Error during upload.");
-        //e.printStackTrace();
-    	  
-    	  System.out.println("[ROBOTIS] Compile error -> Download stop");
-    	  uploadSerialRobotis.dispose();
-      	  
-        //statusError("Error during upload.");
-        //e.printStackTrace();
-        status.unprogress();
-        statusError(e);
-        uploading = false;
-        //toolbar.clear();
-        toolbar.deactivate(EditorToolbar.EXPORT);
-        return; //stop download
-      } catch (Exception e) {
-        
-        System.out.println("[ROBOTIS] Download stop");
-        e.printStackTrace();
-        uploadSerialRobotis.dispose();
-        uploading = false;
-        //toolbar.clear();
-        toolbar.deactivate(EditorToolbar.EXPORT);
-        return;
-      }
-     
-      //After compile, open the serial port again for flash download
-      try {
-		uploadSerialRobotis = new Serial(115200,sharedObject);
-      } catch (SerialException e1) {
-		// TODO Auto-generated catch block
-		e1.printStackTrace();
-      }
-      if(uploadSerialRobotis.IsConnectedSerial() == false){
-    	  System.out.println("[ROBOTIS] Re-connect fail -> Reset your board and press download button");
-          uploading = false;
-          //toolbar.clear();
-          toolbar.deactivate(EditorToolbar.EXPORT);
-    	  return;
-      }
-      uploadSerialRobotis.SetBinaryPath(buildPath);
-      //[ROBOTIS]Failing the flash-download, it downloads infinitely until  dSuccess is true 
-      boolean dSuccess = false;
-      int count=0;
-      while(dSuccess != true){
-    	  
-        try {
-  			Thread.sleep(200);
-  		} catch (InterruptedException e) {
-  			// TODO Auto-generated catch block
-  			e.printStackTrace();
-  		}
-    	  
-     	uploadSerialRobotis.write("AT&LD");
-      		  		
-        count++;
-        System.out.println("[ROBOTIS] Wait... until uploading is finished["+count+" try]");
-        dSuccess = sharedObject.sleepingBaby();
-      }
-      
-      System.out.println("[ROBOTIS] Execute a new application");
-      
-      uploadSerialRobotis.write("AT&GO");
-      statusNotice("Done downloading.");
-      uploadSerialRobotis.dispose();
-      
-      status.unprogress();
-      uploading = false;
-      //toolbar.clear();
-      toolbar.deactivate(EditorToolbar.EXPORT);
-    }
-  }
 
   /**
    * Checks to see if the sketch has been modified, and if so,
@@ -2827,7 +2723,7 @@ public class Editor extends JFrame implements RunnerListener {
   }
 
 
-  protected void handleBurnBootloader() {
+/*  protected void handleBurnBootloader() {
     console.clear();
     statusNotice(_("Burning bootloader to I/O Board (this may take a minute)..."));
     SwingUtilities.invokeLater(new Runnable() {
@@ -2850,7 +2746,7 @@ public class Editor extends JFrame implements RunnerListener {
         }
       }});
   }
-
+*/
 
   /**
    * Handler for File &rarr; Page Setup.
