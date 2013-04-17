@@ -32,63 +32,70 @@
 #ifndef _HAVIMO2_H_
 #define _HAVIMO2_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include "Dynamixel.h"
 
-// HaViMo2
-#define HaViMo2_ID                      100
-typedef enum {
-    Unknown                           = 0,
-    Black                             = 0,
-    Ball                              = 1,
-    Teal                              = 1,
-    Field                             = 2,
-    Red                               = 2,
-    MyGoal                            = 3,
-    Green                             = 3,
-    OppGoal                           = 4,
-    Purple                            = 4,
-    Robot                             = 5,
-    White                             = 5,
-    Cyan                              = 6,
-    Magenta                           = 7
-} HaViMo2_Color_t;
+class HaViMo2_Controller
+{
+public:
+	// HaViMo2
+	#define HaViMo2_ID                      100
+	typedef enum {
+		Unknown                           = 0,
+		Black                             = 0,
+		Ball                              = 1,
+		Teal                              = 1,
+		Field                             = 2,
+		Red                               = 2,
+		MyGoal                            = 3,
+		Green                             = 3,
+		OppGoal                           = 4,
+		Purple                            = 4,
+		Robot                             = 5,
+		White                             = 5,
+		Cyan                              = 6,
+		Magenta                           = 7
+	} HaViMo2_Color_t;
 
-typedef struct {
-    uint8_t     Index, Color;
-    uint16_t    NumPix;
-    uint32_t    SumX, SumY;
-    uint8_t     MaxX, MinX, MaxY, MinY;
-} HaViMo2_Region_t;
+private:
+	typedef struct {
+		uint8_t     Index, Color;
+		uint16_t    NumPix;
+		uint32_t    SumX, SumY;
+		uint8_t     MaxX, MinX, MaxY, MinY;
+	} HaViMo2_Region_t;
 
-typedef struct {
-    uint8_t             valid;
-    HaViMo2_Region_t    rb[15];
-} HaViMo2_Region_Buffer_t;
+	typedef struct {
+		uint8_t             valid;
+		HaViMo2_Region_t    rb[15];
+	} HaViMo2_Region_Buffer_t;
 
+	HaViMo2_Region_Buffer_t hvm2rb;
 
-/**
- * Wrapper function to begin an image capture with the HaViMo2 camera module.
- * @param id HaViMo2 camera ID (fixed as 100 in HaViMo2 firmware).
- * @see dxl_recover() and havGet()
- */
-void havCap(uint8_t id);
-/**
- * Wrapper function to retrieve an image buffer from a HaViMo2 camera module.
- * @param id HaViMo2 camera ID (fixed as 100 in HaViMo2 firmware).
- * @param hvm2rb Pointer to a user region buffer data type.
- * @see havCap()
- * @return The number of valid regions found in the image.
- */
-uint8_t havGet(uint8_t id, HaViMo2_Region_Buffer_t* hvm2rb);
+public:
+	/**
+	 * Function to begin an image capture with the HaViMo2 camera module.
+	 * @see recover()
+	 */
+	void capture(void);
+	/**
+	 * Function to check if HaViMo2 has finished capturing image.
+	 * @see capture() and recover()
+	 */
+	bool ready(void);
+	/**
+	 * Function to retrieve an image buffer from a HaViMo2 camera module.
+	 * @param hvm2rb Pointer to a user region buffer data type.
+	 * @see capture() and ready()
+	 * @return The number of valid regions found in the image.
+	 */
+	uint8_t recover(void);
 
-
-#ifdef __cplusplus
+	uint8_t regions(void);
+	uint8_t color(uint8_t region_index);
+	uint16_t size(uint8_t region_index);
+	uint8_t avgX(uint8_t region_index);
+	uint8_t avgY(uint8_t region_index);
 }
-#endif
 
 #endif
