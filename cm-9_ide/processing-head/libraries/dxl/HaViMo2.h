@@ -35,27 +35,28 @@
 #include <stdint.h>
 #include "Dynamixel.h"
 
+// HaViMo2
+#define HaViMo2_ID                      100
+typedef enum {
+	Unknown                           = 0,
+	Black                             = 0,
+	Ball                              = 1,
+	Teal                              = 1,
+	Field                             = 2,
+	Red                               = 2,
+	MyGoal                            = 3,
+	Green                             = 3,
+	OppGoal                           = 4,
+	Purple                            = 4,
+	Robot                             = 5,
+	White                             = 5,
+	Cyan                              = 6,
+	Magenta                           = 7
+} HaViMo2_Color_t;
+
 class HaViMo2_Controller
 {
 public:
-	// HaViMo2
-	#define HaViMo2_ID                      100
-	typedef enum {
-		Unknown                           = 0,
-		Black                             = 0,
-		Ball                              = 1,
-		Teal                              = 1,
-		Field                             = 2,
-		Red                               = 2,
-		MyGoal                            = 3,
-		Green                             = 3,
-		OppGoal                           = 4,
-		Purple                            = 4,
-		Robot                             = 5,
-		White                             = 5,
-		Cyan                              = 6,
-		Magenta                           = 7
-	} HaViMo2_Color_t;
 
 private:
 	typedef struct {
@@ -96,6 +97,6 @@ public:
 	uint16_t size(uint8_t region_index);
 	uint8_t avgX(uint8_t region_index);
 	uint8_t avgY(uint8_t region_index);
-}
+};
 
 #endif

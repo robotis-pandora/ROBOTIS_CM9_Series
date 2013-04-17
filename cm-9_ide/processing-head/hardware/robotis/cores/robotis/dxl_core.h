@@ -9,7 +9,6 @@ extern "C" {
 
 #include "dxl_hal.h"
 #include "dxl_constants.h"
-#include "HaViMo2.h"
 
 ///////////// device control methods ////////////////////////
 int dxl_initialize( int devIndex, int baudnum );

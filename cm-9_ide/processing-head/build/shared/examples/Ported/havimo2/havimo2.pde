@@ -147,25 +147,24 @@ int ProcessImage(uint8_t TrackingColor)
 	{
 		if (hvm2.color(iter)==TrackingColor)
 		{
-				matches++;
+			matches++;
 
 #ifdef VERBOSE_IMAGE_PROCESSING
-				if (matches == 1)
-				{
-					SerialUSB.print("\nNumber of Regions found: ");
-					SerialUSB.print(valid_regions);
-					SerialUSB.print("\nColor Matched Regions: ");
-				}
-				SerialUSB.print(i+1);
-				SerialUSB.print(" ");
+			if (matches == 1)
+			{
+				SerialUSB.print("\nNumber of Regions found: ");
+				SerialUSB.print(valid_regions);
+				SerialUSB.print("\nColor Matched Regions: ");
+			}
+			SerialUSB.print(iter+1);
+			SerialUSB.print(" ");
 #endif
-				// bigger than the last region found
-				if(hvm2.size(i)>TrackFound)
-				{
-					Targetx=hvm2.avgX(iter);
-					Targety=hvm2.avgY(iter);
-					TrackFound=hvm2.size(iter);
-				}
+			// bigger than the last region found
+			if(hvm2.size(iter)>TrackFound)
+			{
+				Targetx=hvm2.avgX(iter);
+				Targety=hvm2.avgY(iter);
+				TrackFound=hvm2.size(iter);
 			}
 		}
 	}
