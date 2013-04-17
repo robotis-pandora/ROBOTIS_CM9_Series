@@ -346,8 +346,8 @@
       <param name="target.path" value="linux/work" />
     </antcall>
 
-    <copy todir="linux/work" file="linux/dist/arduino" />
-    <chmod perm="755" file="linux/work/arduino" />
+    <copy todir="linux/work" file="linux/dist/robotis" />
+    <chmod perm="755" file="linux/work/robotis" />
 
 <!--     <copy todir="linux/work/hardware">
       <fileset dir="linux/dist" includes="tools/**" />
@@ -379,12 +379,12 @@
   
   <target name="linux32-run" depends="linux32-build" 
 	  description="Run Linux (32-bit) version">
-    <exec executable="./linux/work/arduino" spawn="false"/>
+    <exec executable="./linux/work/robotis" spawn="false"/>
   </target>
   
   <target name="linux64-run" depends="linux64-build" 
 	  description="Run Linux (64-bit) version">
-    <exec executable="./linux/work/arduino" spawn="false"/>
+    <exec executable="./linux/work/robotis" spawn="false"/>
   </target>
 
   <target name="linux-dist" depends="build" 

@@ -33,7 +33,14 @@ void setup()
 	//   downloading new code, and you will get errors
     delay(10000);
 	SerialUSB.print("Send any value to continue...\n");
-	while(!SerialUSB.available());
+	while(!SerialUSB.available())
+	{
+		delay(1000);
+		digitalWrite(BOARD_LED_PIN, LOW);
+		SerialUSB.print("Send any value to continue...\n");
+		delay(1000);
+		digitalWrite(BOARD_LED_PIN, HIGH);
+	}
 	SerialUSB.print("Now starting program\n");
 
 	Dxl.writeWord(DXL_WHEEL_ID, AXM_CW_ANGLE_LIMIT_L, 0);
