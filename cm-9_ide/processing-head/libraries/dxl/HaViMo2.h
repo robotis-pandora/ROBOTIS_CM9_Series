@@ -76,7 +76,7 @@ private:
 public:
 	/**
 	 * Function to begin an image capture with the HaViMo2 camera module.
-	 * @see recover()
+	 * @see ready() and recover()
 	 */
 	void capture(void);
 	/**
@@ -86,16 +86,40 @@ public:
 	bool ready(void);
 	/**
 	 * Function to retrieve an image buffer from a HaViMo2 camera module.
-	 * @param hvm2rb Pointer to a user region buffer data type.
 	 * @see capture() and ready()
 	 * @return The number of valid regions found in the image.
 	 */
 	uint8_t recover(void);
 
+	/**
+	 * Function to retrieve number of valid regions in buffer.
+	 * @see recover()
+	 * @return The number of valid regions found in the image.
+	 */
 	uint8_t regions(void);
+	/**
+	 * Function to retrieve the color of this region index.
+	 * @see size() and avgX() and avgY()
+	 * @return The color of the valid region, else 0xFF.
+	 */
 	uint8_t color(uint8_t region_index);
+	/**
+	 * Function to retrieve the number of pixels in this region index.
+	 * @see color() and avgX() and avgY()
+	 * @return The size of the valid region, else 0.
+	 */
 	uint16_t size(uint8_t region_index);
+	/**
+	 * Function to X-centroid of the color of this region index.
+	 * @see color() and size() and and avgY()
+	 * @return The X-location of the valid region center, else 0.
+	 */
 	uint8_t avgX(uint8_t region_index);
+	/**
+	 * Function to Y-centroid of the color of this region index.
+	 * @see color() and size() and and avgX()
+	 * @return The Y-location of the valid region center, else 0.
+	 */
 	uint8_t avgY(uint8_t region_index);
 };
 
