@@ -19,11 +19,18 @@ void setup()
 
 	pinMode(BOARD_LED_PIN, OUTPUT);
 
-	// Waits 10 seconds for you to open the console (open too quickly after
+	// Waits 5 seconds for you to open the console (open too quickly after
 	//   downloading new code, and you will get errors
-	delay(10000);
+	delay(5000);
 	SerialUSB.print("Send any value to continue...\n");
-	while(!SerialUSB.available());
+	while(!SerialUSB.available())
+	{
+		delay(1000);
+		digitalWrite(BOARD_LED_PIN, LOW);
+		SerialUSB.print("Send any value to continue...\n");
+		delay(1000);
+		digitalWrite(BOARD_LED_PIN, HIGH);
+	}
 }
 
 void loop()
@@ -70,9 +77,9 @@ void loop()
 	// Indicate search is finished by toggling the LED endlessly
 	while(1)
 	{
-		digitalWrite(BOARD_LED_PIN, HIGH);
-		delay(100);
 		digitalWrite(BOARD_LED_PIN, LOW);
+		delay(100);
+		digitalWrite(BOARD_LED_PIN, HIGH);
 		delay(100);
 	}
 }
