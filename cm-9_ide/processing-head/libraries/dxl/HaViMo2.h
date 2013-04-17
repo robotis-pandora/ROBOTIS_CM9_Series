@@ -1,6 +1,6 @@
 /*
  *******************************************************************************
- *  HaViMo2.h - 2013-04-05-1402
+ *  HaViMo2.h - 2013-04-17
  *******************************************************************************
  *  A header file of questionable quality for using the HaViMo2
  *  
@@ -11,7 +11,7 @@
  *   'Dynamixel' is property of Robotis, Inc.
  *      http://www.robotis.com
  *  
- *  Copyright (c) 2011, 2012 Matthew Paulishen. All rights reserved.
+ *  Copyright (c) 2011, 2012, 2013 Matthew Paulishen. All rights reserved.
  *  
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include "Dynamixel.h"
 
 // HaViMo2
 #define HaViMo2_ID                      100
@@ -68,6 +69,23 @@ typedef struct {
     uint8_t             valid;
     HaViMo2_Region_t    rb[15];
 } HaViMo2_Region_Buffer_t;
+
+
+/**
+ * Wrapper function to begin an image capture with the HaViMo2 camera module.
+ * @param id HaViMo2 camera ID (fixed as 100 in HaViMo2 firmware).
+ * @see dxl_recover() and havGet()
+ */
+void havCap(uint8_t id);
+/**
+ * Wrapper function to retrieve an image buffer from a HaViMo2 camera module.
+ * @param id HaViMo2 camera ID (fixed as 100 in HaViMo2 firmware).
+ * @param hvm2rb Pointer to a user region buffer data type.
+ * @see havCap()
+ * @return The number of valid regions found in the image.
+ */
+uint8_t havGet(uint8_t id, HaViMo2_Region_Buffer_t* hvm2rb);
+
 
 #ifdef __cplusplus
 }
