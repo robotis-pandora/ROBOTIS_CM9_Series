@@ -81,7 +81,6 @@ public:
     void txPacket(void);
     void rxPacket(void);
     void txrxPacket(void);
-
 };
 
 
