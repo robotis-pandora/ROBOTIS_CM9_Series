@@ -297,6 +297,7 @@ void usart_detach_interrupt(usart_dev *dev){
 /*
  * Interrupt handlers.
  */
+#include "usb_type.h"
 
 static inline void usart_irq(usart_dev *dev) {
 #ifdef USART_SAFE_INSERT
@@ -309,28 +310,36 @@ static inline void usart_irq(usart_dev *dev) {
     rb_push_insert(dev->rb, (uint8)dev->regs->DR);
 #endif
 }
+
 extern volatile byte  gbDXLWritePointer;
-//volatile byte  gbDXLReadPointer;
 extern volatile byte  gbpDXLDataBuffer[256];
-//for zigbee library
-extern volatile byte	gbPacketWritePointer; // PC, Wireless
-extern volatile byte	gbpPacketDataBuffer[16+1+16];
 extern uint8 gbIsDynmixelUsed; //[ROBOTIS]2012-12-13
-extern uint8 gbIsZigbeeUsed; //[ROBOTIS]2012-12-13
+
 
 void __irq_usart1(void) {
 
 	//TxDByteC();
 	//TxDStringC("usart1 irq\r\n");
-	if(userUsartInterrupt1 != NULL){
-		userUsartInterrupt1((byte)USART1->regs->DR);
+	if ((USART1->regs->SR & USART_SR_RXNE) != (u16)RESET){
+		if(userUsartInterrupt1 != NULL){
+			userUsartInterrupt1((byte)USART1->regs->DR);
+			return;
+		}
+		if(gbIsDynmixelUsed == 1){
+			if(gbDXLWritePointer > 255){//prevent buffer overflow, gbpDXLDataBuffer size is 256 bytes
+				clearBuffer256();
+			}
+			gbpDXLDataBuffer[gbDXLWritePointer++] = (uint8)USART1->regs->DR; //[ROBOTIS]Support to Dynamixel SDK.
+			return;
+		}
+		usart_irq(USART1);
 	}
-	if(gbIsDynmixelUsed == 1){
-		gbpDXLDataBuffer[gbDXLWritePointer++] = (uint8)USART1->regs->DR; //[ROBOTIS]Support to Dynamixel SDK.
-	}
-    usart_irq(USART1);
+
 
 }
+extern uint8 	gbIsZigbeeUsed; //[ROBOTIS]2012-12-13
+extern volatile byte	gbpPacketDataBuffer[16+1+16];
+extern volatile byte	gbPacketWritePointer;
 
 void __irq_usart2(void) {
 

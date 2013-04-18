@@ -85,9 +85,8 @@ MAIN_OBJS = exc.o lib/src/adc.o lib/src/bkp.o \
  template.o \
  main.o \
  lib/src/CM900.o \
- lib/src/dxl_hal.o \
- lib/src/dxl_core.o \
  lib/src/Dynamixel.o \
+ lib/src/dxl.o \
  lib/src/zgb_hal.o \
  lib/src/zigbee.o \
  

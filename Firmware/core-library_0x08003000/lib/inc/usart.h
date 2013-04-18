@@ -253,6 +253,8 @@ extern usart_dev *UART4;
 extern usart_dev *UART5;
 #endif
 
+
+
 void usart_init(usart_dev *dev);
 void usart_set_baud_rate(usart_dev *dev, uint32 clock_speed, uint32 baud);
 void usart_enable(usart_dev *dev);

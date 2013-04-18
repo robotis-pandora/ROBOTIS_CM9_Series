@@ -44,7 +44,7 @@
 #define CYCLES_PER_MICROSECOND  72
 #define SYSTICK_RELOAD_VAL      71999 /* takes a cycle to reload */
 
-#define BOARD_BUTTON_PIN        38
+#define BOARD_BUTTON_PIN        2//38
 #define BOARD_LED_PIN           16
 
 /* Number of USARTs/UARTs whose pins are broken out to headers */
@@ -73,51 +73,27 @@
 
 /* Total number of GPIO pins that are broken out to headers and
  * intended for general use. */
-#define BOARD_NR_GPIO_PINS      44
+#define BOARD_NR_GPIO_PINS      32//44
 
 /* Number of pins capable of PWM output */
-#define BOARD_NR_PWM_PINS       15
+#define BOARD_NR_PWM_PINS       12//15
 
 /* Number of pins capable of ADC conversion */
-#define BOARD_NR_ADC_PINS       15
+#define BOARD_NR_ADC_PINS       10//15
 
 /* Number of pins already connected to external hardware.  For Maple,
  * these are just BOARD_LED_PIN and BOARD_BUTTON_PIN. */
 #define BOARD_NR_USED_PINS       3 //7
 
 /* Debug port pins */
-#define BOARD_JTMS_SWDIO_PIN    13//39
-#define BOARD_JTCK_SWCLK_PIN    14//40
-#define BOARD_JTDI_PIN          15//41
+#define BOARD_JTMS_SWDIO_PIN    11//39
+#define BOARD_JTCK_SWCLK_PIN    12//40
+#define BOARD_JTDI_PIN          13//41
 #define BOARD_JTDO_PIN          17//42
 #define BOARD_NJTRST_PIN        18//43
 
 void boardInit(void);
 
-//[ROBOTIS]For Dynamixel
-
-/*
-#define BOARD_DXL_ENABLE_TXD_PIN	18//GPIO_Pin_4
-#define BOARD_DXL_ENABLE_RXD_PIN	19//GPIO_Pin_5
-
-#define BOARD_DXL_TXD_PIN			20//GPIO_Pin_6
-#define BOARD_DXL_RXD_PIN			21//GPIO_Pin_7
-*/
-
-/*
-#define PORT_ENABLE_TXD			GPIOB
-#define PORT_ENABLE_RXD			GPIOB
-
-#define PIN_ENABLE_TXD			4
-#define PIN_ENABLE_RXD			5
-
-
-#define PORT_DXL_TXD			GPIOB
-#define PORT_DXL_RXD			GPIOB
-
-#define PIN_DXL_TXD				6
-#define PIN_DXL_RXD				7
-*/
 
 
 #endif /* CM_900_H_ */

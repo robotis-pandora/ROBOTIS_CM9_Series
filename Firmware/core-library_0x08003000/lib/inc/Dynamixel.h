@@ -1,72 +1,90 @@
-/* Copyright (C) 2013 ROBOTIS, Co., Ltd.
+/*
+ * Dynamixel.h
  *
- * @File: Dynamixel.h
- * @Brief : Dynamixel class.
- * 
+ *  Created on: 2013. 4. 18.
+ *      Author: in2storm
  */
 
-#ifndef _DYNAMIXEL_H_
-#define _DYNAMIXEL_H_
-
-#include "dxl_constants.h"
+#ifndef DYNAMIXEL_H_
+#define DYNAMIXEL_H_
 
 
-/**
- * @brief Interface of Dynimixel class
- * @Author : ROBOTIS[sm6787@robotis.com]
- */
+#include "libpandora_types.h"
+
 class Dynamixel {
 private:
 
+	byte mbLengthForPacketMaking;
+	byte mbIDForPacketMaking;
+	byte mbInstructionForPacketMaking;
+	byte mCommStatus;
 
 public:
-    /**
-     * @brief Construct a new Dynamixel instance.
-     * @param -
-     */
-	Dynamixel(void);
+	 /**
+	 * @brief Construct a new Dynamixel instance.
+	 * @param -
+	 */
+
+	Dynamixel();
+	virtual ~Dynamixel();
 
 	/////////// Device control methods /////////////
-    void begin(int buad);
-    void end(void);
+	void begin(int buad);
+	void end(void);  /**will be removed by ROBOTIS,.LTD. there maybe not be used...*/
 
     //// High communication methods ////////
-    int readByte( int id, int address );
-    void writeByte( int id, int address, int value );
-    int readWord( int id, int address );
-    void writeWord( int id, int address, int value );
+	byte readByte(byte bID, byte bAddress);
+	word readWord(byte bID, byte bAddress);
+	byte writeByte(byte bID, byte bAddress, byte bData);
+	byte writeWord(byte bID, byte bAddress, word wData);
+	byte dxlPing( byte  bID );
+	byte dxlReset( byte  bID );
+	byte dxl_SetPosition(byte ServoID, int Position, int Speed);
+    byte getResult(void);
 
-    void ping(int id);
-    void reset(int id);
-    int getResult(void);
-    void setPosition(int ServoID, int Position, int Speed);//Made by Martin S. Mason(Professor @Mt. San Antonio College)
 
     /////// Methods for making a packet ////////
-    void setTxPacketId( int id );
-    void setTxPacketInstruction( int instruction );
-    void setTxPacketParameter( int index, int value );
-    void setTxPacketLength( int length );
+    void setTxPacketId( byte id );
+    void setTxPacketInstruction( byte instruction );
+    void setTxPacketParameter( byte index, byte value );
+    void setTxPacketLength( byte length );
     int getRxPacketParameter( int index );
     int getRxPacketLength(void);
-    int getRxPacketError( int errbit );
+    int getRxPacketError( byte errbit );
 
-    ////////// utility methods for value ////////////
-    int makeWord( int lowbyte, int highbyte );
-    int getLowByte( int word );
-    int getHighByte( int word );
+
+    /*
+     * New Methods for making a packet
+     */
+    void initPacket(byte bID, byte bInst);
+    void pushByte(byte value);
+    byte flushPacket(void);
+    byte getPacketLength(void);
+
+    /*
+     * Utility methods for Dynamixel
+     */
+
+    byte getLowByte( word wData ); // will be replaced by lowByte(w) in wirish.h
+    byte getHighByte( word wData );// will be replaced by highByte(w) in wirish.h
+    uint16 makeWord( byte lowbyte, byte highbyte );
 
     ////////// packet communication methods ///////////////////////
-    void txPacket(void);
-    void rxPacket(void);
-    void txrxPacket(void);
+    //void txPacket(void);
+    //void rxPacket(void);
+    byte txRxPacket(void);
 
 
-
+    /*
+     * [ROBOTIS][ADD][START] 2013-04-09 support read and write on dxl bus
+     * */
+    void writeRaw(byte value);
+    byte readRaw(void);
+    byte available(void);
 };
 
 
 extern Dynamixel Dxl;
 
 
-
-#endif
+#endif /* DYNAMIXEL_H_ */
