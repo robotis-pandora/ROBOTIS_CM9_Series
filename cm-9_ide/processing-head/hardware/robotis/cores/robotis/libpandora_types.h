@@ -25,8 +25,8 @@
  *****************************************************************************/
 
 /**
- *  @file libmaple_types.h
- *
+ *  @file libpandora_types.h
+ * [ROBOTIS] change file name from libmaple_types.h to libpandora_types.h
  *  @brief libmaple types
  */
 

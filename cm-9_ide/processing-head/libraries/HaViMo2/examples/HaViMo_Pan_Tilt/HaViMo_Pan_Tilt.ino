@@ -14,17 +14,18 @@
  *******************************************************************************
  */
 
+#include <HaViMo2.h>
+
 #define VERBOSE_IMAGE_PROCESSING
-#include <dxl_devices.h>
-int ProcessImage(uint8_t TrackingColor);
+#define DXL_PAN_SERVO                   19
+#define DXL_TILT_SERVO                  20
+
 
 HaViMo2_Controller hvm2;
 
 uint8_t Targetx, Targety;
 uint8_t TrackFound;
 
-#define DXL_PAN_SERVO                   19
-#define DXL_TILT_SERVO                  20
 
 //##############################################################################
 //##############################################################################

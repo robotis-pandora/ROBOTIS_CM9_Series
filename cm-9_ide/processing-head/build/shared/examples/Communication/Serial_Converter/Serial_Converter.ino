@@ -24,10 +24,7 @@
 void setup(){
   //USB Serial initialize, but it's okay without this initialization
   //SerialUSB.begin();
-  Serial2.begin(57600);
-  
- 
-
+  Serial2.begin(57600);  
 }
 
 void loop(){

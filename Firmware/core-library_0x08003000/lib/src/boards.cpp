@@ -53,21 +53,6 @@ static void setupNVIC(void);
 static void setupADC(void);
 static void setupTimers(void);
 
- void TxDByte(uint8 buf){
-
-	   while (!usart_tx(USART2, &buf, 1))
-	        ;
-}
-
-void TxDString(char *str)
-{
-	int i;
-	for(i=0; str[i] ; i++)
-	{
-		TxDByte(str[i]);
-	}
-}
-
 void init(void) {
     setupFlash();
     setupClocks();
@@ -84,12 +69,14 @@ void init(void) {
     gpio_set_mode(GPIOA, 2, GPIO_AF_OUTPUT_PP);
  	gpio_set_mode(GPIOA, 3, GPIO_INPUT_FLOATING);
 
-
+#ifdef CM9_DEBUG
  	usart_init(USART2);
  	usart_set_baud_rate(USART2, STM32_PCLK1, 57600);
  	usart_enable(USART2);
- 	/*delay(1000);
- 	TxDString("hello pandora\r\n");*/
+ 	//TxDStringC("hello pandora\r\n");
+#endif
+
+
 }
 
 /* You could farm this out to the files in boards/ if e.g. it takes

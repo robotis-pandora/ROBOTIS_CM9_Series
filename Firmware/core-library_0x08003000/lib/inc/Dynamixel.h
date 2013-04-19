@@ -10,6 +10,7 @@
 
 
 #include "libpandora_types.h"
+#include "dxl_constants.h"
 
 class Dynamixel {
 private:
@@ -37,9 +38,9 @@ public:
 	word readWord(byte bID, byte bAddress);
 	byte writeByte(byte bID, byte bAddress, byte bData);
 	byte writeWord(byte bID, byte bAddress, word wData);
-	byte dxlPing( byte  bID );
-	byte dxlReset( byte  bID );
-	byte dxl_SetPosition(byte ServoID, int Position, int Speed);
+	byte ping( byte  bID );
+	byte reset( byte  bID );
+	byte setPosition(byte ServoID, int Position, int Speed);
     byte getResult(void);
 
 
@@ -72,7 +73,7 @@ public:
     ////////// packet communication methods ///////////////////////
     //void txPacket(void);
     //void rxPacket(void);
-    byte txRxPacket(void);
+    byte txrxPacket(void);
 
 
     /*

@@ -30,6 +30,7 @@
 
 #include <string.h>
 
+
 #include "wirish.h"
 #include "usb.h"
 
@@ -40,7 +41,11 @@ USBSerial::USBSerial(void) {
 }
 
 void USBSerial::begin(void) {
-    setupUSB();
+	/*
+	 * [ROBOTIS][CHANGE] 2013-04-08 prevent to conflict other devices
+	 * because setupUSB() is already initiated when board turn on.
+	 * */
+    //setupUSB();
 }
 
 void USBSerial::end(void) {
@@ -57,12 +62,8 @@ void USBSerial::write(const char *str) {
 }
 
 void USBSerial::write(const void *buf, uint32 len) {
-    if (!(usbIsConnected() && usbIsConfigured())  //USB is not connected or fully configured
-		|| !buf	//buf is empty!
-		|| gbUsbVcpStatus == USB_PORT_CLOSE) { //[ROBOTIS]2012-12-19 to prevent USB Blocking issue!
-
-
-    	return;
+    if (!(usbIsConnected() && usbIsConfigured()) || !buf) {
+        return;
     }
 //[ROBOTIS CHANGE][START]2012-12-14 fix some problems in transferring data to PC
 
@@ -83,14 +84,11 @@ void USBSerial::write(const void *buf, uint32 len) {
 }
 
 uint32 USBSerial::available(void) {
-	if (gbUsbVcpStatus == USB_PORT_CLOSE) { //[ROBOTIS]2012-12-19 to prevent USB Blocking issue!
-	    return 0;
-	}
     return usbBytesAvailable();
 }
 
 uint32 USBSerial::read(void *buf, uint32 len) {
-    if (!buf || gbUsbVcpStatus == USB_PORT_CLOSE) { //[ROBOTIS]2012-12-19 to prevent USB Blocking issue!
+    if (!buf) {
         return 0;
     }
 

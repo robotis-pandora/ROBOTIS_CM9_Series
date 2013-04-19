@@ -102,7 +102,7 @@ byte Dynamixel::available(void){
 byte Dynamixel::readByte(byte bID, byte bAddress){
 	gbpParameter[0] = bAddress;
 	gbpParameter[1] = 1;
-	if(txrxPacket(bID, INST_READ, 2)){
+	if(txrx_Packet(bID, INST_READ, 2)){
 		mCommStatus = 1;
 		return(gbpRxBuffer[5]);
 	}
@@ -115,7 +115,7 @@ byte Dynamixel::readByte(byte bID, byte bAddress){
 word Dynamixel::readWord(byte bID, byte bAddress){
 	gbpParameter[0] = bAddress;
 	gbpParameter[1] = 2;
-	if(txrxPacket(bID, INST_READ, 2))
+	if(txrx_Packet(bID, INST_READ, 2))
 	{
 		mCommStatus = 1;
 		return( (((word)gbpRxBuffer[6])<<8)+ gbpRxBuffer[5] );
@@ -129,7 +129,7 @@ word Dynamixel::readWord(byte bID, byte bAddress){
 byte Dynamixel::writeByte(byte bID, byte bAddress, byte bData){
 	gbpParameter[0] = bAddress;
 	gbpParameter[1] = bData;
-	mCommStatus = txrxPacket(bID, INST_WRITE, 2);
+	mCommStatus = txrx_Packet(bID, INST_WRITE, 2);
 	return mCommStatus;
 }
 
@@ -137,10 +137,22 @@ byte Dynamixel::writeWord(byte bID, byte bAddress, word wData){
     gbpParameter[0] = bAddress;
     gbpParameter[1] = (byte)(wData&0xff);
     gbpParameter[2] = (byte)((wData>>8)&0xff);
-    mCommStatus = txrxPacket(bID, INST_WRITE, 3);
+    mCommStatus = txrx_Packet(bID, INST_WRITE, 3);
     return mCommStatus;
 }
-
+/*
+ * @brief Sets the target position and speed of the specified servo
+ * @author Made by Martin S. Mason(Professor @Mt. San Antonio College)
+ * @change 2013-04-17 changed by ROBOTIS,.LTD.
+ * */
+byte Dynamixel::setPosition(byte ServoID, int Position, int Speed){
+	gbpParameter[0] = (unsigned char)30;
+	gbpParameter[1] = (unsigned char)getLowByte(Position);
+	gbpParameter[2] = (unsigned char)getHighByte(Position);
+	gbpParameter[3] = (unsigned char)getLowByte(Speed);
+	gbpParameter[4] = (unsigned char)getHighByte(Speed);
+    return(txrx_Packet(ServoID, INST_WRITE, 5));
+}
 byte Dynamixel::getLowByte( word wData ){
 
 	return (byte)(wData & 0xff);
@@ -156,12 +168,13 @@ uint16  Dynamixel::makeWord( byte lowbyte, byte highbyte ){
 	wData = ((highbyte & 0x00ff) << 8);
 	return (wData + lowbyte);
 }
-byte  Dynamixel::dxlPing( byte  bID ){
-	return(txrxPacket(bID, INST_PING, 0));
-}
-byte  Dynamixel::dxlReset( byte  bID ){
 
-	return(txrxPacket(bID, INST_RESET, 0));
+byte  Dynamixel::ping( byte  bID ){
+	return(txrx_Packet(bID, INST_PING, 0));
+}
+byte  Dynamixel::reset( byte  bID ){
+
+	return(txrx_Packet(bID, INST_RESET, 0));
 }
 
 byte  Dynamixel::getResult(void){
@@ -194,7 +207,7 @@ byte Dynamixel::flushPacket(void){
 
 	//TxDString("\r\n");
 	//TxD_Dec_U8(gbLengthForPacketMaking);
-	mCommStatus = txrxPacket(mbIDForPacketMaking, mbInstructionForPacketMaking, mbLengthForPacketMaking);
+	mCommStatus = txrx_Packet(mbIDForPacketMaking, mbInstructionForPacketMaking, mbLengthForPacketMaking);
 	return mCommStatus;
 }
 /*
@@ -222,8 +235,8 @@ void Dynamixel::setTxPacketLength( byte length ){
 	mbLengthForPacketMaking = length;
 
 }
-byte Dynamixel::txRxPacket(void){
-	mCommStatus = txrxPacket(mbIDForPacketMaking, mbInstructionForPacketMaking, mbLengthForPacketMaking);
+byte Dynamixel::txrxPacket(void){
+	mCommStatus = txrx_Packet(mbIDForPacketMaking, mbInstructionForPacketMaking, mbLengthForPacketMaking);
 	return mCommStatus;
 }
 

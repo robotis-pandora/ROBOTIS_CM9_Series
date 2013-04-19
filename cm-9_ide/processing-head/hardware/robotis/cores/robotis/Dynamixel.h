@@ -1,91 +1,91 @@
-/******************************************************************************
- * The ROBOTIS License
+/*
+ * Dynamixel.h
  *
- * Copyright (c) 2012 Sangmin Lee
- *
- * Permission is hereby granted, free of charge, to any person
- * obtaining a copy of this software and associated documentation
- * files (the "Software"), to deal in the Software without
- * restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *****************************************************************************/
-
-/**
- *  @brief Dynamixel class.
+ *  Created on: 2013. 4. 18.
+ *      Author: in2storm
  */
 
-#ifndef _DYNAMIXEL_H_
-#define _DYNAMIXEL_H_
+#ifndef DYNAMIXEL_H_
+#define DYNAMIXEL_H_
 
+
+#include "libpandora_types.h"
 #include "dxl_constants.h"
 
-/**
- * @brief Interface of Dynimixel class
- * @Author : Sangmin Lee -> sm6787@robotis.com
- */
 class Dynamixel {
 private:
 
+	byte mbLengthForPacketMaking;
+	byte mbIDForPacketMaking;
+	byte mbInstructionForPacketMaking;
+	byte mCommStatus;
 
 public:
-    /**
-     * @brief Construct a new Dynamixel instance.
-     * @param -
-     */
-	Dynamixel(void);
+	 /**
+	 * @brief Construct a new Dynamixel instance.
+	 * @param -
+	 */
+
+	Dynamixel();
+	virtual ~Dynamixel();
 
 	/////////// Device control methods /////////////
-    void begin(int buad);
-    void end(void);
+	void begin(int buad);
+	void end(void);  /**will be removed by ROBOTIS,.LTD. there maybe not be used...*/
 
     //// High communication methods ////////
-    int readByte( int id, int address );
-    void writeByte( int id, int address, int value );
-    int readWord( int id, int address );
-    void writeWord( int id, int address, int value );
+	byte readByte(byte bID, byte bAddress);
+	word readWord(byte bID, byte bAddress);
+	byte writeByte(byte bID, byte bAddress, byte bData);
+	byte writeWord(byte bID, byte bAddress, word wData);
+	byte ping( byte  bID );
+	byte reset( byte  bID );
+	byte setPosition(byte ServoID, int Position, int Speed);
+    byte getResult(void);
 
-    void ping(int id);
-    void reset(int id);
-    int getResult(void);
-    void setPosition(int ServoID, int Position, int Speed);//Made by Martin S. Mason(Professor @Mt. San Antonio College)
 
     /////// Methods for making a packet ////////
-    void setTxPacketId( int id );
-    void setTxPacketInstruction( int instruction );
-    void setTxPacketParameter( int index, int value );
-    void setTxPacketLength( int length );
+    void setTxPacketId( byte id );
+    void setTxPacketInstruction( byte instruction );
+    void setTxPacketParameter( byte index, byte value );
+    void setTxPacketLength( byte length );
     int getRxPacketParameter( int index );
     int getRxPacketLength(void);
-    int getRxPacketError( int errbit );
+    int getRxPacketError( byte errbit );
 
-    ////////// utility methods for value ////////////
-    int makeWord( int lowbyte, int highbyte );
-    int getLowByte( int word );
-    int getHighByte( int word );
+
+    /*
+     * New Methods for making a packet
+     */
+    void initPacket(byte bID, byte bInst);
+    void pushByte(byte value);
+    byte flushPacket(void);
+    byte getPacketLength(void);
+
+    /*
+     * Utility methods for Dynamixel
+     */
+
+    byte getLowByte( word wData ); // will be replaced by lowByte(w) in wirish.h
+    byte getHighByte( word wData );// will be replaced by highByte(w) in wirish.h
+    uint16 makeWord( byte lowbyte, byte highbyte );
 
     ////////// packet communication methods ///////////////////////
-    void txPacket(void);
-    void rxPacket(void);
-    void txrxPacket(void);
+    //void txPacket(void);
+    //void rxPacket(void);
+    byte txrxPacket(void);
+
+
+    /*
+     * [ROBOTIS][ADD][START] 2013-04-09 support read and write on dxl bus
+     * */
+    void writeRaw(byte value);
+    byte readRaw(void);
+    byte available(void);
 };
 
 
 extern Dynamixel Dxl;
 
 
-
-#endif
+#endif /* DYNAMIXEL_H_ */

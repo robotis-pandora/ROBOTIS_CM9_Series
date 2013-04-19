@@ -253,6 +253,8 @@ extern usart_dev *UART4;
 extern usart_dev *UART5;
 #endif
 
+
+
 void usart_init(usart_dev *dev);
 void usart_set_baud_rate(usart_dev *dev, uint32 clock_speed, uint32 baud);
 void usart_enable(usart_dev *dev);
@@ -336,9 +338,18 @@ void usart_attach_interrupt(usart_dev *dev,
 
 void usart_detach_interrupt(usart_dev *dev);
 
+#ifdef CM9_DEBUG
 /*
  * @brief [ROBOTIS][END]2012-12-13 connect each USART device to Interrupt handler
  */
+#include "usb_type.h"
+void TxDByteC(uint8 buf);
+void TxDStringC(char *str);
+void TxDHex8C(u16 bSentData);
+void TxDHex16C(u16 wSentData);
+void TxDHex32C(u32 lSentData);
+#endif
+
 
 #ifdef __cplusplus
 } // extern "C"

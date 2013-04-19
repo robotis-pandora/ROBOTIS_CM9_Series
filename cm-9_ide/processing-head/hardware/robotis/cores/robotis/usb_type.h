@@ -58,17 +58,6 @@ typedef enum
 }
 USB_Bool;
 
-
-typedef enum
-{
-  USB_PORT_CLOSE,
-  USB_PORT_OPEN,
-  USB_IS_WRITING,
-  USB_IS_READING
-}
-UsbPortSatus;
-
-
 typedef enum { RESET = 0, SET   = !RESET } FlagStatus, ITStatus;
 
 typedef enum { DISABLE = 0, ENABLE  = !DISABLE} FunctionalState;

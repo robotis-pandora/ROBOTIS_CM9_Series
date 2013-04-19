@@ -85,8 +85,6 @@ uint16 usbGetPending(void);
 
 void usbSendHello(void);
 
-extern UsbPortSatus gbUsbVcpStatus;
-
 #ifdef __cplusplus
 } // extern "C"
 #endif

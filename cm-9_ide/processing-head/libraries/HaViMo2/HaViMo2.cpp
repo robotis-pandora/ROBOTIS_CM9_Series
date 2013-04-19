@@ -1,5 +1,6 @@
-
 #include "HaViMo2.h"
+
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void HaViMo2_Controller::capture(void)
@@ -123,3 +124,4 @@ uint8_t HaViMo2_Controller::avgY(uint8_t region_index)
 	else
 		return 0;
 }
+

@@ -98,45 +98,7 @@ struct {
   volatile RESUME_STATE eState;
   volatile uint8 bESOFcnt;
 } ResumeS;
-#include "usart.h"
-//For debug
-/*void TxDByteC(uint8 buf){
 
-	   while (!usart_tx(USART2, &buf, 1))
-	        ;
-}
-
-void TxDStringC(char *str)
-{
-	int i;
-	for(i=0; str[i] ; i++)
-	{
-		TxDByteC(str[i]);
-	}
-}
-void TxDHex8C(u16 bSentData)
-{
-	u16 bTmp;
-
-	bTmp = ((bSentData>>4)&0x000f) + (u8)'0';
-	if(bTmp > '9') bTmp += 7;
-	TxDByteC(bTmp);
-
-	bTmp = (bSentData & 0x000f) + (u8)'0';
-	if(bTmp > '9') bTmp += 7;
-	TxDByteC(bTmp);
-}
-void TxDHex16C(u16 wSentData)
-{
-	TxDHex8C((wSentData>>8)&0x00ff );
-	TxDHex8C( wSentData&0x00ff);
-}
-
-void TxDHex32C(u32 lSentData)
-{
-	TxDHex16C((lSentData>>16)&0x0000ffff );
-	TxDHex16C( lSentData&0x0000ffff);
-}*/
 void setupUSB (void) {
   gpio_set_mode(USB_DISC_DEV, USB_DISC_PIN, GPIO_OUTPUT_PP);
 
@@ -383,9 +345,7 @@ void usbBlockingSendByte(char ch) {
 }
 
 uint32 usbSendBytes(const uint8* sendBuf, uint32 nCount) {
-	if(gbUsbVcpStatus == USB_PORT_CLOSE)////[ROBOTIS]2012-12-19 to prevent USB Blocking issue!
-		return 0;
-	//TxDStringC("[sendUSB]gbUsbVcpStatus = "); TxDHex8C(gbUsbVcpStatus);TxDStringC("\r\n");
+
 	/*
 	 * [ROBOTIS CHANGE][START]2012-12-14 fix some problems in transferring data to PC
 	 * we change the usbSendBytes() because it generates some blocking issues.

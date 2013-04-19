@@ -377,3 +377,59 @@ void __irq_uart5(void) {
     usart_irq(UART5);
 }
 #endif
+
+
+#ifdef CM9_DEBUG
+//For debug
+void TxDByteC(uint8 buf){
+
+	   while (!usart_tx(USART2, &buf, 1))
+	        ;
+}
+
+void TxDStringC(char *str)
+{
+	int i;
+	for(i=0; str[i] ; i++)
+	{
+		TxDByteC(str[i]);
+	}
+}
+
+void TxD_Dec_U8C(u8 bByte)
+{
+    u8 bTmp;
+    bTmp = bByte/100;
+    /*if(bTmp)*/ TxDByteC( bTmp+'0');
+    bByte -= bTmp*100;
+    bTmp = bByte/10;
+    /*if(bTmp)*/ TxDByteC( bTmp+'0');
+    bByte -= bTmp*10;
+    TxDByteC( bByte+'0');
+}
+
+void TxDHex8C(u16 bSentData)
+{
+	u16 bTmp;
+
+	bTmp = ((bSentData>>4)&0x000f) + (u8)'0';
+	if(bTmp > '9') bTmp += 7;
+	TxDByteC(bTmp);
+
+	bTmp = (bSentData & 0x000f) + (u8)'0';
+	if(bTmp > '9') bTmp += 7;
+	TxDByteC(bTmp);
+}
+void TxDHex16C(u16 wSentData)
+{
+	TxDHex8C((wSentData>>8)&0x00ff );
+	TxDHex8C( wSentData&0x00ff);
+}
+
+void TxDHex32C(u32 lSentData)
+{
+	TxDHex16C((lSentData>>16)&0x0000ffff );
+	TxDHex16C( lSentData&0x0000ffff);
+}
+#endif
+

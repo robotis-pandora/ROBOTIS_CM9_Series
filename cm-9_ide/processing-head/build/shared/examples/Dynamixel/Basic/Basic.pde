@@ -3,6 +3,8 @@
 
  Turns left the dynamixel , then turn right for one second,
  repeatedly.
+  Dynamixel constants and control table are declared in below header
+  work\hardware\robotis\cores\robotis\dxl_constants.h
 
  You can buy DYNAMIXEL in ROBOTIS-SHOP
  [KOREAN]
@@ -22,8 +24,8 @@ void setup() {
 }
 
 void loop() {
-    delay(1000);              // Wait for 1 second (1000 milliseconds)
-    Dxl.writeWord(1, 30, 100); //Turn dynamixel ID 1 to position 100
-    delay(1000);              // Wait for 1 second (1000 milliseconds)
-    Dxl.writeWord(1, 30, 1000);//Turn dynamixel ID 1 to position 1000
+    delay(500);              // Wait for 1 second (1000 milliseconds)
+    Dxl.writeWord(1, 30, 0); //Turn dynamixel ID 1 to position 0
+    delay(500);              // Wait for 1 second (1000 milliseconds)
+    Dxl.writeWord(1, 30, 300);//Turn dynamixel ID 1 to position 300
 }

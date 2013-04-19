@@ -1,10 +1,9 @@
 /*
-  Dynamixel SyncWrite exmaples
-
-  Reads 5 dynaixels current position, and set goal position
-  turn left and right repeatly at same time. 
-  Dynamixel constants and control table are declared in below header
-  work\hardware\robotis\cores\robotis\dxl_constants.h
+  Dynamixel SyncWrite exmaple using new packet methods
+  This example shows same movement as previous syncwrite
+  but, it made by new packet method, initPacket(), pushByte(), flushPacket()
+  It does not need any complex length fomula and parameter index.
+  After initPacket(), just push bytes you want to send to DXL bus and flushPacket().
   
  You can buy DYNAMIXEL in ROBOTIS-SHOP
  [KOREAN]
@@ -39,9 +38,39 @@ void setup() {
   Dxl.writeWord( BROADCAST_ID, P_GOAL_SPEED_L, 0 );
   // Set goal position
   Dxl.writeWord( BROADCAST_ID, P_GOAL_POSITION_L, AmpPos );
-  delay(1000);
 }
 
+void loop() {
+  /*initPacket method needs ID and instruction*/
+  Dxl.initPacket(BROADCAST_ID, INST_SYNC_WRITE);
+  /* From now, insert byte data to packet without any index or data length*/
+  Dxl.pushByte(P_GOAL_POSITION_L);
+  Dxl.pushByte(2); //push individual data length to 1 dynamixel, goal position needs 2 bytes(1word)
+ 
+  for( i=0; i<NUM_ACTUATOR; i++ ){
+    Dxl.pushByte(id[i]);
+    Dxl.pushByte(lowByte(GoalPos));
+    Dxl.pushByte(highByte(GoalPos));
+    
+    SerialUSB.println(GoalPos);
+  }
+  /* just transfer packet to dxl bus without any arguments*/
+  Dxl.flushPacket();
+
+  CommStatus = Dxl.getResult();
+  //SerialUSB.print("CommSatus = ");SerialUSB.println(CommStatus);
+  if( CommStatus != COMM_RXSUCCESS ){
+    SerialUSB.println("Comm Fail");
+  }
+  GoalPos += 100;
+  
+  if( GoalPos > MAX_POSITION )
+    GoalPos -= MAX_POSITION;
+  delay(CONTROL_PERIOD);
+
+}
+/* Below codes are depreciated, use new packet methods instead of setTxPacketXXXX() methods */
+/* 
 void loop() {
 // Make syncwrite packet
   Dxl.setTxPacketId(BROADCAST_ID);
@@ -132,7 +161,7 @@ void PrintErrorCode()
   if(Dxl.getRxPacketError(ERRBIT_INSTRUCTION) == 1)
     SerialUSB.println("Instruction code error!");
 }
-
+*/
 
 
 

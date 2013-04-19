@@ -94,30 +94,6 @@
 
 void boardInit(void);
 
-//[ROBOTIS]For Dynamixel
-
-/*
-#define BOARD_DXL_ENABLE_TXD_PIN	18//GPIO_Pin_4
-#define BOARD_DXL_ENABLE_RXD_PIN	19//GPIO_Pin_5
-
-#define BOARD_DXL_TXD_PIN			20//GPIO_Pin_6
-#define BOARD_DXL_RXD_PIN			21//GPIO_Pin_7
-*/
-
-/*
-#define PORT_ENABLE_TXD			GPIOB
-#define PORT_ENABLE_RXD			GPIOB
-
-#define PIN_ENABLE_TXD			4
-#define PIN_ENABLE_RXD			5
-
-
-#define PORT_DXL_TXD			GPIOB
-#define PORT_DXL_RXD			GPIOB
-
-#define PIN_DXL_TXD				6
-#define PIN_DXL_RXD				7
-*/
 
 
 #endif /* CM_900_H_ */

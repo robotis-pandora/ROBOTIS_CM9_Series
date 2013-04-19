@@ -54,7 +54,6 @@ uint8       line_dtr_rts = 0;
 void usb_attach_interrupt(voidFuncPtrUsb handler){
 
 	userUsbInterrupt = handler;
-
 }
 
 void usb_detach_interrupt(void){
@@ -74,7 +73,7 @@ void vcomDataTxCb(void) {
     /* assumes tx transactions are atomic 64 bytes (nearly certain they are) */
     countTx = 0;
 }
-u8 gbIsUsbReading =0;
+
 /* we could get arbitrarily complicated here for speed purposes
    however, the simple scheme here is to implement a receive fifo
    and always set the maximum to new bytes to the space remaining
@@ -144,16 +143,15 @@ void vcomDataRxCb(void) {
     }
   }
 
-  	//RX_VALID is important because it prevent from stopping terminal program in PC
-  	SetEPRxStatus(VCOM_RX_ENDP,EP_RX_VALID);  ////[ROBOITS] 2012-12-24 move from user interrupt to here
-	PMAToUserBufferCopy(&vcomBufferRx[0],VCOM_RX_ADDR,newBytes);
-
+  //RX_VALID is important because it prevent from stopping terminal program in PC
+ 	SetEPRxStatus(VCOM_RX_ENDP,EP_RX_VALID);  ////[ROBOITS] 2012-12-24 move from user interrupt to here
+  PMAToUserBufferCopy(&vcomBufferRx[0],VCOM_RX_ADDR,newBytes);
   /**
    * [ROBOTIS][START] 2012-12-14 To support user interrupt
     */
   if(userUsbInterrupt != NULL){
 
-	  //SetEPRxCount(VCOM_RX_ENDP,VCOM_RX_EPSIZE);
+	 // SetEPRxCount(VCOM_RX_ENDP,VCOM_RX_EPSIZE);
 	  //SetEPRxStatus(VCOM_RX_ENDP,EP_RX_VALID);  //it must declared after receiving data from PC
 	  userUsbInterrupt(&vcomBufferRx[0], newBytes & 0xFF); //1 byte is enough to express number of count in newBytes
 
@@ -165,17 +163,8 @@ void vcomManagementCb(void) {
     /* unused. This enpoint would callback if we had sent a linestate
        changed notification */
 }
-UsbPortSatus gbUsbVcpStatus = USB_PORT_CLOSE;
 
 u8* vcomGetSetLineCoding(uint16 length) {
-	/*
-	 * //[ROBOTIS]2012-12-19 to prevent USB Blocking issue!
-	 * */
-	if(length == 0x8) //when port is opened...
-		gbUsbVcpStatus = USB_PORT_OPEN;
-	//TxDStringC("[LineCoding]length = "); TxDHex8C(length);TxDStringC("\r\n");
-	//TxDStringC("line_coding = ");TxDHex32C(line_coding.bitrate);  TxDStringC("\r\n");
-
     if (length == 0) {
         pInformation->Ctrl_Info.Usb_wLength = sizeof(USB_Line_Coding);
     }
@@ -183,7 +172,6 @@ u8* vcomGetSetLineCoding(uint16 length) {
 }
 
 void vcomSetLineState(void) {
-	TxDStringC("hec... = ");TxDHex32C(line_coding.bitrate);  TxDStringC("\r\n");
 }
 
 void usbInit(void) {
@@ -291,7 +279,7 @@ RESULT usbDataSetup(uint8 request) {
 
 RESULT usbNoDataSetup(u8 request) {
     uint8 new_signal;
-    //TxDStringC("request = "); TxDHex8C(request);TxDStringC("\r\n");
+
     /* we support set com feature but dont handle it */
     if (Type_Recipient == (CLASS_REQUEST | INTERFACE_RECIPIENT)) {
 
@@ -309,20 +297,9 @@ RESULT usbNoDataSetup(u8 request) {
             		reset_state = DTR_NEGEDGE;
             		//iwdg_init(IWDG_PR_DIV_4 ,10);  //[ROBOTIS] watchdog reset code moves to vcomDataRxCb() when "CM9X" string comes from IDE.
 			 }
-            /*
-             * [ROBOTIS]2012-12-19 to prevent USB Blocking issue!
-             * @brief : USB read/write functions is working only when open COM port in your computer.
-             * 			gbUsbVcpStatus is 1 -> port is open
-             * 			gbUsbVcpStatus is 0 -> port is close ( request 22 command always sets to 0 )
-             */
-            gbUsbVcpStatus = USB_PORT_CLOSE;
 
-           // TxDStringC("new_signal = "); TxDHex8C(new_signal);TxDStringC("\r\n");
-            /*
-             * [ROBOTIS]The below codes are not work well, so we do not include it.
-             *
-             */
-
+            //TxDStringC("new_signal = "); TxDHex8C(new_signal);TxDStringC("\r\n");
+            //[ROBOTIS]The below codes are not work well, so we do not include it.
             /*switch (reset_state) {
                 // no default, covered enum
             case DTR_UNSET:

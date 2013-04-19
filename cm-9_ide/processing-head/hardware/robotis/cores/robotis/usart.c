@@ -297,6 +297,7 @@ void usart_detach_interrupt(usart_dev *dev){
 /*
  * Interrupt handlers.
  */
+#include "usb_type.h"
 
 static inline void usart_irq(usart_dev *dev) {
 #ifdef USART_SAFE_INSERT
@@ -309,28 +310,36 @@ static inline void usart_irq(usart_dev *dev) {
     rb_push_insert(dev->rb, (uint8)dev->regs->DR);
 #endif
 }
+
 extern volatile byte  gbDXLWritePointer;
-//volatile byte  gbDXLReadPointer;
 extern volatile byte  gbpDXLDataBuffer[256];
-//for zigbee library
-extern volatile byte	gbPacketWritePointer; // PC, Wireless
-extern volatile byte	gbpPacketDataBuffer[16+1+16];
 extern uint8 gbIsDynmixelUsed; //[ROBOTIS]2012-12-13
-extern uint8 gbIsZigbeeUsed; //[ROBOTIS]2012-12-13
+
 
 void __irq_usart1(void) {
 
 	//TxDByteC();
 	//TxDStringC("usart1 irq\r\n");
-	if(userUsartInterrupt1 != NULL){
-		userUsartInterrupt1((byte)USART1->regs->DR);
+	if ((USART1->regs->SR & USART_SR_RXNE) != (u16)RESET){
+		if(userUsartInterrupt1 != NULL){
+			userUsartInterrupt1((byte)USART1->regs->DR);
+			return;
+		}
+		if(gbIsDynmixelUsed == 1){
+			if(gbDXLWritePointer > 255){//prevent buffer overflow, gbpDXLDataBuffer size is 256 bytes
+				clearBuffer256();
+			}
+			gbpDXLDataBuffer[gbDXLWritePointer++] = (uint8)USART1->regs->DR; //[ROBOTIS]Support to Dynamixel SDK.
+			return;
+		}
+		usart_irq(USART1);
 	}
-	if(gbIsDynmixelUsed == 1){
-		gbpDXLDataBuffer[gbDXLWritePointer++] = (uint8)USART1->regs->DR; //[ROBOTIS]Support to Dynamixel SDK.
-	}
-    usart_irq(USART1);
+
 
 }
+extern uint8 	gbIsZigbeeUsed; //[ROBOTIS]2012-12-13
+extern volatile byte	gbpPacketDataBuffer[16+1+16];
+extern volatile byte	gbPacketWritePointer;
 
 void __irq_usart2(void) {
 
@@ -368,3 +377,59 @@ void __irq_uart5(void) {
     usart_irq(UART5);
 }
 #endif
+
+
+#ifdef CM9_DEBUG
+//For debug
+void TxDByteC(uint8 buf){
+
+	   while (!usart_tx(USART2, &buf, 1))
+	        ;
+}
+
+void TxDStringC(char *str)
+{
+	int i;
+	for(i=0; str[i] ; i++)
+	{
+		TxDByteC(str[i]);
+	}
+}
+
+void TxD_Dec_U8C(u8 bByte)
+{
+    u8 bTmp;
+    bTmp = bByte/100;
+    /*if(bTmp)*/ TxDByteC( bTmp+'0');
+    bByte -= bTmp*100;
+    bTmp = bByte/10;
+    /*if(bTmp)*/ TxDByteC( bTmp+'0');
+    bByte -= bTmp*10;
+    TxDByteC( bByte+'0');
+}
+
+void TxDHex8C(u16 bSentData)
+{
+	u16 bTmp;
+
+	bTmp = ((bSentData>>4)&0x000f) + (u8)'0';
+	if(bTmp > '9') bTmp += 7;
+	TxDByteC(bTmp);
+
+	bTmp = (bSentData & 0x000f) + (u8)'0';
+	if(bTmp > '9') bTmp += 7;
+	TxDByteC(bTmp);
+}
+void TxDHex16C(u16 wSentData)
+{
+	TxDHex8C((wSentData>>8)&0x00ff );
+	TxDHex8C( wSentData&0x00ff);
+}
+
+void TxDHex32C(u32 lSentData)
+{
+	TxDHex16C((lSentData>>16)&0x0000ffff );
+	TxDHex16C( lSentData&0x0000ffff);
+}
+#endif
+

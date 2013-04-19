@@ -5,17 +5,13 @@
  *  This program is based on Maple tutorial ( www.leaflabs.com )
  *  You can learn how to implement timer interrupt in cm-9 IDE  
  ******************************************************************************* 
- *  Don't use the channel 1 of timer 2 because it is already used in dynamixel!
- *  Please try to use another timer and its channel.
- *******************************************************************************
  *  modified by ROBOTIS,.LTD. 2012-12-29  
  *******************************************************************************
  */
 
 #define LED_RATE 100000    // in microseconds; should give 0.5Hz toggles
 
-// We'll use timer 1
-// Don't use the channel 1 of timer 2 because it is already used in dynamixel bus
+
 HardwareTimer Timer(1);
 
 void setup() {

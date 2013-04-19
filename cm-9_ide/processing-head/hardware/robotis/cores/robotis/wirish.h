@@ -32,6 +32,7 @@
 
 #ifndef _WIRISH_H_
 #define _WIRISH_H_
+#include <stdlib.h>
 
 #include "libpandora.h"
 
@@ -52,8 +53,6 @@
 //[ROBOTIS]add to support dynamixel that is super powered robot actuator
 #include "Dynamixel.h"
 #include "zigbee.h"
-#include <string.h>
-
 
 /* Arduino wiring macros and bit defines  */
 #define HIGH 0x1

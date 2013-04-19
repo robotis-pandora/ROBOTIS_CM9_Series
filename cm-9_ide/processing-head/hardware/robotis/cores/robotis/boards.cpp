@@ -53,21 +53,6 @@ static void setupNVIC(void);
 static void setupADC(void);
 static void setupTimers(void);
 
- void TxDByte(uint8 buf){
-
-	   while (!usart_tx(USART2, &buf, 1))
-	        ;
-}
-
-void TxDString(char *str)
-{
-	int i;
-	for(i=0; str[i] ; i++)
-	{
-		TxDByte(str[i]);
-	}
-}
-
 void init(void) {
     setupFlash();
     setupClocks();
@@ -84,12 +69,14 @@ void init(void) {
     gpio_set_mode(GPIOA, 2, GPIO_AF_OUTPUT_PP);
  	gpio_set_mode(GPIOA, 3, GPIO_INPUT_FLOATING);
 
-
+#ifdef CM9_DEBUG
  	usart_init(USART2);
  	usart_set_baud_rate(USART2, STM32_PCLK1, 57600);
  	usart_enable(USART2);
- 	/*delay(1000);
- 	TxDString("hello pandora\r\n");*/
+ 	//TxDStringC("hello pandora\r\n");
+#endif
+
+
 }
 
 /* You could farm this out to the files in boards/ if e.g. it takes
@@ -125,8 +112,8 @@ static void setupClocks() {
 
 static void setupNVIC() {
 #ifdef VECT_TAB_FLASH  //this define is coming from compile -D option
-	//[ROBOTIS][CHANGE]support for cm-900, to excute it @0x08002000 by sm6787@robotis.com
-	//0x08000000~0x08002000 -> cm-900 bootloader, 0x08002000 ~ application
+	//[ROBOTIS][CHANGE]support for cm-900, to excute it @0x08003000 by ROBOTIS[sm6787@robotis.com]
+	//0x08000000~0x08003000 -> cm-900 bootloader, 0x08003000 ~ application
 	nvic_init(NVIC_VectTab_FLASH, 0x3000);//nvic_init(USER_ADDR_ROM, 0);
 #elif defined VECT_TAB_RAM
     nvic_init(USER_ADDR_RAM, 0);

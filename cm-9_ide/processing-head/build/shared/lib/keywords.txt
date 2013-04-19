@@ -277,7 +277,8 @@ noInterrupts	KEYWORD2	NoInterrupts
 pinMode	KEYWORD2	PinMode
 shiftOut	KEYWORD2	ShiftOut
 boardUsesPin	KEYWORD2
-afio_cfg_debug_ports	KEYWORD2
+disableDebugPorts	KEYWORD2
+enableDebugPorts	KEYWORD2
 afio_remap	KEYWORD2
 
 Serial	KEYWORD3	Serial
@@ -307,6 +308,9 @@ ping	KEYWORD2
 reset	KEYWORD2
 getResult	KEYWORD2
 setPosition	KEYWORD2
+initPacket	KEYWORD2
+pushByte	KEYWORD2
+flushPacket	KEYWORD2
 setTxPacketId	KEYWORD2
 setTxPacketInstruction	KEYWORD2
 setTxPacketParameter	KEYWORD2

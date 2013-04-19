@@ -6,6 +6,8 @@
   
   2013-04-10 removed some delay 1sec after ID 1 dxl changes its moving direction
   Actually it was not needed such 1 sec delay in previous version.
+  Dynamixel constants and control table are declared in below header
+  work\hardware\robotis\cores\robotis\dxl_constants.h
 
  You can buy DYNAMIXEL in ROBOTIS-SHOP
  [KOREAN]
