@@ -17,8 +17,8 @@
 #define VERBOSE_IMAGE_PROCESSING
 #include <dxl_devices.h>
 int ProcessImage(uint8_t TrackingColor);
-HaViMo2_Region_Buffer_t h2rb;
 
+HaViMo2_Controller hvm2;
 
 uint8_t Targetx, Targety;
 uint8_t TrackFound;
@@ -128,58 +128,43 @@ int ProcessImage(uint8_t TrackingColor)
 {
 	TrackFound=0;
 
-	// Ping HaViMo2
-		// If responds -> done processing last image, get results
-		// Else -> still processing, wait/try again later
-	Dxl.ping( HaViMo2_ID );
-	int commStat = Dxl.getResult();
-	if (!(commStat==COMM_RXSUCCESS))
+	if (!hvm2.ready())
 	{
-#ifdef VERBOSE_IMAGE_PROCESSING
-//		SerialUSB.print("\nNo response...");
-#endif
 		return 0;
 	}
-#ifdef VERBOSE_IMAGE_PROCESSING
-//	SerialUSB.print("\nImage ready...");
-#endif
 
 // Recover current Region Buffer
-	Dxl.havGet( HaViMo2_ID, &h2rb );
+	uint8_t valid_regions = hvm2.recover();
 // Start capture of next image
-	Dxl.havCap( HaViMo2_ID );
+	hvm2.capture();
 
 
-	uint8_t i;
+	uint8_t iter;
 	int matches = 0;
 
 	// Examine the Region Buffer
-	for (i=0; i<15; i++)
+	for (iter=0; iter<valid_regions; iter++)
 	{
-		// is the region is valid?
-		if (h2rb.rb[i].Index!=0)
+		if (hvm2.color(iter)==TrackingColor)
 		{
-			if (h2rb.rb[i].Color==TrackingColor)
-			{
-				matches++;
+			matches++;
 
 #ifdef VERBOSE_IMAGE_PROCESSING
-				if (matches == 1)
-				{
-					SerialUSB.print("\nNumber of Regions found: ");
-					SerialUSB.print(h2rb.valid);
-					SerialUSB.print("\nColor Matched Regions: ");
-				}
-				SerialUSB.print(i+1);
-				SerialUSB.print(" ");
+			if (matches == 1)
+			{
+				SerialUSB.print("\nNumber of Regions found: ");
+				SerialUSB.print(valid_regions);
+				SerialUSB.print("\nColor Matched Regions: ");
+			}
+			SerialUSB.print(iter+1);
+			SerialUSB.print(" ");
 #endif
-				// bigger than the last region found
-				if(h2rb.rb[i].NumPix>TrackFound)
-				{
-					Targetx=h2rb.rb[i].SumX/h2rb.rb[i].NumPix;
-					Targety=h2rb.rb[i].SumY/h2rb.rb[i].NumPix;
-					TrackFound=h2rb.rb[i].NumPix;
-				}
+			// bigger than the last region found
+			if(hvm2.size(iter)>TrackFound)
+			{
+				Targetx=hvm2.avgX(iter);
+				Targety=hvm2.avgY(iter);
+				TrackFound=hvm2.size(iter);
 			}
 		}
 	}

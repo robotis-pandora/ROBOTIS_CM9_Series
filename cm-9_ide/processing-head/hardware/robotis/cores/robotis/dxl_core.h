@@ -9,7 +9,6 @@ extern "C" {
 
 #include "dxl_hal.h"
 #include "dxl_constants.h"
-#include "HaViMo2.h"
 
 ///////////// device control methods ////////////////////////
 int dxl_initialize( int devIndex, int baudnum );
@@ -48,16 +47,6 @@ void dxl_write_word( int id, int address, int value );
 
 // 2012-03-14 jason
 void dxl_reset( int id );
-
-
-/**
- * Low-level function to retrieve an image buffer from a HaViMo2 camera module.
- * @param id HaViMo2 camera ID (fixed as 100 in HaViMo2 firmware).
- * @param hvm2rb Pointer to a user region buffer data type.
- * @see dxl_capture()
- * @return The number of valid regions found in the image.
- */
-uint8_t dxl_recover(uint8_t id, HaViMo2_Region_Buffer_t* hvm2rb);
 
 #ifdef __cplusplus
 }
