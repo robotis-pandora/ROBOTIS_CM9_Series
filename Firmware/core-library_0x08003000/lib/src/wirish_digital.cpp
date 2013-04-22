@@ -108,7 +108,7 @@ void togglePin(uint8 pin) {
 
     gpio_toggle_bit(PIN_MAP[pin].gpio_device, PIN_MAP[pin].gpio_bit);
 }
-
+#if 0
 #define BUTTON_DEBOUNCE_DELAY 1
 
 uint8 isButtonPressed() {
@@ -139,3 +139,4 @@ uint8 waitForButtonPress(uint32 timeout) {
     } while (!isButtonPressed());
     return true;
 }
+#endif

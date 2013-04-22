@@ -1,13 +1,13 @@
 /*
   Dimmer
 
-  Demonstrates sending data from the computer to the CM900, in this
+  Demonstrates sending data from the computer to the CM-9, in this
   case to control the brightness of an LED.  The data is sent in
-  individual bytes, each of which ranges from 0 to 255.  Maple reads
+  individual bytes, each of which ranges from 0 to 255.  CM-9 reads
   these bytes and uses them to set the brightness of the LED.
 
   The circuit:
-  LED connected to pin 16.(CM900's built-in LED)
+  LED must be connected to Pin 6 in CM-9 board, there is no built-in LED in Pin 6
   Serial connection to Processing, Max/MSP, or another serial application.
 
   created 2006

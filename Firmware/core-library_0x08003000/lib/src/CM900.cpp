@@ -67,6 +67,7 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
 	{GPIOA, TIMER3, ADC1,  7, 2,    7}, /* D7/PA7 */
 	{GPIOA, TIMER1, NULL,  8, 1, ADCx}, /* D8/PA8 */
 	{GPIOA, TIMER1, NULL,  9, 2, ADCx}, /* D9/PA9 */
+
 	{GPIOA, TIMER1, NULL, 10, 3, ADCx}, /* D10/PA10 */
 	{GPIOA,   NULL, NULL, 13, 0, ADCx}, /* D11/PA13 */
 	{GPIOA,   NULL, NULL, 14, 0, ADCx}, /* D12/PA14 */
@@ -77,6 +78,7 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
 	{GPIOB,   NULL, NULL,  3, 0, ADCx}, /* D17/PB3  */
 	{GPIOB,   NULL, NULL,  4, 0, ADCx}, /* D18/PB4  */
 	{GPIOB,   NULL, NULL,  5, 0, ADCx}, /* D19/PB5 */
+
 	{GPIOB, TIMER4, NULL,  6, 1, ADCx}, /* D20/PB6 */
 	{GPIOB, TIMER4, NULL,  7, 2, ADCx}, /* D21/PB7 */
 	{GPIOB, TIMER4, NULL,  8, 3, ADCx}, /* D22/PB8 */
@@ -87,6 +89,7 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
 	{GPIOB,   NULL, NULL, 13, 0, ADCx}, /* D27/PB13 */
 	{GPIOB,   NULL, NULL, 14, 0, ADCx}, /* D28/PB14 */
 	{GPIOB,   NULL, NULL, 15, 0, ADCx}, /* D29/PB15 */
+
 	//{GPIOC,   NULL, NULL, 13, 0, ADCx}, /* --/PC13 */
 	{GPIOC,   NULL, NULL, 14, 0, ADCx}, /* D30/PC14 */
 	{GPIOC,   NULL, NULL, 15, 0, ADCx}, /* D31/PC15 */
@@ -100,8 +103,11 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
     //{GPIOB,   NULL, NULL,  3, 0, ADCx}, /* D17/PB3  */
     //{GPIOB,   NULL, NULL,  4, 0, ADCx}, /* D18/PB4  */
 };
-
-extern const uint8 boardPWMPins[] __FLASH__ = {
+/**
+ * [ROBOTIS][CHANGE] 2013-04-22
+ * Don't need to use the below variables, I think it is not versatile variable.
+ * */
+/*extern const uint8 boardPWMPins[] __FLASH__ = {
     0, 1, 2, 3, 5, 6, 7, 8, 9, 11, 12, 14, 24, 27, 28
 };
 
@@ -112,6 +118,6 @@ extern const uint8 boardADCPins[] __FLASH__ = {
 extern const uint8 boardUsedPins[] __FLASH__ = {
     BOARD_LED_PIN, BOARD_BUTTON_PIN, BOARD_JTMS_SWDIO_PIN,
     BOARD_JTCK_SWCLK_PIN, BOARD_JTDI_PIN, BOARD_JTDO_PIN, BOARD_NJTRST_PIN
-};
+};*/
 
 

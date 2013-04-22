@@ -41,13 +41,10 @@ all: $(MAIN_OUT_ELF) $(MAIN_OUT_BIN)
 #$(MAIN_OUT_LSS)
 
 # main
-MAIN_OBJS = exc.o lib/src/adc.o lib/src/bkp.o \
- lib/src/dac.o \
+MAIN_OBJS = exc.o lib/src/adc.o \
  lib/src/descriptors.o \
- lib/src/dma.o \
  lib/src/exti.o \
  lib/src/flash.o \
- lib/src/fsmc.o \
  lib/src/gpio.o \
  lib/src/i2c.o \
  lib/src/iwdg.o \

@@ -26,8 +26,7 @@ int debounceDelay = 50;     // the debounce time; increase if the output flicker
 int buttonPin = 2;          // Button is connected to pin 2
 
 void setup() {
-    pinMode(BOARD_BUTTON_PIN, INPUT);
-    pinMode(buttonPin, OUTPUT);
+    pinMode(buttonPin, INPUT);
 }
 
 void loop() {

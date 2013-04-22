@@ -171,7 +171,7 @@ void togglePin(uint8 pin);
 static inline void toggleLED() {
     togglePin(BOARD_LED_PIN);
 }
-
+#if 0
 /**
  * If the button is currently pressed, waits until the button is no
  * longer being pressed, and returns true.  Otherwise, returns false.
@@ -202,6 +202,7 @@ uint8 isButtonPressed();
  * @see pinMode()
  */
 uint8 waitForButtonPress(uint32 timeout_millis=0);
+#endif
 
 /**
  * Shift out a byte of data, one bit at a time.
@@ -217,6 +218,7 @@ uint8 waitForButtonPress(uint32 timeout_millis=0);
  * @param bitOrder Either MSBFIRST (big-endian) or LSBFIRST (little-endian).
  * @param value    Value to shift out
  */
+
 void shiftOut(uint8 dataPin, uint8 clockPin, uint8 bitOrder, uint8 value);
 
 #endif

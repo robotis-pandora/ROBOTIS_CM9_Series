@@ -65,11 +65,10 @@ void init(void) {
     setupUSB();
     boardInit();
 
+#ifdef CM9_DEBUG
     //for debug
     gpio_set_mode(GPIOA, 2, GPIO_AF_OUTPUT_PP);
  	gpio_set_mode(GPIOA, 3, GPIO_INPUT_FLOATING);
-
-#ifdef CM9_DEBUG
  	usart_init(USART2);
  	usart_set_baud_rate(USART2, STM32_PCLK1, 57600);
  	usart_enable(USART2);
@@ -78,7 +77,7 @@ void init(void) {
 
 
 }
-
+#if 0
 /* You could farm this out to the files in boards/ if e.g. it takes
  * too long to test on Maple Native (all those FSMC pins...). */
 bool boardUsesPin(uint8 pin) {
@@ -89,6 +88,7 @@ bool boardUsesPin(uint8 pin) {
     }
     return false;
 }
+#endif
 
 static void setupFlash(void) {
     flash_enable_prefetch();
