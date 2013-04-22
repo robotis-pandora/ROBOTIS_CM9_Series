@@ -49,6 +49,6 @@ void loop() {
     }
   }
   else{
-    Serial2.println("Comm Fail");
+    SerialUSB.println("Comm Fail");
   }
 }
