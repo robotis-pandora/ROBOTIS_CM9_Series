@@ -23,8 +23,6 @@ cm900_rev10.build.vect=VECT_TAB_FLASH
 cm900_rev10.build.linker=CM900/flash.ld
 cm900_rev10.build.using=armcompiler
 cm900_rev10.build.density=STM32_MEDIUM_DENSITY
-cm900_rev10.build.error_led_port=GPIOB
-cm900_rev10.build.error_led_pin=2
 
 ##############################################################
 
@@ -48,5 +46,3 @@ cm900.build.vect=VECT_TAB_FLASH
 cm900.build.linker=CM900/flash.ld
 cm900.build.using=armcompiler
 cm900.build.density=STM32_MEDIUM_DENSITY
-cm900.build.error_led_port=GPIOB
-cm900.build.error_led_pin=2

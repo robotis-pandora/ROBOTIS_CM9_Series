@@ -300,15 +300,16 @@ public class ArmCompiler extends Compiler {
         "-mcpu=cortex-m3",
         "-mthumb",
         "-Xlinker",
-        "--gc-sections",
-        "--print-gc-sections",
-        "--march=armv7-m",
+        "--gc-sections",/*
+        "--print-gc-sections",//[ROBOTIS] 2013-94-22 Removed
+        "--march=armv7-m",*/
         "-Wall",
-        "-o", elf.getAbsolutePath()));
+        "--output", elf.getAbsolutePath())); //[ROBOTIS][CHANGE] "-o" -> "--output"
 
     for (File f: objectFiles) linkCommand.add(f.getAbsolutePath());
 
     linkCommand.add("-L" + buildPath);
+    //System.out.println("[ROBOTIS] Link Command -> "+ linkCommand);
 
     execAsynchronously(linkCommand);
 
@@ -320,6 +321,7 @@ public class ArmCompiler extends Compiler {
         "-Obinary",
         elf.getAbsolutePath(),
         bin.getAbsolutePath()));
+    //System.out.println("[ROBOTIS] objcopy Command -> "+ objcopyCommand);
 
     execAsynchronously(objcopyCommand);
 
@@ -405,10 +407,11 @@ public class ArmCompiler extends Compiler {
         "-DBOARD_" + boardPrefs.get("build.board"),
         "-DMCU_" + boardPrefs.get("build.mcu"),
         "-D" + boardPrefs.get("build.density"),
-        "-DERROR_LED_PORT=" + boardPrefs.get("build.error_led_port"),
-        "-DERROR_LED_PIN=" + boardPrefs.get("build.error_led_pin"),
+        "-D" + boardPrefs.get("build.vect"), //[ROBOTIS][ADD]
+        /*"-DERROR_LED_PORT=" + boardPrefs.get("build.error_led_port"),//[ROBOTIS] 2013-94-22 Removed
+        "-DERROR_LED_PIN=" + boardPrefs.get("build.error_led_pin"),*/
         //"-DMAPLE_IDE",
-        "-x", "assembler-with-cpp",
+        /*"-x", "assembler-with-cpp",*/
         "-o", objFile.getAbsolutePath(),
         "-c",
         sourceName));
@@ -444,9 +447,9 @@ public class ArmCompiler extends Compiler {
         "-DBOARD_" + boardPrefs.get("build.board"),
         "-DMCU_" + boardPrefs.get("build.mcu"),
         "-D" + boardPrefs.get("build.vect"),
-        "-D" + boardPrefs.get("build.density"),
-        "-DERROR_LED_PORT=" + boardPrefs.get("build.error_led_port"),
-        "-DERROR_LED_PIN=" + boardPrefs.get("build.error_led_pin")
+        "-D" + boardPrefs.get("build.density")/*,
+        "-DERROR_LED_PORT=" + boardPrefs.get("build.error_led_port"),//[ROBOTIS] 2013-94-22 Removed
+        "-DERROR_LED_PIN=" + boardPrefs.get("build.error_led_pin")*/
         //,"-DMAPLE_IDE",
         //"-DARDUINO=" + Base.REVISION
         ));
@@ -460,7 +463,7 @@ public class ArmCompiler extends Compiler {
        ("-o", objFile.getAbsolutePath(),
         "-c",
         sourceName));
-   // System.out.println("[C]command -> "+command);
+   //System.out.println("[ROBOTIS]command -> "+command);
     return command;
   }
 
@@ -491,9 +494,9 @@ public class ArmCompiler extends Compiler {
         "-DBOARD_" + boardPrefs.get("build.board"),
         "-DMCU_" + boardPrefs.get("build.mcu"),
         "-D" + boardPrefs.get("build.density"),
-        "-D" + boardPrefs.get("build.vect"),
+        "-D" + boardPrefs.get("build.vect")/*,
         "-DERROR_LED_PORT=" + boardPrefs.get("build.error_led_port"),
-        "-DERROR_LED_PIN=" + boardPrefs.get("build.error_led_pin")
+        "-DERROR_LED_PIN=" + boardPrefs.get("build.error_led_pin")*/
         //,"-DMAPLE_IDE"
         ));
 
