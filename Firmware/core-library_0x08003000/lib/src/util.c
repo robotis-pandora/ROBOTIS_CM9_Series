@@ -35,12 +35,13 @@
 #include "nvic.h"
 #include "adc.h"
 #include "timer.h"
+#include "delay.h"
 
 /* Failed ASSERT()s send out a message using this USART config. */
 #ifndef ERROR_USART
 #define ERROR_USART            USART2
 #define ERROR_USART_CLK_SPEED  STM32_PCLK1
-#define ERROR_USART_BAUD       9600
+#define ERROR_USART_BAUD       57600//9600 //[ROBOTIS][CHANGE] 2013-04-22
 #define ERROR_TX_PORT          GPIOA
 #define ERROR_TX_PIN           2
 #endif
@@ -58,6 +59,9 @@
  */
 /* (Called from exc.S with global interrupts disabled.) */
 void __error(void) {
+
+	//gpio_write_bit(GPIOB, 2, 0); // [ROBOTIS][CHANGE] 2013-04-22 just LED on when errors occur.
+
     /* Turn off peripheral interrupts */
     nvic_irq_disable_all();
 
@@ -76,7 +80,18 @@ void __error(void) {
 
     /* Reenable global interrupts */
     nvic_globalirq_enable();
-    throb();
+
+    gpio_write_bit(GPIOB, 2, 0); // [ROBOTIS][CHANGE] 2013-04-22 just LED on when errors occur.
+    delay_us(100000);
+    gpio_write_bit(GPIOB, 2, 1); // [ROBOTIS][CHANGE] 2013-04-22 just LED on when errors occur.
+    delay_us(100000);
+    gpio_write_bit(GPIOB, 2, 0); // [ROBOTIS][CHANGE] 2013-04-22 just LED on when errors occur.
+    delay_us(100000);
+    gpio_write_bit(GPIOB, 2, 1); // [ROBOTIS][CHANGE] 2013-04-22 just LED on when errors occur.
+    delay_us(100000);
+    main(); //[ROBOTIS][ADD] 2013-04-23 re-executes main() again when exceptions occur
+    //throb();
+
 }
 
 /**
@@ -88,6 +103,7 @@ void __error(void) {
  * @sideeffect Turns of all peripheral interrupts except USB.
  */
 void _fail(const char* file, int line, const char* exp) {
+#if 0
     /* Initialize the error USART */
     gpio_set_mode(ERROR_TX_PORT, ERROR_TX_PIN, GPIO_AF_OUTPUT_PP);
     usart_init(ERROR_USART);
@@ -102,8 +118,9 @@ void _fail(const char* file, int line, const char* exp) {
     usart_putudec(ERROR_USART, line);
     usart_putc(ERROR_USART, '\n');
     usart_putc(ERROR_USART, '\r');
-
+#endif
     /* Error fade */
+
     __error();
 }
 
@@ -140,7 +157,9 @@ void throb(void) {
         i++;
     }
 #else
+    //gpio_write_bit(GPIOB, 2, 0); // [ROBOTIS][CHANGE] 2013-04-22 just LED on when errors occur.
     /* No error LED is defined; do nothing. */
+
     while (1)
         ;
 #endif

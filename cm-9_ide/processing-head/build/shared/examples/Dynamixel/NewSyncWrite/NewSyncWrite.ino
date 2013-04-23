@@ -45,7 +45,7 @@ void loop() {
   Dxl.initPacket(BROADCAST_ID, INST_SYNC_WRITE);
   /* From now, insert byte data to packet without any index or data length*/
   Dxl.pushByte(P_GOAL_POSITION_L);
-  Dxl.pushByte(2); //push individual data length to 1 dynamixel, goal position needs 2 bytes(1word)
+  Dxl.pushByte(2); //push individual data length per 1 dynamixel, goal position needs 2 bytes(1word)
  
   for( i=0; i<NUM_ACTUATOR; i++ ){
     Dxl.pushByte(id[i]);
