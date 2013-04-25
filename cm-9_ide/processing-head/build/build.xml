@@ -156,7 +156,7 @@
     <delete dir="macosx/work" />
     <delete dir="macosx/working_dir" />
     <delete dir="macosx/working.dmg" />
-    <delete file="macosx/arduino-*.dmg" />
+    <delete file="macosx/ROBOTIS_CM9-*.dmg" />
   </target>
   
   <target name="macosx-checkos" unless="macosx">
@@ -174,7 +174,7 @@
     <mkdir dir="macosx/work" />
     
     <!-- assemble the pde -->
-    <copy todir="macosx/work/ROBOTIS.app">
+    <copy todir="macosx/work/ROBOTIS_CM9.app">
       <fileset dir="macosx/template.app" includes="**"/>
     </copy>
     
@@ -183,13 +183,13 @@
     <move file="macosx/work/template.app" 
 	  tofile="macosx/work/ROBOTIS.app" />-->
 
-    <chmod file="macosx/work/ROBOTIS.app/Contents/MacOS/JavaApplicationStub" perm="755" />
+    <chmod file="macosx/work/ROBOTIS_CM9.app/Contents/MacOS/JavaApplicationStub" perm="755" />
     
-    <copy todir="macosx/work/ROBOTIS.app/Contents/Resources/Java" flatten="true">
+    <copy todir="macosx/work/ROBOTIS_CM9.app/Contents/Resources/Java" flatten="true">
       <fileset refid="runtime.jars"/>
     </copy>
     
-    <copy todir="macosx/work/ROBOTIS.app/Contents/Resources/Java">
+    <copy todir="macosx/work/ROBOTIS_CM9.app/Contents/Resources/Java">
       <fileset dir="shared" includes="lib/**" />
       <fileset file="shared/revisions.txt" />
     </copy>
@@ -201,7 +201,7 @@
       <arg value="-q" />
       <arg value="-n" />
       <arg value="-d" />
-      <arg value="macosx/work/ROBOTIS.app/Contents/Resources/Java/hardware" />
+      <arg value="macosx/work/ROBOTIS_CM9.app/Contents/Resources/Java/hardware" />
       <arg value="macosx/dist/tools-universal.zip" />
     </exec>
 
@@ -212,33 +212,33 @@
 -->
 
     <antcall target="assemble">
-      <param name="target.path" value="macosx/work/ROBOTIS.app/Contents/Resources/Java" />
+      <param name="target.path" value="macosx/work/ROBOTIS_CM9.app/Contents/Resources/Java" />
     </antcall>
   </target>
 
   <target name="macosx-run" depends="macosx-build" description="Run Mac OS X version">
-    <exec executable="macosx/work/ROBOTIS.app/Contents/MacOS/JavaApplicationStub" spawn="true"/>
+    <exec executable="macosx/work/ROBOTIS_CM9.app/Contents/MacOS/JavaApplicationStub" spawn="true"/>
   </target>
 
   <target name="macosx-dist" if="macosx" depends="macosx-build" description="Create a downloadable .zip for the Mac OS X version">
     <!-- The ant copy command does not preserve permissions. -->
-    <chmod file="macosx/work/ROBOTIS.app/Contents/MacOS/JavaApplicationStub" perm="+x" />
+    <chmod file="macosx/work/ROBOTIS_CM9.app/Contents/MacOS/JavaApplicationStub" perm="+x" />
     <chmod perm="+x">
-      <fileset dir="macosx/work/ROBOTIS.app/Contents/Resources/Java/hardware/tools/arm/bin" includes="**/*" />
-      <fileset dir="macosx/work/ROBOTIS.app/Contents/Resources/Java/hardware/tools/arm/arm-none-eabi/bin" includes="**/*" /> 
+      <fileset dir="macosx/work/ROBOTIS_CM9.app/Contents/Resources/Java/hardware/tools/arm/bin" includes="**/*" />
+      <fileset dir="macosx/work/ROBOTIS_CM9.app/Contents/Resources/Java/hardware/tools/arm/arm-none-eabi/bin" includes="**/*" /> 
       <!-- <fileset dir="macosx/work/ROBOTIS.app/Contents/Resources/Java/hardware/tools/avr/avr-3/bin" includes="**/*" />
       <fileset dir="macosx/work/ROBOTIS.app/Contents/Resources/Java/hardware/tools/avr/avr-4/bin" includes="**/*" /> -->
-      <fileset dir="macosx/work/ROBOTIS.app/Contents/Resources/Java/hardware/tools/arm/libexec/gcc/arm-none-eabi/4.4.1/" includes="**/cc1*" />
+      <fileset dir="macosx/work/ROBOTIS_CM9.app/Contents/Resources/Java/hardware/tools/arm/libexec/gcc/arm-none-eabi/4.4.1/" includes="**/cc1*" />
      <!-- <fileset dir="macosx/work/ROBOTIS.app/Contents/Resources/Java/hardware/tools/arm/libexec/gcc/arm-none-eabi/4.3.2/" includes="**/cc1*" /> -->
     </chmod>
 
-    <replace file="macosx/work/ROBOTIS.app/Contents/Info.plist"
+    <replace file="macosx/work/ROBOTIS_CM9.app/Contents/Info.plist"
              token="VERSION" value="${version}" />
-    <replace file="macosx/work/ROBOTIS.app/Contents/Info.plist"
+    <replace file="macosx/work/ROBOTIS_CM9.app/Contents/Info.plist"
              token="REVISION" value="${revision}" />
     
     <exec executable="ditto" dir="macosx/work">
-      <arg line="-c -k -rsrc . ../arduino-${version}-macosx.zip" />
+      <arg line="-c -k -rsrc . ../ROBOTIS_CM9-${version}-macosx.zip" />
     </exec>
 
     <echo>
@@ -265,7 +265,7 @@
     </copy>
 
     <!-- The ant copy command does not preserve permissions. -->
-    <chmod file="macosx/working_dir/ROBOTIS.app/Contents/MacOS/JavaApplicationStub" perm="+x" />
+    <chmod file="macosx/working_dir/ROBOTIS_CM9.app/Contents/MacOS/JavaApplicationStub" perm="+x" />
 <!--
     <chmod perm="+x">
       <fileset dir="macosx/working_dir/ROBOTIS.app/Contents/Resources/Java/hardware/tools/avr/bin" includes="**/*" />
@@ -288,9 +288,9 @@
       <arg line="detach macosx/working_dir" />
     </exec>
   
-    <delete file="macosx/arduino-*.dmg" />
+    <delete file="macosx/ROBOTIS_CM9-*.dmg" />
     <exec executable="hdiutil">
-      <arg line="convert macosx/working.dmg -quiet -format UDZO -imagekey zlib-level=9 -o macosx/arduino-${version}.dmg" />
+      <arg line="convert macosx/working.dmg -quiet -format UDZO -imagekey zlib-level=9 -o macosx/ROBOTIS_CM9-${version}-macosx.dmg" />
     </exec>
 
     <!-- Clean up the interim files. -->
@@ -346,8 +346,8 @@
       <param name="target.path" value="linux/work" />
     </antcall>
 
-    <copy todir="linux/work" file="linux/dist/robotis" />
-    <chmod perm="755" file="linux/work/robotis" />
+    <copy todir="linux/work" file="linux/dist/ROBOTIS_CM9" />
+    <chmod perm="755" file="linux/work/ROBOTIS_CM9" />
 
 <!--     <copy todir="linux/work/hardware">
       <fileset dir="linux/dist" includes="tools/**" />
@@ -379,12 +379,12 @@
   
   <target name="linux32-run" depends="linux32-build" 
 	  description="Run Linux (32-bit) version">
-    <exec executable="./linux/work/robotis" spawn="false"/>
+    <exec executable="./linux/work/ROBOTIS_CM9" spawn="false"/>
   </target>
   
   <target name="linux64-run" depends="linux64-build" 
 	  description="Run Linux (64-bit) version">
-    <exec executable="./linux/work/robotis" spawn="false"/>
+    <exec executable="./linux/work/ROBOTIS_CM9" spawn="false"/>
   </target>
 
   <target name="linux-dist" depends="build" 
@@ -414,17 +414,17 @@
 		  prefix="arduino-${version}/hardware/tools" />
     </tar>
 -->
-    <move file="linux/work" tofile="linux/arduino-${version}" />
+    <move file="linux/work" tofile="linux/ROBOTIS_CM9-${version}" />
 
     <exec executable="tar" dir="linux">
       <arg value="-z"/>
       <arg value="-c"/>
       <arg value="-f"/>
-      <arg value="arduino-${version}-linux.tgz"/>
-      <arg value="arduino-${version}"/>
+      <arg value="ROBOTIS_CM9-${version}-linux.tgz"/>
+      <arg value="ROBOTIS_CM9-${version}"/>
     </exec>
 
-    <move file="linux/arduino-${version}" tofile="linux/work" />
+    <move file="linux/ROBOTIS_CM9-${version}" tofile="linux/work" />
 
     <echo>
       =======================================================
@@ -436,10 +436,14 @@
   </target>
 
   <target name="linux32-dist" depends="linux-dist" 
-	  description="Build .tar.gz of linux version" />
+	  description="Build .tar.gz of linux version" >
+    <move file="linux/ROBOTIS_CM9-${version}-linux.tgz" tofile="linux/ROBOTIS_CM9-${version}-linux32.tgz" />
+  </target>
   
   <target name="linux64-dist" depends="linux-dist" 
-	  description="Build .tar.gz of linux version" />
+	  description="Build .tar.gz of linux version" >
+    <move file="linux/ROBOTIS_CM9-${version}-linux.tgz" tofile="linux/ROBOTIS_CM9-${version}-linux64.tgz" />
+  </target>
   
   <!-- - - - - - - - -->
   <!-- Windows       -->

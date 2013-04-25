@@ -337,20 +337,15 @@ void __irq_usart1(void) {
 
 
 }
-extern uint8 	gbIsZigbeeUsed; //[ROBOTIS]2012-12-13
-extern volatile byte	gbpPacketDataBuffer[16+1+16];
-extern volatile byte	gbPacketWritePointer;
+
 
 void __irq_usart2(void) {
 
 	if(userUsartInterrupt2 != NULL){
 		userUsartInterrupt2((byte)USART2->regs->DR);
+		return;
 	}
 
-	if(gbIsZigbeeUsed == 1){
-		gbpPacketDataBuffer[gbPacketWritePointer++] = (uint8)USART2->regs->DR;
-		gbPacketWritePointer = gbPacketWritePointer & 0x1F;
-	}
 
     usart_irq(USART2);
 }
@@ -358,6 +353,7 @@ void __irq_usart2(void) {
 void __irq_usart3(void) {
 	if(userUsartInterrupt3 != NULL){
 		userUsartInterrupt3((byte)USART3->regs->DR);
+		return;
 	}
     usart_irq(USART3);
 }
@@ -366,6 +362,7 @@ void __irq_usart3(void) {
 void __irq_uart4(void) {
 	if(userUsartInterrupt4 != NULL){
 		userUsartInterrupt4((byte)USART4->regs->DR);
+		return;
 	}
     usart_irq(UART4);
 }
@@ -373,6 +370,7 @@ void __irq_uart4(void) {
 void __irq_uart5(void) {
 	if(userUsartInterrupt5 != NULL){
 		userUsartInterrupt5((byte)USART5->regs->DR);
+		return;
 	}
     usart_irq(UART5);
 }
