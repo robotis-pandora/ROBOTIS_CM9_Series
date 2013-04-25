@@ -41,11 +41,11 @@
  */
 
 
-#include "CM900.h"
+#include "boards.h"
 
 #include "gpio.h"
 #include "timer.h"
-#include "wirish_types.h"
+
 
 void boardInit(void) {
 

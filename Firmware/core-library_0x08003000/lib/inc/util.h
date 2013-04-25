@@ -75,12 +75,15 @@ void throb(void);
  *
  * The debug levels, from lowest to highest, are DEBUG_NONE,
  * DEBUG_FAULT, and DEBUG_ALL.  The default level is DEBUG_ALL.
+ *
  */
 
 #ifndef DEBUG_LEVEL
 #define DEBUG_LEVEL DEBUG_ALL
 #endif
-
+/*
+ * see the usart.c file which is implemented for _fail() functions
+ * */
 #if DEBUG_LEVEL >= DEBUG_ALL
 #define ASSERT(exp)                              \
     if (exp) {                                   \

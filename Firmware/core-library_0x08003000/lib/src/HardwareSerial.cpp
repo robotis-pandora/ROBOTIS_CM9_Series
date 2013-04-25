@@ -29,7 +29,7 @@
  * @brief Wirish serial port implementation.
  */
 
-#include "libpandora.h"
+//#include "libpandora.h"
 #include "gpio.h"
 #include "timer.h"
 

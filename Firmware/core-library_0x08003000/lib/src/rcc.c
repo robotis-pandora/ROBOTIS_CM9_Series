@@ -28,10 +28,9 @@
  * @brief Implements pretty much only the basic clock setup on the
  *        stm32, clock enable/disable and peripheral reset commands.
  */
-
-#include "libpandora.h"
-#include "flash.h"
 #include "rcc.h"
+#include "util.h"
+#include "flash.h"
 #include "bitband.h"
 
 #define APB1                            RCC_APB1

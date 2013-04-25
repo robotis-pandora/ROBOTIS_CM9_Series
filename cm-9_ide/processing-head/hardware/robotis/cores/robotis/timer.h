@@ -35,7 +35,9 @@
 #ifndef _TIMERS_H_
 #define _TIMERS_H_
 
-#include "libpandora.h"
+//#include "libpandora.h"
+#include "libpandora_types.h"
+
 #include "rcc.h"
 #include "nvic.h"
 #include "bitband.h"

@@ -39,13 +39,46 @@
 #ifndef _BOARDS_H_
 #define _BOARDS_H_
 
-#include "libpandora.h"
+//#include "libpandora.h"
+
+#include "libpandora_types.h"
 #include "gpio.h"
 #include "timer.h"
-//[ROBOTIS]add this file to prevent not finding loop() and setup() functions
-//#include "wirish.h"
+#include "adc.h"
 
-#include "wirish_types.h"
+#define USER_ADDR_ROM 0x08005000
+#define USER_ADDR_RAM 0x20000000 //#define USER_ADDR_RAM 0x20000C00 [ROBOTIS][CHANGE] for CM900
+#define STACK_TOP     0x20000800
+//[ROBOTS][START] add to support Pandora CM-900 board
+#define NVIC_VectTab_RAM             ((u32)0x20000000)
+#define NVIC_VectTab_FLASH           ((u32)0x08000000)
+//[ROBOTS][END] add to support Pandora CM-900 board
+
+/**
+ * Invalid stm32_pin_info adc_channel value.
+ * @see stm32_pin_info
+ */
+#define ADCx 0xFF
+
+/**
+ * @brief Stores STM32-specific information related to a given Maple pin.
+ * @see PIN_MAP
+ */
+typedef struct stm32_pin_info {
+    gpio_dev *gpio_device;      /**< Maple pin's GPIO device */
+    timer_dev *timer_device;    /**< Pin's timer device, if any. */
+    const adc_dev *adc_device;  /**< ADC device, if any. */
+    uint8 gpio_bit;             /**< Pin's GPIO port bit. */
+    uint8 timer_channel;        /**< Timer channel, or 0 if none. */
+    uint8 adc_channel;          /**< Pin ADC channel, or ADCx if none. */
+} stm32_pin_info;
+
+/**
+ * Variable attribute, instructs the linker to place the marked
+ * variable in Flash instead of RAM. */
+#define __FLASH__ __attr_flash
+
+
 
 /* Set of all possible pin names; not all boards have all these (note
  * that we use the Dx convention since all of the Maple's pins are

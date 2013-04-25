@@ -25,7 +25,7 @@
  *****************************************************************************/
 
 #include "descriptors.h"
-#include "libpandora.h"
+//#include "libpandora.h"
 #include "usb_config.h"
 
 const USB_Descriptor_Device usbVcomDescriptor_Device = {

@@ -32,19 +32,18 @@
 
 #ifndef _WIRISH_H_
 #define _WIRISH_H_
-#include <stdlib.h>
 
-#include "libpandora.h"
+//#include "libpandora.h"
 
-#include "wirish_types.h"
+//#include "wirish_types.h"
 #include "boards.h"
-#include "io.h"
+//#include "io.h"
 #include "bits.h"
 #include "pwm.h"
 #include "ext_interrupts.h"
-#include "wirish_debug.h"
-#include "wirish_math.h"
-#include "wirish_time.h"
+//#include "wirish_debug.h"
+//#include "wirish_math.h"
+//#include "wirish_time.h"
 #include "HardwareSPI.h"
 #include "HardwareSerial.h"
 #include "HardwareTimer.h"
@@ -52,7 +51,7 @@
 
 //[ROBOTIS]add to support dynamixel that is super powered robot actuator
 #include "Dynamixel.h"
-
+#include "Arduino-compatibles.h" //we need to decrease object files for shortening download time.
 
 /* Arduino wiring macros and bit defines  */
 #define HIGH 0x1
@@ -76,6 +75,38 @@
 typedef uint8 boolean;
 typedef uint8 byte;
 
+
+
+/*************************************************************************************************************
+ * Removed wirish_debug.h by ROBOTIS,.LTD. 2013-04-25
+ * debug codes move to wirish.h
+ * @brief High level debug port configuration
+ *
+ *************************************************************************************************************/
+
+/**
+ * @brief Disable the JTAG and Serial Wire (SW) debug ports.
+ *
+ * You can call this function in order to use the JTAG and SW debug
+ * pins as ordinary GPIOs.
+ *
+ * @see enableDebugPorts()
+ */
+static inline void disableDebugPorts(void) {
+    afio_cfg_debug_ports(AFIO_DEBUG_NONE);
+}
+
+/**
+ * @brief Enable the JTAG and Serial Wire (SW) debug ports.
+ *
+ * After you call this function, the JTAG and SW debug pins will no
+ * longer be usable as GPIOs.
+ *
+ * @see disableDebugPorts()
+ */
+static inline void enableDebugPorts(void) {
+    afio_cfg_debug_ports(AFIO_DEBUG_FULL_SWJ);
+}
 
 #endif
 

@@ -33,9 +33,10 @@
 #ifndef _ADC_H_
 #define _ADC_H_
 
-#include "libpandora.h"
+//#include "libpandora.h"
 #include "bitband.h"
 #include "rcc.h"
+#include "util.h"  //for use BIT() macro
 
 #ifdef __cplusplus
 extern "C"{

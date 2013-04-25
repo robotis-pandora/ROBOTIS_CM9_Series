@@ -28,7 +28,8 @@
 #define _USB_H_
 
 #include "usb_lib.h"
-#include "libpandora.h"
+//#include "libpandora.h"
+#include "libpandora_types.h"
 
 #ifdef __cplusplus
 extern "C" {

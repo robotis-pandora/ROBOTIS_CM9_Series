@@ -6,8 +6,9 @@
 extern "C" {
 #endif
 
-#include "libpandora.h"
+#include "libpandora_types.h"
 #include "usb_type.h"
+#include "stm32.h"
 
 #define PACKET_DATA0    		2
 #define INVERSE_PACKET_DATA0 	3

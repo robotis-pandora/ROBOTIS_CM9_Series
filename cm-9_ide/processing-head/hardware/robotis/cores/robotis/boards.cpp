@@ -45,7 +45,8 @@
 
 //for debug
 #include "usart.h"
-#include "wirish_time.h"
+//#include "wirish_time.h"
+#include "Arduino-compatibles.h"
 
 static void setupFlash(void);
 static void setupClocks(void);

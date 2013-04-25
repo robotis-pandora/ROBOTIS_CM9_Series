@@ -34,8 +34,12 @@
 #ifndef _GPIO_H_
 #define _GPIO_H_
 
-#include "libpandora.h"
+//#include "libpandora.h"
+//#include "libpandora_types.h"
+#include "stm32.h"
+#include "util.h"
 #include "rcc.h"
+
 
 #ifdef __cplusplus
 extern "C"{

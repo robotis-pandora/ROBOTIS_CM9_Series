@@ -37,7 +37,9 @@
  * See STM32 manual RM0008 for how to calculate this.
  */
 
-#include "libpandora.h"
+//#include "libpandora.h"
+//#include "libpandora_types.h"
+
 #include "rcc.h"
 #include "adc.h"
 

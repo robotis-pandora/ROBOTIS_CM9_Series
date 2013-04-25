@@ -40,7 +40,8 @@
 #define LLONG_MAX 9223372036854775807LL
 #endif
 
-#include "wirish_math.h"
+//#include "wirish_math.h"
+#include "Arduino-compatibles.h"
 
 /*
  * Public methods

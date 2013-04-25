@@ -26,7 +26,7 @@
 #define __DESCRIPTORS_H
 
 
-#include "libpandora.h"
+#include "libpandora_types.h"
 #include "usb_lib.h"
 
 #define USB_DESCRIPTOR_TYPE_DEVICE        0x01

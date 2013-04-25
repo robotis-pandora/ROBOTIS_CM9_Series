@@ -3,7 +3,9 @@
 #ifndef __USB_CALLBACKS
 #define __USB_CALLBACKS
 
-#include "libpandora.h"
+//#include "libpandora.h"
+#include "libpandora_types.h"
+
 #include "usb_lib.h"
 #include "usb_config.h"
 

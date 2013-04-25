@@ -31,7 +31,6 @@
  */
 
 #include "usb.h"
-#include "libpandora.h"
 #include "usb_lib.h"
 #include "gpio.h"
 #include "usb_hardware.h"

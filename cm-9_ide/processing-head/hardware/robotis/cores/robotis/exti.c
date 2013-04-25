@@ -30,7 +30,7 @@
  */
 
 #include "exti.h"
-#include "libpandora.h"
+//#include "libpandora.h"
 #include "nvic.h"
 #include "bitband.h"
 

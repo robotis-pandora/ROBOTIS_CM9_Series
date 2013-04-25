@@ -24,10 +24,11 @@
  * SOFTWARE.
  *****************************************************************************/
 
-#include "libpandora.h"
 
 #include <sys/stat.h>
 #include <errno.h>
+//#include "libpandora.h"
+
 
 /* If CONFIG_HEAP_START (or CONFIG_HEAP_END) isn't defined, then
  * assume _lm_heap_start (resp. _lm_heap_end) is appropriately set by
@@ -47,6 +48,7 @@ extern char _lm_heap_end;
  * Get incr bytes more RAM (for use by the heap).  malloc() and
  * friends call this function behind the scenes.
  */
+
 caddr_t _sbrk(int incr) {
     static caddr_t pbreak = NULL; /* current program break */
     caddr_t ret;
@@ -159,3 +161,4 @@ char *fgets(char *s, int bufsize, void *f) {
     cgets(s, bufsize);
     return s;
 }
+

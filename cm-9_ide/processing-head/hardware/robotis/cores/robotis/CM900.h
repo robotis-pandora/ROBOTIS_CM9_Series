@@ -38,7 +38,7 @@
 #ifndef CM_900_H_
 #define CM_900_H_
 
-#include "gpio.h"
+//#include "gpio.h"
 
 
 #define CYCLES_PER_MICROSECOND  72

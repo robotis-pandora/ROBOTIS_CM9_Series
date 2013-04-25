@@ -26,10 +26,10 @@
 
 #include "Servo.h"
 
-#include "boards.h"
-#include "io.h"
-#include "pwm.h"
-#include "wirish_math.h"
+//#include "boards.h"
+//#include "io.h"
+//#include "pwm.h"
+//#include "wirish_math.h"
 
 // 20 millisecond period config.  For a 1-based prescaler,
 //

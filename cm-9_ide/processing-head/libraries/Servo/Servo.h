@@ -27,9 +27,8 @@
 #ifndef _SERVO_H_
 #define _SERVO_H_
 
-#include "timer.h"
-
-#include "wirish_types.h"
+//#include "timer.h"
+#include "wirish.h"
 
 
 /*

@@ -31,7 +31,7 @@
 
 /* See notes/exti.txt for more info */
 
-#include "libpandora.h"
+//#include "libpandora.h"
 #include "gpio.h"
 
 #ifndef _EXTI_H_

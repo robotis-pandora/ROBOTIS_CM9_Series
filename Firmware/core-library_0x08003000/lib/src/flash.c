@@ -29,7 +29,7 @@
  * @brief Flash management functions
  */
 
-#include "libpandora.h"
+//#include "libpandora.h"
 #include "flash.h"
 #include "bitband.h"
 

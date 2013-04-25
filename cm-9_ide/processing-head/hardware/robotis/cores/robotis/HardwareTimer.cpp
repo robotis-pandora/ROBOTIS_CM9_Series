@@ -26,8 +26,8 @@
 
 #include "HardwareTimer.h"
 #include "boards.h"             // for CYCLES_PER_MICROSECOND
-#include "wirish_math.h"
-
+//#include "wirish_math.h"
+#include "Arduino-compatibles.h"
 // TODO [0.1.0] Remove deprecated pieces
 
 #ifdef STM32_MEDIUM_DENSITY

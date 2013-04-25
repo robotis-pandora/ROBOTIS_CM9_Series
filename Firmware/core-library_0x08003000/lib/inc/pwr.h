@@ -29,7 +29,11 @@
  * @brief Power control (PWR) defines.
  */
 
-#include "libpandora.h"
+//#include "libpandora.h"
+#include "libpandora_types.h"
+//#include "stm32.h"
+//#include "util.h"
+//#include "delay.h"
 
 #ifdef __cplusplus
 extern "C" {
