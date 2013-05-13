@@ -32,8 +32,8 @@ const int sensorPin = 1;    // pin that the sensor is attached to
 const int pwmLEDPin = 6;  
 
 // Variables:
-int sensorMin = 1023;   // minimum sensor value
-int sensorMax = 0;      // maximum sensor value
+int sensorMin = 0;   // minimum sensor value
+int sensorMax = 4095;      // maximum sensor value
 int sensorValue = 0;    // the sensor value
 
 void setup() {

@@ -8,7 +8,8 @@
  */
 
 // My gigantic dynamixel header file
-#include <dxl_devices.h>
+//#include <dxl_devices.h> //dxl_devices.h is located in libraries\HaViMo2\utility\
+#include <HaViMo2.h>
 
 #define DXL_BAUDRATE_NUMBER 1  // number = 1 is 1000000 bps, 34 is 57600 bps
 

@@ -14,7 +14,8 @@
  */
 
 // My gigantic dynamixel header file
-#include <dxl_devices.h>
+//#include <dxl_devices.h> //dxl_devices.h is located in libraries\HaViMo2\utility\
+#include <HaViMo2.h>
 
 #define DXL_WHEEL_ID	2
 #define DXL_IRSA_ID		100
