@@ -14,7 +14,7 @@ CXX = $(TCHAIN_PREFIX)g++
 CXXFLAGS = $(COMPILECPP_OPTS) $(INCLUDE_DIRS)
 #Assembler compiler setting
 AS = $(TCHAIN_PREFIX)gcc
-ASFLAGS = $(COMPILEAS_OPTS) -c
+ASFLAGS = $(COMPILEAS_OPTS)
 
 #LD = $(TCHAIN_PREFIX)gcc
 
@@ -22,7 +22,7 @@ LD = $(TCHAIN_PREFIX)g++
 LDFLAGS = -T flash.ld -L . -mcpu=cortex-m3 -mthumb -Xlinker --gc-sections -Wall
 
 OBJCP = $(TCHAIN_PREFIX)objcopy
-OBJCPFLAGS = -v -O binary
+OBJCPFLAGS = -v -Obinary
 
 OBJDUMP = $(TCHAIN_PREFIX)objdump
 OBJDUMPFLAGS = -h -S -C -D
@@ -36,13 +36,13 @@ MAIN_OUT_BIN = $(MAIN_OUT).bin
 MAIN_OUT_LSS = $(MAIN_OUT).lss
 
 # all
-#여기는 최종 target 파일이 3개가 있다. 각각 3개의 target이 자동으로 생성된다. 
 all: $(MAIN_OUT_ELF) $(MAIN_OUT_BIN) 
 #$(MAIN_OUT_LSS)
 
 # main
-MAIN_OBJS = exc.o lib/src/adc.o \
+MAIN_OBJS = exc.o\
  lib/src/descriptors.o \
+ lib/src/adc.o \
  lib/src/exti.o \
  lib/src/flash.o \
  lib/src/gpio.o \
@@ -64,7 +64,6 @@ MAIN_OBJS = exc.o lib/src/adc.o \
  lib/src/usb_int.o \
  lib/src/usb_mem.o \
  lib/src/usb_regs.o \
- lib/src/util.o \
  lib/src/boards.o \
  lib/src/cxxabi-compat.o \
  lib/src/ext_interrupts.o \
@@ -74,18 +73,14 @@ MAIN_OBJS = exc.o lib/src/adc.o \
  lib/src/Print.o \
  lib/src/pwm.o \
  lib/src/usb_serial.o \
- lib/src/wirish_analog.o \
- lib/src/wirish_digital.o \
- lib/src/wirish_math.o \
- lib/src/wirish_shift.o \
- lib/src/wirish_time.o \
  template.o \
  main.o \
  lib/src/CM900.o \
  lib/src/Dynamixel.o \
  lib/src/dxl.o \
- lib/src/zgb_hal.o \
- lib/src/zigbee.o \
+ lib/src/Arduino-compatibles.o
+ 
+ 
  
  
 $(MAIN_OUT_ELF): $(MAIN_OBJS) 
