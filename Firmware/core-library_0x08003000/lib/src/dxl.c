@@ -238,7 +238,7 @@ byte rx_Packet(byte bRxLength){
 
 				break;
 			}
-			//uDelay(0); //porting ydh added
+			uDelay(0); //porting ydh added
 		}
 		if(bTimeout) break;
 		gbpRxBuffer[bCount] = gbpDXLDataBuffer[gbDXLReadPointer++];
