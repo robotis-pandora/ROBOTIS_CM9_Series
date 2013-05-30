@@ -2,7 +2,7 @@
  * RC100.cpp
  *
  *  Created on: 2013. 4. 24.
- *      Author: in2storm
+ *      Author: ROBOTIS,.LTD.
  */
 
 #include "RC100.h"

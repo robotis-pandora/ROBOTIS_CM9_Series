@@ -2,7 +2,7 @@
  * RC100.h
  *
  *  Created on: 2013. 4. 24.
- *      Author: in2storm
+ *      Author: ROBOTIS,.LTD.
  */
 
 #ifndef RC100_H_

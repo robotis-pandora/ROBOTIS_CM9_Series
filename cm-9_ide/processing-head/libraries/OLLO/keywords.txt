@@ -1,0 +1,23 @@
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+read	KEYWORD2
+write	KEYWORD2
+writeLED	KEYWORD2
+beginIR	KEYWORD2
+beginButton	KEYWORD2
+#######################################
+# Class (KEYWORD3)
+#######################################
+OLLO	KEYWORD3
+myOLLO	KEYWORD3
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+#RC100_BTN_U		LITERAL1
+
