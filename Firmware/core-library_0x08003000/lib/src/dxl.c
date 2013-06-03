@@ -147,11 +147,12 @@ byte txrx_Packet(byte bID, byte bInst, byte bTxParaLen){
 			//      if(gbRxLength != bRxLenEx) //&& bRxLenEx != 255) before Ver 1.11e
 			if((gbRxLength != bRxLenEx) && (bRxLenEx != 255)) // after Ver 1.11f
 			{
+				//TxDStringC(" Length mismatch!!\r\n");
 				unsigned long ulCounter;
 				word wTimeoutCount;
 				ulCounter = 0;
 				wTimeoutCount = 0;
-				//TxDByteC('0');//TxDStringC("\r\n TEST POINT 0");//TxDString("\r\n Err ID:0x");
+				//TxDStringC("\r\n TEST POINT 0");
 				while(ulCounter++ < RX_TIMEOUT_COUNT2)
 				{
 					if(gbDXLReadPointer != gbDXLWritePointer) {
@@ -168,29 +169,30 @@ byte txrx_Packet(byte bID, byte bInst, byte bTxParaLen){
 					nDelay(NANO_TIME_DELAY);// porting ydh added
 
 				}
-				//TxDByteC('1');//TxDStringC("\r\n TEST POINT 1");//TxDString("\r\n Err ID:0x");
+				//TxDStringC("\r\n TEST POINT 1");
 				gbDXLReadPointer = gbDXLWritePointer; //BufferClear
 			}
 			else
 			{
-				//TxDByteC('6');//TxDStringC("\r\n TEST POINT 6");//TxDString("\r\n Err ID:0x");
+				//TxDStringC("\r\n TEST POINT 6");
 				break;
 			}
 		}
 	}
 
-	//TxDByteC('2');//TxDStringC("\r\n TEST POINT 2");//TxDString("\r\n Err ID:0x");
+	//TxDStringC("\r\n TEST POINT 2");//TxDString("\r\n Err ID:0x");
 	gbBusUsed = 0;
 
 	if((gbRxLength != bRxLenEx) && (gbpTxBuffer[2] != BROADCAST_ID))
 	{
-		//TxDByteC('3');//TxDStringC("\r\n TEST POINT 3");//TxDString("\r\n Err ID:0x");
+		//TxDByteC('3');//
+		//TxDStringC("Rx Error\r\n");//TxDString("\r\n Err ID:0x");
 #ifdef	PRINT_OUT_COMMUNICATION_ERROR_TO_USART2
 		//TxDString("\r\n Err ID:0x");
 		//TxDHex8(bID);
-		//TxDString("\r\n ->[DXL]Err: ");
+		TxDStringC("\r\n ->[DXL]Err: ");
 		PrintBuffer(gbpTxBuffer,bTxLen);
-		//TxDString("\r\n <-[DXL]Err: ");
+		TxDStringC("\r\n <-[DXL]Err: ");
 		PrintBuffer(gbpRxBuffer,gbRxLength);
 #endif
 
@@ -235,7 +237,7 @@ byte rx_Packet(byte bRxLength){
 			if(ulCounter++ > ulTimeLimit)
 			{
 				bTimeout = 1;
-
+				//TxDStringC("Timeout\r\n");
 				break;
 			}
 			uDelay(0); //porting ydh added

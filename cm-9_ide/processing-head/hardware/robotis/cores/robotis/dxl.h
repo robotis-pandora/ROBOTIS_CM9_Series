@@ -39,14 +39,6 @@ extern "C" {
 
 
 
-#define RX_WAIT_TIMEOUT			0xf000
-#define RX_TIMEOUT_COUNT2		(1600L) //(1000L) //porting
-#define NANO_TIME_DELAY			(12000) //ydh added 20111228 -> 20120210 edited ydh
-//#define RX_TIMEOUT_COUNT1  	(RX_TIMEOUT_COUNT2*90L)// -> 110msec  before Ver 1.11e
-#define RX_TIMEOUT_COUNT1  		(RX_TIMEOUT_COUNT2*128L)//  -> 156msec for ID 110 safe access after Ver 1.11f //porting ydh
-#define DOWNLOAD_TIMEOUT  		(RX_WAIT_TIMEOUT-0x1000)
-
-
 
 /*
  * defines for error message
@@ -58,43 +50,6 @@ extern "C" {
 #define ERRBIT_CHECKSUM		(16)
 #define ERRBIT_OVERLOAD		(32)
 #define ERRBIT_INSTRUCTION	(64)
-
-/*Half Duflex UART ENABLE PIN ----------------------------------------------------------------------------------------------*/
-#ifdef BOARD_CM900
-#define PORT_ENABLE_TXD			GPIOB
-#define PORT_ENABLE_RXD			GPIOB
-
-#define PIN_ENABLE_TXD			4
-#define PIN_ENABLE_RXD			5
-
-
-#define PORT_DXL_TXD			GPIOB
-#define PORT_DXL_RXD			GPIOB
-
-#define PIN_DXL_TXD				6
-#define PIN_DXL_RXD				7
-//set to TXD Enable
-#define	DXL_TXD	{ gpio_write_bit(PORT_ENABLE_TXD, PIN_ENABLE_TXD, 1 ); gpio_write_bit(PORT_ENABLE_RXD, PIN_ENABLE_RXD, 0 );}
-//set to RXD Enable
-#define	DXL_RXD	{ gpio_write_bit(PORT_ENABLE_TXD, PIN_ENABLE_TXD, 0 ); gpio_write_bit(PORT_ENABLE_RXD, PIN_ENABLE_RXD, 1 );}
-
-
-#elif BOARD_CM900_REV10
-
-#define PORT_TXRX_DIRECTION		GPIOB
-#define PIN_TXRX_DIRECTION		5
-
-#define PORT_DXL_TXD			GPIOB
-#define PORT_DXL_RXD			GPIOB
-
-#define PIN_DXL_TXD				6
-#define PIN_DXL_RXD				7
-
-#define	DXL_TXD	{ gpio_write_bit(PORT_TXRX_DIRECTION, PIN_TXRX_DIRECTION, 1); } //set to HIGH
-#define	DXL_RXD	{ gpio_write_bit(PORT_TXRX_DIRECTION, PIN_TXRX_DIRECTION, 0); } //set to LOW
-
-#endif
-
 
 
 /*Global Variables ----------------------------------------------------------------------------------------------*/
@@ -127,6 +82,10 @@ byte rx_Packet(byte bLength);
 /*
  *
  */
+/* for delay */
+uint32 Dummy(uint32 tmp);
+void uDelay(uint32 uTime);
+void nDelay(uint32 nTime);
 
 #ifdef __cplusplus
 }

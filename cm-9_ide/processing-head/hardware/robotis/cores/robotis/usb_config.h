@@ -30,7 +30,7 @@
 
 
 //defined(BOARD_maple) || defined(BOARD_maple_RET6)
-#if defined (BOARD_CM900) || defined (BOARD_CM900_REV10)
+#if defined (BOARD_CM900) || defined (BOARD_CM900_REV10) || defined(BOARD_CM904)
 
     // USB Identifier numbers
     #define VCOM_ID_PRODUCT      0xFF48 //0x0004

@@ -328,15 +328,16 @@ void __irq_usart1(void) {
 	//TxDByteC();
 	//TxDStringC("usart1 irq\r\n");
 	if ((USART1->regs->SR & USART_SR_RXNE) != (u16)RESET){
-		if(userUsartInterrupt1 != NULL){
-			userUsartInterrupt1((byte)USART1->regs->DR);
-			return;
-		}
-		if(gbIsDynmixelUsed == 1){
+
+		if(gbIsDynmixelUsed == 1){ // dynamixel case
 			if(gbDXLWritePointer > 255){//prevent buffer overflow, gbpDXLDataBuffer size is 256 bytes
 				clearBuffer256();
 			}
 			gbpDXLDataBuffer[gbDXLWritePointer++] = (uint8)USART1->regs->DR; //[ROBOTIS]Support to Dynamixel SDK.
+			return;
+		}
+		if(userUsartInterrupt1 != NULL){ // user interrupt
+			userUsartInterrupt1((byte)USART1->regs->DR);
 			return;
 		}
 		usart_irq(USART1);
@@ -348,38 +349,54 @@ void __irq_usart1(void) {
 
 void __irq_usart2(void) {
 
-	if(userUsartInterrupt2 != NULL){
-		userUsartInterrupt2((byte)USART2->regs->DR);
-		return;
+	if ((USART2->regs->SR & USART_SR_RXNE) != (u16)RESET){
+
+		if(userUsartInterrupt2 != NULL){
+				userUsartInterrupt2((byte)USART2->regs->DR);
+				return;
+			}
+
+
+		usart_irq(USART2);
 	}
 
-
-    usart_irq(USART2);
 }
 
 void __irq_usart3(void) {
-	if(userUsartInterrupt3 != NULL){
-		userUsartInterrupt3((byte)USART3->regs->DR);
-		return;
+	if ((USART3->regs->SR & USART_SR_RXNE) != (u16)RESET){
+
+		if(userUsartInterrupt3 != NULL){
+				userUsartInterrupt3((byte)USART3->regs->DR);
+				return;
+			}
+		usart_irq(USART3);
 	}
-    usart_irq(USART3);
+
 }
 
 #ifdef STM32_HIGH_DENSITY
 void __irq_uart4(void) {
-	if(userUsartInterrupt4 != NULL){
-		userUsartInterrupt4((byte)USART4->regs->DR);
-		return;
+	if ((USART4->regs->SR & USART_SR_RXNE) != (u16)RESET){
+
+		if(userUsartInterrupt4 != NULL){
+				userUsartInterrupt4((byte)USART4->regs->DR);
+				return;
+			}
+		usart_irq(UART4);
 	}
-    usart_irq(UART4);
+
 }
 
 void __irq_uart5(void) {
-	if(userUsartInterrupt5 != NULL){
-		userUsartInterrupt5((byte)USART5->regs->DR);
-		return;
+	if ((USART5->regs->SR & USART_SR_RXNE) != (u16)RESET){
+
+		if(userUsartInterrupt5 != NULL){
+				userUsartInterrupt5((byte)USART5->regs->DR);
+				return;
+			}
+		usart_irq(UART5);
 	}
-    usart_irq(UART5);
+
 }
 #endif
 
@@ -484,12 +501,16 @@ void __error(void) {
     nvic_globalirq_enable();
 
     gpio_write_bit(GPIOB, 2, 0); // [ROBOTIS][CHANGE] 2013-04-22 just LED on when errors occur.
+    gpio_write_bit(GPIOB, 9, 0); // [ROBOTIS][CHANGE] 2013-04-22 just LED on when errors occur.
     delay_us(100000);
     gpio_write_bit(GPIOB, 2, 1); // [ROBOTIS][CHANGE] 2013-04-22 just LED on when errors occur.
+    gpio_write_bit(GPIOB, 9, 1); // [ROBOTIS][CHANGE] 2013-04-22 just LED on when errors occur.
     delay_us(100000);
     gpio_write_bit(GPIOB, 2, 0); // [ROBOTIS][CHANGE] 2013-04-22 just LED on when errors occur.
+    gpio_write_bit(GPIOB, 9, 0); // [ROBOTIS][CHANGE] 2013-04-22 just LED on when errors occur.
     delay_us(100000);
     gpio_write_bit(GPIOB, 2, 1); // [ROBOTIS][CHANGE] 2013-04-22 just LED on when errors occur.
+    gpio_write_bit(GPIOB, 9, 1); // [ROBOTIS][CHANGE] 2013-04-22 just LED on when errors occur.
     delay_us(100000);
     main(); //[ROBOTIS][ADD] 2013-04-23 re-executes main() again when exceptions occur
     //throb();

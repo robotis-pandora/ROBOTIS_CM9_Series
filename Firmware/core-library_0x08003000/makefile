@@ -76,6 +76,7 @@ MAIN_OBJS = exc.o\
  template.o \
  main.o \
  lib/src/CM900.o \
+ lib/src/CM904.o \ 
  lib/src/Dynamixel.o \
  lib/src/dxl.o \
  lib/src/Arduino-compatibles.o

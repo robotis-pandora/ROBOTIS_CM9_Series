@@ -147,6 +147,8 @@ bool boardUsesPin(uint8 pin);
 /* FIXME HACK put boards/ before these paths once IDE uses make. */
 #if defined(BOARD_CM900) || defined(BOARD_CM900_REV10)
 #include "CM900.h"
+#elif defined(BOARD_CM904)
+#include "CM904.h"
 #else
 /*
  * TODO turn this into a warning so people can:

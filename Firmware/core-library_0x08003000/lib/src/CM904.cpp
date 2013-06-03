@@ -1,12 +1,3 @@
-/*
- * cm900.cpp
- *
- *  Created on: 2012. 10. 14.
- *      Author: in2storm
- */
-
-
-
 
 /******************************************************************************
  * The MIT License
@@ -39,8 +30,14 @@
  * @author Marti Bolivar <mbolivar@leaflabs.com>
  * @brief  Maple PIN_MAP and boardInit().
  */
+/*
+ *  CM904.cpp ported from CM900.cpp
+ *
+ *  Created on: 2013. 5. 22.
+ *      Author: in2storm
+ */
 
-#if defined(BOARD_CM900) || defined(BOARD_CM900_REV10)
+#if defined(BOARD_CM904)
 #include "boards.h"
 
 #include "gpio.h"
@@ -57,51 +54,38 @@ void boardInit(void) {
 extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
 
     /* Top header */
-	{GPIOA, TIMER2, ADC1,  0, 1,    0}, /* D0/PA0 */
-	{GPIOA, TIMER2, ADC1,  1, 2,    1}, /* D1/PA1 */
-	{GPIOA, TIMER2, ADC1,  2, 3,    2}, /* D2/PA2 */
-	{GPIOA, TIMER2, ADC1,  3, 4,    3}, /* D3/PA3 */
-	{GPIOA,   NULL, ADC1,  4, 0,    4}, /* D4/PA4 */
-	{GPIOA,   NULL, ADC1,  5, 0,    5}, /* D5/PA5 */
+	{GPIOA,   NULL, ADC1,  4, 0,    4}, /* D0/PA4 */
+	{GPIOA,   NULL, ADC1,  5, 0,    5}, /* D1/PA5  */
+	{GPIOA, TIMER2, ADC1,  0, 1,    0}, /* D2/PA0 */
+	{GPIOA, TIMER2, ADC1,  1, 2,    1}, /* D3/PA1 */
+	{GPIOA, TIMER2, ADC1,  2, 3,    2}, /* D4/PA2 */
+	{GPIOA, TIMER2, ADC1,  3, 4,    3}, /* D5/PA3 */
 	{GPIOA, TIMER3, ADC1,  6, 1,    6}, /* D6/PA6 */
 	{GPIOA, TIMER3, ADC1,  7, 2,    7}, /* D7/PA7 */
-	{GPIOA, TIMER1, NULL,  8, 1, ADCx}, /* D8/PA8 */
-	{GPIOA, TIMER1, NULL,  9, 2, ADCx}, /* D9/PA9 */
+	{GPIOB, TIMER3, ADC1,  0, 3,    8}, /* D8/PB0 */
+	{GPIOB, TIMER3, ADC1,  1, 4,    9}, /* D9/PB1 */
 
-	{GPIOA, TIMER1, NULL, 10, 3, ADCx}, /* D10/PA10 */
-	{GPIOA,   NULL, NULL, 13, 0, ADCx}, /* D11/PA13 */
-	{GPIOA,   NULL, NULL, 14, 0, ADCx}, /* D12/PA14 */
-	{GPIOA,   NULL, NULL, 15, 0, ADCx}, /* D13/PA15 */
-	{GPIOB, TIMER3, ADC1,  0, 3,    8}, /* D14/PB0 */
-	{GPIOB, TIMER3, ADC1,  1, 4,    9}, /* D15/PB1 */
-	{GPIOB,   NULL, NULL,  2, 0, ADCx}, /* D16/PB2 (LED)*/
-	{GPIOB,   NULL, NULL,  3, 0, ADCx}, /* D17/PB3  */
-	{GPIOB,   NULL, NULL,  4, 0, ADCx}, /* D18/PB4  */
-	{GPIOB,   NULL, NULL,  5, 0, ADCx}, /* D19/PB5 */
+	{GPIOA, TIMER1, NULL,  8, 1, ADCx}, /* D10/PA8 */
+	{GPIOA, TIMER1, NULL,  9, 2, ADCx}, /* D11/PA9 */
+	{GPIOA, TIMER1, NULL, 10, 3, ADCx}, /* D12/PA10 */
+	{GPIOB, TIMER4, NULL,  8, 3, ADCx}, /* D13/PB8 */
+	{GPIOB, TIMER4, NULL,  9, 4, ADCx}, /* D14/PB9 (LED)*/
+	{GPIOA,   NULL, NULL, 13, 0, ADCx}, /* D15/PA13 */
+	{GPIOA,   NULL, NULL, 14, 0, ADCx}, /* D16/PA14 */
+	{GPIOA,   NULL, NULL, 15, 0, ADCx}, /* D17/PA15 */
+	{GPIOB,   NULL, NULL,  3, 0, ADCx}, /* D18/PB3  */
 
-	{GPIOB, TIMER4, NULL,  6, 1, ADCx}, /* D20/PB6 */
-	{GPIOB, TIMER4, NULL,  7, 2, ADCx}, /* D21/PB7 */
-	{GPIOB, TIMER4, NULL,  8, 3, ADCx}, /* D22/PB8 */
-	{GPIOB, TIMER4, NULL,  9, 4, ADCx}, /* D23/PB9 */
-	{GPIOB,   NULL, NULL, 10, 0, ADCx}, /* D24/PB10 */
-	{GPIOB,   NULL, NULL, 11, 0, ADCx}, /* D25/PB11 */
-	{GPIOB,   NULL, NULL, 12, 0, ADCx}, /* D26/PB12 */
-	{GPIOB,   NULL, NULL, 13, 0, ADCx}, /* D27/PB13 */
-	{GPIOB,   NULL, NULL, 14, 0, ADCx}, /* D28/PB14 */
-	{GPIOB,   NULL, NULL, 15, 0, ADCx}, /* D29/PB15 */
-
-	//{GPIOC,   NULL, NULL, 13, 0, ADCx}, /* --/PC13 */
-	{GPIOC,   NULL, NULL, 14, 0, ADCx}, /* D30/PC14 */
-	{GPIOC,   NULL, NULL, 15, 0, ADCx} /* D31/PC15 */
+	{GPIOB,   NULL, NULL,  4, 0, ADCx}, /* D19/PB4  */
+	{GPIOB,   NULL, NULL, 12, 0, ADCx}, /* D20/PB12 */
+	{GPIOB,   NULL, NULL, 13, 0, ADCx}, /* D21/PB13 */
+	{GPIOB,   NULL, NULL, 14, 0, ADCx}, /* D22/PB14 */
+	{GPIOB,   NULL, NULL, 15, 0, ADCx}, /* D23/PB15 */
+	{GPIOC,   NULL, NULL, 14, 0, ADCx}, /* D24/PC14 */
+	{GPIOC,   NULL, NULL, 15, 0, ADCx}, /* D25/PC15 */
+	{GPIOB,   NULL, NULL, 10, 0, ADCx}, /* D26/PB10 */
+	{GPIOB,   NULL, NULL, 11, 0, ADCx}, /* D27/PB11 */
 
 
-    /* JTAG header */
-
-    //{GPIOA,   NULL, NULL, 13, 0, ADCx}, /* D13/PA13 */
-    //{GPIOA,   NULL, NULL, 14, 0, ADCx}, /* D14/PA14 */
-    //{GPIOA,   NULL, NULL, 15, 0, ADCx}, /* D15/PA15 */
-    //{GPIOB,   NULL, NULL,  3, 0, ADCx}, /* D17/PB3  */
-    //{GPIOB,   NULL, NULL,  4, 0, ADCx}, /* D18/PB4  */
 };
 /**
  * [ROBOTIS][CHANGE] 2013-04-22
@@ -120,4 +104,8 @@ extern const uint8 boardUsedPins[] __FLASH__ = {
     BOARD_JTCK_SWCLK_PIN, BOARD_JTDI_PIN, BOARD_JTDO_PIN, BOARD_NJTRST_PIN
 };*/
 
+
 #endif
+
+
+

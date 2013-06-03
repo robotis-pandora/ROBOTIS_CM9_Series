@@ -40,7 +40,7 @@
  * @brief  Maple PIN_MAP and boardInit().
  */
 
-
+#if defined(BOARD_CM900) || defined(BOARD_CM900_REV10)
 #include "boards.h"
 
 #include "gpio.h"
@@ -62,7 +62,7 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
 	{GPIOA, TIMER2, ADC1,  2, 3,    2}, /* D2/PA2 */
 	{GPIOA, TIMER2, ADC1,  3, 4,    3}, /* D3/PA3 */
 	{GPIOA,   NULL, ADC1,  4, 0,    4}, /* D4/PA4 */
-	{GPIOA,   NULL, ADC1,  5, 0,    5}, /* D5/PA5  */
+	{GPIOA,   NULL, ADC1,  5, 0,    5}, /* D5/PA5 */
 	{GPIOA, TIMER3, ADC1,  6, 1,    6}, /* D6/PA6 */
 	{GPIOA, TIMER3, ADC1,  7, 2,    7}, /* D7/PA7 */
 	{GPIOA, TIMER1, NULL,  8, 1, ADCx}, /* D8/PA8 */
@@ -92,7 +92,7 @@ extern const stm32_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
 
 	//{GPIOC,   NULL, NULL, 13, 0, ADCx}, /* --/PC13 */
 	{GPIOC,   NULL, NULL, 14, 0, ADCx}, /* D30/PC14 */
-	{GPIOC,   NULL, NULL, 15, 0, ADCx}, /* D31/PC15 */
+	{GPIOC,   NULL, NULL, 15, 0, ADCx} /* D31/PC15 */
 
 
     /* JTAG header */
@@ -120,4 +120,4 @@ extern const uint8 boardUsedPins[] __FLASH__ = {
     BOARD_JTCK_SWCLK_PIN, BOARD_JTDI_PIN, BOARD_JTDO_PIN, BOARD_NJTRST_PIN
 };*/
 
-
+#endif

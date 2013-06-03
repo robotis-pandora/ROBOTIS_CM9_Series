@@ -1451,7 +1451,11 @@ public class Sketch {
     
     for (String item : preprocessor.getExtraImports()) {
       File libFolder = (File) Base.importToLibraryTable.get(item);
-      System.out.println("[Sketch]$$$$$$libFolder path= "+libFolder.getAbsolutePath()+"  file name = "+libFolder.getName()+"$$$$$$");
+      //2013-06-02 Fixed by mw46d in robotsource
+      //http://robotsource.org/bs/bd.php?bt=forum_CM9DeveloperWorld&bt_id=404&page=0&sca=&sfl=&stx=&spt=0&page=0&cwin=#c_406      
+      if(libFolder != null){
+    	  System.out.println("[Sketch]$$$$$$libFolder path= "+libFolder.getAbsolutePath()+"  file name = "+libFolder.getName()+"$$$$$$"); 
+      }
       if (libFolder != null && !importedLibraries.contains(libFolder)) {
         importedLibraries.add(libFolder);
         //classPath += Compiler.contentsToClassPath(libFolder);
