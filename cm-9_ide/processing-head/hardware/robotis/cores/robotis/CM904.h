@@ -56,25 +56,25 @@
 #define BOARD_NR_USARTS         3
 
 /* Default USART pin numbers (not considering AFIO remap) */
-#define BOARD_USART1_TX_PIN     9   //D9(PA9)
-#define BOARD_USART1_RX_PIN     10	//D10(PA10)
-#define BOARD_USART2_TX_PIN     2	//D2 (PA2)
-#define BOARD_USART2_RX_PIN     3	//D3 (PA3)
-#define BOARD_USART3_TX_PIN     24	//D24 (PB10)
-#define BOARD_USART3_RX_PIN     25	//D25 (PB11)
+#define BOARD_USART1_TX_PIN     11   //D9(PA9)
+#define BOARD_USART1_RX_PIN     12	//D10(PA10)
+#define BOARD_USART2_TX_PIN     4	//D2 (PA2)
+#define BOARD_USART2_RX_PIN     5	//D3 (PA3)
+#define BOARD_USART3_TX_PIN     26	//D24 (PB10)
+#define BOARD_USART3_RX_PIN     27	//D25 (PB11)
 
 /* Number of SPI ports */
 #define BOARD_NR_SPI            2
 
 /* Default SPI pin numbers (not considering AFIO remap) */
-#define BOARD_SPI1_NSS_PIN      10 //D10 (PA4)
-#define BOARD_SPI1_MOSI_PIN     11 //D11 PA7
-#define BOARD_SPI1_MISO_PIN     12 //D12 PA6
-#define BOARD_SPI1_SCK_PIN      13 //D13 PA5
-#define BOARD_SPI2_NSS_PIN      26 //D26 PB12
-#define BOARD_SPI2_MOSI_PIN     29 //D29 PB15
-#define BOARD_SPI2_MISO_PIN     28 //D28 PB14
-#define BOARD_SPI2_SCK_PIN      27 //D27 PB13
+#define BOARD_SPI1_NSS_PIN      0 //D10 (PA4)
+#define BOARD_SPI1_MOSI_PIN     7 //D11 PA7
+#define BOARD_SPI1_MISO_PIN     6 //D12 PA6
+#define BOARD_SPI1_SCK_PIN      5 //D13 PA5
+#define BOARD_SPI2_NSS_PIN      20 //D26 PB12
+#define BOARD_SPI2_MOSI_PIN     23 //D29 PB15
+#define BOARD_SPI2_MISO_PIN     22 //D28 PB14
+#define BOARD_SPI2_SCK_PIN      21 //D27 PB13
 
 void boardInit(void);
 
