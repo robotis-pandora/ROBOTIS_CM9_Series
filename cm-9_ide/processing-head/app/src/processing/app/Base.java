@@ -308,10 +308,10 @@ public class Base {
       handleNew();
     }
 
-    // check for updates
-    if (Preferences.getBoolean("update.check")) {
+    // check for updates //[ROBOTIS][CHANGED] do not use update feature. we will develop new update feature.
+    /*if (Preferences.getBoolean("update.check")) {
       new UpdateCheck(this);
-    }
+    }*/
   }
 
 

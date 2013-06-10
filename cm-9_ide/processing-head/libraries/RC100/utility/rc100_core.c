@@ -124,7 +124,7 @@ int rc100TxData(int data)
 	SndPacket[4] = highbyte;
 	SndPacket[5] = ~highbyte;
 
-	if( zgb_hal_tx( SndPacket, 6 ) != 6 )
+	if( rc100_hal_tx( SndPacket, 6 ) != 6 )
 		return 0;
 
 	return 1;

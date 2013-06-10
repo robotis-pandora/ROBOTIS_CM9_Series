@@ -1460,7 +1460,7 @@ public class Sketch {
         importedLibraries.add(libFolder);
         //classPath += Compiler.contentsToClassPath(libFolder);
         libraryPath += File.pathSeparator + libFolder.getAbsolutePath();
-        System.out.println("libraryPath = "+libraryPath);
+        //System.out.println("libraryPath = "+libraryPath);//2013-06-10 [ROBOTIS] don't need to display lib path
       }
     }
 
