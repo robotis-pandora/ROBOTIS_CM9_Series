@@ -151,6 +151,38 @@ void togglePin(uint8 pin) {
 
     gpio_toggle_bit(PIN_MAP[pin].gpio_device, PIN_MAP[pin].gpio_bit);
 }
+#if defined(BOARD_CM904)
+#define BUTTON_DEBOUNCE_DELAY 1
+
+uint8 isButtonPressed() {
+    if (digitalRead(BOARD_BUTTON_PIN)) {
+        delay(BUTTON_DEBOUNCE_DELAY);
+        while (digitalRead(BOARD_BUTTON_PIN))
+            ;
+        return true;
+    }
+    return false;
+}
+
+uint8 waitForButtonPress(uint32 timeout) {
+    uint32 start = millis();
+    uint32 time;
+    if (timeout == 0) {
+        while (!isButtonPressed())
+            ;
+        return true;
+    }
+    do {
+        time = millis();
+        /* properly handle wrap-around */
+        if ((start > time && time + (0xffffffffU - start) > timeout) ||
+            time - start > timeout) {
+            return false;
+        }
+    } while (!isButtonPressed());
+    return true;
+}
+#endif
 
 void shiftOut(uint8 dataPin, uint8 clockPin, uint8 bitOrder, uint8 val) {
     int i;
