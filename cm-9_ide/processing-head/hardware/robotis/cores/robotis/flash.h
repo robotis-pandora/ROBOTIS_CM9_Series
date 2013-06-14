@@ -39,6 +39,14 @@
 extern "C"{
 #endif
 
+
+
+/**
+ * IO definitions
+ *
+ * define access restrictions to peripheral registers
+ */
+
 /** Flash register map type */
 typedef struct flash_reg_map {
     __io uint32 ACR;            /**< Access control register */
@@ -54,9 +62,57 @@ typedef struct flash_reg_map {
 /** Flash register map base pointer */
 #define FLASH_BASE                      ((struct flash_reg_map*)0x40022000)
 
+/**
+  * @brief  FLASH Status
+  */
+
+typedef enum
+{
+  FLASH_BUSY = 1,
+  FLASH_ERROR_PG,
+  FLASH_ERROR_WRP,
+  FLASH_COMPLETE,
+  FLASH_TIMEOUT
+}FLASH_Status;
+
+
 /*
  * Register bit definitions
  */
+
+/** @defgroup FLASH_Flags
+  * @ [ROBOTIS] added
+  */
+
+#define FLASH_FLAG_BSY                 ((uint32)0x00000001)  /*!< FLASH Busy flag */
+#define FLASH_FLAG_EOP                 ((uint32)0x00000020)  /*!< FLASH End of Operation flag */
+#define FLASH_FLAG_PGERR               ((uint32)0x00000004)  /*!< FLASH Program error flag */
+#define FLASH_FLAG_WRPRTERR            ((uint32)0x00000010)  /*!< FLASH Write protected error flag */
+#define FLASH_FLAG_OPTERR              ((uint32)0x00000001)  /*!< FLASH Option Byte error flag */
+
+#define FLASH_FLAG_BANK1_BSY                 FLASH_FLAG_BSY       /*!< FLASH BANK1 Busy flag*/
+#define FLASH_FLAG_BANK1_EOP                 FLASH_FLAG_EOP       /*!< FLASH BANK1 End of Operation flag */
+#define FLASH_FLAG_BANK1_PGERR               FLASH_FLAG_PGERR     /*!< FLASH BANK1 Program error flag */
+#define FLASH_FLAG_BANK1_WRPRTERR            FLASH_FLAG_WRPRTERR  /*!< FLASH BANK1 Write protected error flag */
+
+
+#define IS_FLASH_CLEAR_FLAG(FLAG) ((((FLAG) & (uint32)0xFFFFFFCA) == 0x00000000) && ((FLAG) != 0x00000000))
+#define IS_FLASH_GET_FLAG(FLAG)  (((FLAG) == FLASH_FLAG_BSY) || ((FLAG) == FLASH_FLAG_EOP) || \
+                                  ((FLAG) == FLASH_FLAG_PGERR) || ((FLAG) == FLASH_FLAG_WRPRTERR) || \
+								  ((FLAG) == FLASH_FLAG_BANK1_BSY) || ((FLAG) == FLASH_FLAG_BANK1_EOP) || \
+                                  ((FLAG) == FLASH_FLAG_BANK1_PGERR) || ((FLAG) == FLASH_FLAG_BANK1_WRPRTERR) || \
+                                  ((FLAG) == FLASH_FLAG_OPTERR))
+
+#define IS_FLASH_WRPROT_PAGE(PAGE) (((PAGE) != 0x00000000))
+
+#define IS_FLASH_ADDRESS(ADDRESS) (((ADDRESS) >= 0x08000000) && ((ADDRESS) < 0x080FFFFF))
+
+#define IS_OB_DATA_ADDRESS(ADDRESS) (((ADDRESS) == 0x1FFFF804) || ((ADDRESS) == 0x1FFFF806))
+
+/* FLASH Keys */
+#define RDP_Key                  ((uint16)0x00A5)
+#define FLASH_KEY1               ((uint32)0x45670123)
+#define FLASH_KEY2               ((uint32)0xCDEF89AB)
 
 /* Access control register */
 
@@ -105,6 +161,15 @@ typedef struct flash_reg_map {
 #define FLASH_CR_PER                    BIT(FLASH_CR_PER_BIT)
 #define FLASH_CR_PG                     BIT(FLASH_CR_PG_BIT)
 
+
+#define CR_PG_Reset              ((uint32)0x00001FFE)
+#define CR_PER_Reset             ((uint32)0x00001FFD)
+#define CR_MER_Reset             ((uint32)0x00001FFB)
+#define CR_OPTPG_Reset           ((uint32)0x00001FEF)
+#define CR_OPTER_Reset           ((uint32)0x00001FDF)
+
+
+
 /* Option byte register */
 
 #define FLASH_OBR_nRST_STDBY_BIT        4
@@ -132,6 +197,23 @@ typedef struct flash_reg_map {
 
 void flash_enable_prefetch(void);
 void flash_set_latency(uint32 wait_states);
+
+/*
+ * 2013-06-12 ROBOTIS ported from ST library for making EEPROM Emulation library
+ * */
+void FLASH_ClearFlag(uint32 FLASH_FLAG);
+FLASH_Status FLASH_ProgramHalfWord(uint32 Address, uint16 Data);
+FLASH_Status FLASH_ProgramWord(uint32 Address, uint32 Data);
+FLASH_Status FLASH_ProgramOptionByteData(uint32 Address, uint8 Data);
+FLASH_Status FLASH_WaitForLastOperation(uint32 Timeout);
+FLASH_Status FLASH_GetBank1Status(void);
+FLASH_Status FLASH_ErasePage(uint32 Page_Address);
+FLASH_Status FLASH_EraseAllPages(void);
+void FLASH_Unlock(void);
+void FLASH_UnlockBank1(void);
+void FLASH_Lock(void);
+void FLASH_LockBank1(void);
+
 
 #ifdef __cplusplus
 }

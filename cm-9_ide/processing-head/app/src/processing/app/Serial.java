@@ -27,6 +27,7 @@ package processing.app;
 
 import static processing.app.I18n._;
 import gnu.io.CommPortIdentifier;
+import gnu.io.CommPortOwnershipListener;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
@@ -49,7 +50,7 @@ import processing.app.debug.MessageConsumer;
 
 
 
-public class Serial implements SerialPortEventListener {
+public class Serial implements SerialPortEventListener, CommPortOwnershipListener {
 
   //PApplet parent;
 
@@ -151,11 +152,11 @@ public class Serial implements SerialPortEventListener {
          // System.out.println("found " + portId.getName());
           if (portId.getName().equals(iname)) {
         	  try {
-				 testPort = (SerialPort)portId.open("serial madness", 2000);
+				 testPort = (SerialPort)portId.open("CM9SerialDownloader", 2000);
 			} catch (PortInUseException e) {
 				// TODO Auto-generated catch block
 				//e.printStackTrace();
-				System.out.println("[Serial]Port is already in use, press reset button!");
+				System.out.println("[Serial]Port is already used in "+e.currentOwner);
 				//testPort.close();
 				return false;
 				
@@ -165,9 +166,7 @@ public class Serial implements SerialPortEventListener {
         	  return true;
           }
         }
-      }
-      //System.out.println("[SERIAL]port is not ok!");
-    //testPort.close();
+      }      
 	return false;
 	  
   }
@@ -227,18 +226,25 @@ public class Serial implements SerialPortEventListener {
           //System.out.println("found " + portId.getName());
           if (portId.getName().equals(iname)) {
             //System.out.println("looking for "+iname);
-            port = (SerialPort)portId.open("serial madness", 2000);
-           
+            port = (SerialPort)portId.open("CM9SerialDownloader", 2000); //[ROBOTIS] 2013-06-11 changed application Owner name
+          //portId.addPortOwnershipListener(this); //[ROBOTIS] add to manage ownership of serial port
             input = port.getInputStream();
             output = port.getOutputStream();
             port.setSerialPortParams(rate, databits, stopbits, parity);
             port.addEventListener(this);
             port.notifyOnDataAvailable(true);
+            port.notifyOnBreakInterrupt(true);//[ROBOTIS] although it does not work in Windows, added to support BI event.
+            // port.notifyOnCarrierDetect(true);
+            //port.notifyOnFramingError(true);
+           // port.notifyOnOverrunError(true);
+            //port.notifyOnParityError(true);
+            
             //port.setFlowControlMode(SerialPort.FLOWCONTROL_XONXOFF_IN | SerialPort.FLOWCONTROL_XONXOFF_OUT);
             //port.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT);
-            port.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-            
-           // System.out.println("[Serial]opening, ready to roll");
+            port.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);            
+           //System.out.println("[Serial]opening, ready to roll");
+            /*System.out.println("opening "+iname+" rate : "+rate+" databits : "+databits+" stopbits : "+stopbits+" parity : "+parity
+            		+" Own Name = "+portId.isCurrentlyOwned()+" Own = "+portId.getCurrentOwner());*/
           }
         }
       }
@@ -263,11 +269,24 @@ public class Serial implements SerialPortEventListener {
     }
     
     if (port == null) {
-    	System.out.println("Port is missing");
+    	System.out.println("[ROBOTIS CM9] Port is missing, unplug USB cable and re-start this program");
     }
   }
 
-
+  public void ownershipChange(int type) {
+	    switch (type) {
+	      case CommPortOwnershipListener.PORT_UNOWNED:
+	        System.out.println(Preferences.get("serial.port") + ": PORT_UNOWNED");
+	        break;
+	      case CommPortOwnershipListener.PORT_OWNED:
+	        System.out.println(Preferences.get("serial.port") + ": PORT_OWNED");
+	        break;
+	      case CommPortOwnershipListener.PORT_OWNERSHIP_REQUESTED:
+	        System.out.println(Preferences.get("serial.port") + ": PORT_INUSED");
+	        this.dispose();
+	        break;
+	    }
+ }
   public void sendDtrNegativeEdge(){
 	if(port != null){
 	
@@ -324,6 +343,7 @@ public class Serial implements SerialPortEventListener {
     } catch (Exception e) {
       e.printStackTrace();
     }
+    //portId.removePortOwnershipListener(this);//add to manage ownership of serial port
     port = null;
   }
   
@@ -422,7 +442,10 @@ public class Serial implements SerialPortEventListener {
       }
       catch (Exception e) {
       }
-    }
+    }else if(serialEvent.getEventType() == SerialPortEvent.BI){
+		System.out.println("[ROBOTIS] Break line detected!!!");
+		dispose();
+	}
     //System.out.println("out of");
     //System.err.println("out of event " + serialEvent.getEventType());
   }

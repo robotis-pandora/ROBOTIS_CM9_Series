@@ -993,6 +993,7 @@ public class Editor extends JFrame implements RunnerListener {
   }
   
   protected void selectSerialPort(String name) {
+	  //System.out.println("*********** Serial Port ************ ");
     if(serialMenu == null) {
       System.out.println(_("serialMenu is null"));
       return;
@@ -1965,9 +1966,13 @@ public class Editor extends JFrame implements RunnerListener {
    * @param verbose Set true to run with verbose output.
    */
   public void handleRun(final boolean verbose) {
-	
+    if(running == true){
+    	System.out.println("Try it later, previous task is not finished!");
+    	return;
+    }
     internalCloseRunner();
-    running = true;
+    //running = true;
+
     toolbar.activate(EditorToolbar.RUN);
     status.progress(_("Compiling sketch..."));
 
@@ -1978,7 +1983,7 @@ public class Editor extends JFrame implements RunnerListener {
     if (Preferences.getBoolean("console.auto_clear")) {
       console.clear();
     }
-
+    
     // Cannot use invokeLater() here, otherwise it gets
     // placed on the event thread and causes a hang--bad idea all around.
     new Thread(verbose ? presentHandler : runHandler).start();
@@ -1994,6 +1999,7 @@ public class Editor extends JFrame implements RunnerListener {
     		System.out.println(boardPrefs.get("name")+" Start compile");
     	else
     		System.out.println("[ROBOTIS] Start compile");*/
+    	running = true;//[ROBOTIS] add to manage thread
         sketch.prepare();
         sketch.build(false);        
         statusNotice(_("Done compiling."));
@@ -2007,6 +2013,7 @@ public class Editor extends JFrame implements RunnerListener {
 
       status.unprogress();
       toolbar.deactivate(EditorToolbar.RUN);
+      running = false;
     }
   }
 
@@ -2014,6 +2021,7 @@ public class Editor extends JFrame implements RunnerListener {
   class DefaultPresentHandler implements Runnable {
     public void run() {
       try {
+    	running = true;
     	if(boardPrefs.get("name") != null)
     		  System.out.println(boardPrefs.get("name")+" Start compile with log output");
       	else
@@ -2033,6 +2041,7 @@ public class Editor extends JFrame implements RunnerListener {
 
       status.unprogress();
       toolbar.deactivate(EditorToolbar.RUN);
+      running = false;
     }
   }
 
@@ -2478,8 +2487,10 @@ public class Editor extends JFrame implements RunnerListener {
    * 
    * 
    */
-  Serial uploadSerialRobotis =null;
-  SharedObjectForThreadControl sharedObject = new SharedObjectForThreadControl();
+  public Serial uploadSerialRobotis =null;
+  
+  public SharedObjectForThreadControl sharedObject = new SharedObjectForThreadControl();
+  boolean success = false;
   synchronized public void handleExport(final boolean usingProgrammer) {
     //if (!handleExportCheckModified()) return;
 	//System.out.println("[ROBOTIS]Srial monitor = "+serialMonitor.isInUseSerialMonitor);
@@ -2488,13 +2499,12 @@ public class Editor extends JFrame implements RunnerListener {
 		JOptionPane.showMessageDialog(null,"Please close the serial monitor");
 		return;
 
-	}
-	
+	}	
 	if( Serial.checkPort() == false){
 		System.out.println("[ROBOTIS] Port is missing, please check the port or press reset button");
 		return;
 	}
-	if( uploading == true )
+	if( uploading == true || running == true)
 	{
 		System.out.println("[ROBOTIS] Try it later, previous task is not complete.");
 		return;
@@ -2523,7 +2533,7 @@ public class Editor extends JFrame implements RunnerListener {
 			  System.out.println(boardPrefs.get("name")+" Start download");
 		  else
 			  System.out.println("[ROBOTIS] Start download");*/
-		  
+		  running = true;
 		  statusNotice(boardPrefs.get("name")+" Start download");
 		  uploadSerialRobotis = new Serial(115200, sharedObject);
 		  
@@ -2533,14 +2543,20 @@ public class Editor extends JFrame implements RunnerListener {
 		//[ROBOTIS] changes download sequence. we add sending string to CM9 board in reset procedure.
 		  
 		  //System.out.println("[ROBOTIS]Transmit the reset signal");
-	      uploadSerialRobotis.write("CM9X");      	    
-		
+		  if(uploadSerialRobotis.IsConnectedSerial()){
+			  uploadSerialRobotis.write("CM9X");
+			  statusNotice("Reset the board");
+		  }else{
+			  statusError("Can not reset the board!");
+			  clearAllToolbar();
+		  }
 	      uploadSerialRobotis.dispose();
 		  //uploadSerialRobotis = null;
 	    	 
 		} catch (SerialException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			clearAllToolbar();
 		}
 	      
       try {
@@ -2549,20 +2565,16 @@ public class Editor extends JFrame implements RunnerListener {
         
         uploading = true;
      
-        boolean success = sketch.exportApplet(false);
+        success = sketch.exportApplet(false);
         buildPath = sketch.GetFullBuildBinaryPath();
        
         //System.out.println("[Upload Thread] buildPath"+buildPath);
         
         if (success) {
-          //testForPandora.dispose();
           //statusNotice(_("Done uploading."));
         	statusNotice("Compile finished...");
-        } else {
-        	//System.out.println("[ROBOTIS] Download stop");
-        	statusError("Compile Error!");
-        	uploadSerialRobotis.dispose();
-        	return; //stop download
+        }else {        	
+        	success =false;
           // error message will already be visible
         }
       } catch (SerialNotFoundException e) {
@@ -2572,26 +2584,17 @@ public class Editor extends JFrame implements RunnerListener {
         else statusNotice(_("Upload canceled."));
       } catch (RunnerException e) {
     	//System.out.println("[ROBOTIS] Compile error -> Download stop");
-    	statusError("Compile Error!");
-    	uploadSerialRobotis.dispose();
-      	  
-        //statusError("Error during upload.");
-        //e.printStackTrace();
-        status.unprogress();
-        statusError(e);
-        uploading = false;
-        //toolbar.clear();
-        toolbar.deactivate(EditorToolbar.EXPORT);
-        return; //stop download
+    	statusError(e);
+    	statusError("Compile Error!");    
+    	success = false;
+    	clearAllToolbar();
+        //return; //stop download
       } catch (Exception e) {
-    	  //System.out.println("[ROBOTIS] Download stop");
     	statusError("Downlod stop!");
-        e.printStackTrace();
-        uploadSerialRobotis.dispose();
-        uploading = false;
-        //toolbar.clear();
-        toolbar.deactivate(EditorToolbar.EXPORT);
-        return;
+    	e.printStackTrace();    	
+    	clearAllToolbar();
+    	success = false;
+        //return;
       }
       //After compile, open the serial port again for flash download
       try {
@@ -2599,20 +2602,24 @@ public class Editor extends JFrame implements RunnerListener {
       } catch (SerialException e1) {
 		// TODO Auto-generated catch block
     	//System.out.println("[ROBOTIS] Re-connect fail -> Reset your board and press download button");
-    	statusError("Serial Exception occurs");
-		e1.printStackTrace();
-		uploading = false;
-        //toolbar.clear();
-        toolbar.deactivate(EditorToolbar.EXPORT);
+    	statusError("Serial Exception occurs");    	
+		e1.printStackTrace();		
+		clearAllToolbar();
 		return;
       }
       if(uploadSerialRobotis.IsConnectedSerial() == false){
     	  //System.out.println("[ROBOTIS] Re-connect fail -> Reset your board and press download button");
-    	  statusError("Re-connect Fail!");
-    	  uploading = false;
-          //toolbar.clear();
-          toolbar.deactivate(EditorToolbar.EXPORT);
+    	  statusError("Re-connect Fail!");    	 
+    	  clearAllToolbar();
     	  return;
+      }
+      if(success == false){
+    	  if(uploadSerialRobotis.IsConnectedSerial()){
+			  uploadSerialRobotis.write("AT&RST");
+			  //System.out.println("[ROBOTIS] Escaped from download mode!");
+			  clearAllToolbar();
+			  return;
+		  }
       }
       statusNotice("Flash-writing started...");
       uploadSerialRobotis.SetBinaryPath(buildPath);
@@ -2629,26 +2636,29 @@ public class Editor extends JFrame implements RunnerListener {
   			e.printStackTrace();
   		}
     	  
-      	  
+      	if(uploadSerialRobotis.IsConnectedSerial()){
+      		uploadSerialRobotis.write("AT&LD");
+      		statusNotice("Transmitted download signal");
+      	}else{
+      		statusError("Board is not connected!");
+      		clearAllToolbar();
+      		return;
+      	}
      	//System.out.println("[ROBOTIS]Transmit the download signal");
-     	uploadSerialRobotis.write("AT&LD");
-     	     	
+     	   	     	
         count++;
         //System.out.println("[ROBOTIS] Download is running...("+count+")");
         dSuccess = sharedObject.sleepingBaby();//we need to check if board is valid status
-        if(sharedObject.getBoardIsExist() == false){
-        	//System.out.println("[ROBOTIS] Download stop");
-        	
-        	status.unprogress();
+        if(sharedObject.getBoardIsExist() == false){        
         	statusError("Board is not responding");
-        	uploadSerialRobotis.dispose();
-            uploading = false;
-            //toolbar.clear();
-            toolbar.deactivate(EditorToolbar.EXPORT);
+        	if(uploadSerialRobotis.IsConnectedSerial()){
+   			  uploadSerialRobotis.write("AT&RST"); //escaped from download mode
+   			}
+        	clearAllToolbar();
         	return;        	
         }	
      	if( dSuccess == false)
-     		statusNotice("Download Fail -> Try again");
+     		statusNotice("Download Fail -> Try again "+count);
      	else
      		statusNotice("Download Success");
       }
@@ -2661,19 +2671,28 @@ public class Editor extends JFrame implements RunnerListener {
 	  		e.printStackTrace();
 	  	} 
       //System.out.println("[ROBOTIS]Transmit the execution signal");
-      uploadSerialRobotis.write("AT&GO");
+      if(uploadSerialRobotis.IsConnectedSerial()){
+    	  uploadSerialRobotis.write("AT&GO");
+    	  statusNotice("Transmitted execution signal");
+	  }else{
+		  statusError("Board is not connected, can not excute program");
+    	  clearAllToolbar();
+    	  return;
+      }
+      
       statusNotice("Done downloading.");
+      clearAllToolbar();
 
-	  uploadSerialRobotis.dispose();
-	  
-	  status.unprogress();
-	  uploading = false;
-	  //toolbar.clear();
-	  toolbar.deactivate(EditorToolbar.EXPORT);
 	 }//end of run()
   }
 
-
+public void clearAllToolbar(){
+	  status.unprogress();
+	  uploadSerialRobotis.dispose();
+	  toolbar.deactivate(EditorToolbar.EXPORT);
+	  uploading = false;
+	  running = false;	
+}
   /**
    * Checks to see if the sketch has been modified, and if so,
    * asks the user to save the sketch or cancel the export.

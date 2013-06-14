@@ -12,8 +12,8 @@
 extern uint32 Dummy(uint32 tmp);
 extern void uDelay(uint32 uTime);
 extern void nDelay(uint32 nTime);*/
-/*
-//#ifdef CM9_DEBUG
+
+#ifdef CM9_DEBUG
 extern void TxDByteC(uint8 buf);
 extern void TxDStringC(char *str);
 extern void TxDHex8C(u16 bSentData);
@@ -43,8 +43,8 @@ void PrintBufferEx(byte *bpPrintBuffer, byte bLength)
 	TxDHex8C(bLength);
 	TxDStringC("\r\n");
 }
-//#endif
-*/
+#endif
+
 uint32 dxl_get_baudrate(int baudnum)
 {
     if(baudnum >= 2400)
@@ -222,7 +222,7 @@ byte txrx_PacketEx(byte bID, byte bInst, word wTxParaLen){
 	gbBusUsedEx = 1;
 
 
-	for(bTryCount = 0; bTryCount < TRY_NUM; bTryCount++)
+	for(bTryCount = 0; bTryCount < 1; bTryCount++)
 	{
 		gbDXLReadPointerEx = gbDXLWritePointerEx; //BufferClear050728
 
@@ -322,10 +322,10 @@ byte txrx_PacketEx(byte bID, byte bInst, word wTxParaLen){
 
 	//TxDString("\r\n TEST POINT 4");//TxDString("\r\n Err ID:0x");
 //#ifdef PRINT_OUT_PACKET_TO_USART2
-	//TxDStringC("\r\n ->[TX Buffer]: ");
-	//PrintBuffer(gbpTxBufferEx,wTxLen);
-	///TxDStringC("\r\n <-[RX Buffer]: ");
-	//PrintBuffer(gbpRxBufferEx,gbRxLengthEx);
+	/*TxDStringC("\r\n ->[TX Buffer]: ");
+	PrintBuffer(gbpTxBufferEx,wTxLen);
+	TxDStringC("\r\n <-[RX Buffer]: ");
+	PrintBuffer(gbpRxBufferEx,gbRxLengthEx);*/
 //#endif
 
 	//gbLengthForPacketMaking =0;
@@ -373,7 +373,9 @@ byte rx_PacketEx(word wRxLength){
 	{
 		if(bTimeout && wRxLength != 255)
 		{
-			//TxDStringC("Rx Timeout");
+#ifdef CM9_DEBUG
+			TxDStringC("Rx Timeout");
+#endif
 			clearBuffer256Ex();
 
 			return 0;
@@ -382,20 +384,25 @@ byte rx_PacketEx(word wRxLength){
 		{
 			if(gbpRxBufferEx[0] != 0xff || gbpRxBufferEx[1] != 0xff || gbpRxBufferEx[2] != 0xfd)
 			{
-				//TxDStringC("Wrong Header");//[Wrong Header]
+#ifdef CM9_DEBUG
+				TxDStringC("Wrong Header");//[Wrong Header]
+#endif
 				clearBuffer256Ex();
 				return 0;
 			}
 			if(gbpRxBufferEx[PKT_ID] != gbpTxBufferEx[PKT_ID] )
 			{
-				//TxDStringC("[Error:TxID != RxID]");
+#ifdef CM9_DEBUG
+				TxDStringC("[Error:TxID != RxID]");
+#endif
 				clearBuffer256Ex();
 				return 0;
 			}
 			if(gbpRxBufferEx[5] != bLength-7)
 			{
-
-				//TxDStringC("RxLength Error");
+#ifdef CM9_DEBUG
+				TxDStringC("RxLength Error");
+#endif
 				clearBuffer256Ex();
 				return 0;
 			}
@@ -405,7 +412,9 @@ byte rx_PacketEx(word wRxLength){
 				return bLength;
 			}
 			else{
-				//TxDStringC("CRC-16 Error\r\n");
+#ifdef CM9_DEBUG
+				TxDStringC("CRC-16 Error\r\n");
+#endif
 				return 0;
 			}
 
@@ -420,32 +429,41 @@ byte tx_PacketEx(byte bID, byte bInstruction, word wParameterLength){
 
     word wCount, wCheckSum, wPacketLength;
 
-    gbpTxBufferEx[4] = bID;
-    gbpTxBufferEx[5] = DXL_LOBYTE(wParameterLength+3);// packet length = total parameter length(address + data) + 3( length + instruction )
-    gbpTxBufferEx[6] = DXL_HIBYTE(wParameterLength+3);
-    gbpTxBufferEx[7] = bInstruction;
-
-
-
-    //TxDStringC("--------------\r\n");
-   for(wCount = 0; wCount < wParameterLength; wCount++)
-    {
-        gbpTxBufferEx[wCount+8] = gbpParameterEx[wCount];  //push address and data to packet
-      //  TxDStringC("gbpParameterEx = ");TxDHex8C(gbpParameterEx[wCount]);TxDStringC("\r\n");
-    }
-
-    // Character stuffing
-   // dxl_add_stuffing(gbpTxBufferEx);
-    // Packet Header
     gbpTxBufferEx[0] = 0xff;
 	gbpTxBufferEx[1] = 0xff;
 	gbpTxBufferEx[2] = 0xfd;
 	gbpTxBufferEx[3] = 0x00;
 
+    gbpTxBufferEx[4] = bID;
+    /*if(bInstruction == INST_SYNC_WRITE_EX){
+    	gbpTxBufferEx[5] = DXL_LOBYTE(wParameterLength+7);// packet length = total parameter length(ID + data) + 7( start_addr + data_length + length + instruction )
+    	gbpTxBufferEx[6] = DXL_HIBYTE(wParameterLength+7);
+    }else*/
+    {
+		gbpTxBufferEx[5] = DXL_LOBYTE(wParameterLength+3);// packet length = total parameter length(address + data) + 3( length + instruction )
+		gbpTxBufferEx[6] = DXL_HIBYTE(wParameterLength+3);
+    }
+
+    gbpTxBufferEx[7] = bInstruction;
+
+    //TxDStringC("wParameterLength = ");TxDHex8C(wParameterLength);TxDStringC("\r\n");
+
+    //TxDStringC("--------------\r\n");
+   for(wCount = 0; wCount < wParameterLength; wCount++)
+    {
+        gbpTxBufferEx[wCount+8] = gbpParameterEx[wCount];  //push address and data to packet
+       //TxDStringC("gbpParameterEx = ");TxDHex8C(gbpParameterEx[wCount]);TxDStringC("\r\n");
+    }
+
+    // Character stuffing
+   // dxl_add_stuffing(gbpTxBufferEx);
+    // Packet Header
+
     wCheckSum = 0;
 
-    wPacketLength = wParameterLength+8;// total packet length including packet header length
-    //TxDStringC("wPacketLength = ");TxDHex8C(wPacketLength);TxDStringC("\r\n");
+   //wPacketLength = wParameterLength+8;// total packet length including packet header length
+    wPacketLength = DXL_MAKEWORD(gbpTxBufferEx[5], gbpTxBufferEx[6])+5; //add packet header and ID length
+   // TxDStringC("wPacketLength = ");TxDHex8C(wPacketLength);TxDStringC("\r\n");
     // Check MAX packet length
     if(wPacketLength > (MAXNUM_TXPACKET)){
         return 0;

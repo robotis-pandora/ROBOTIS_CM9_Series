@@ -20,7 +20,7 @@ DynamixelPro::~DynamixelPro() {
 
 
 void DynamixelPro::begin(int baud) {
-
+	int i=0;
 	uint32 Baudrate = 0;
 	//TxDString("[DXL]start begin\r\n");
 
@@ -60,6 +60,16 @@ void DynamixelPro::begin(int baud) {
 	gbIsDynmixelUsed = 0;  //[ROBOTIS]2012-12-13 to notify end of using dynamixel classic to uart.c
 	clearBuffer256Ex();
 	mResult= 0;
+	for(i=0; i<32; i++){
+		mBulkData[i].iID = 0;
+		mBulkData[i].iAddr = 0; //get address
+		mBulkData[i].iLength = 0;
+		mBulkData[i].iError = 0; //Error code
+		mBulkData[i].iData[0] = 0; //DATA1
+		mBulkData[i].iData[1] = 0; //DATA2
+		mBulkData[i].iData[2] = 0; //DATA3
+		mBulkData[i].iData[3] = 0; //DATA4
+	}
 }
 
 
@@ -127,7 +137,7 @@ word DynamixelPro::readWord(byte bID, int wAddress){
 	mResult = 0;
 	gbpParameterEx[0]	= (unsigned char)DXL_LOBYTE(wAddress);
 	gbpParameterEx[1]	= (unsigned char)DXL_HIBYTE(wAddress);
-	gbpParameterEx[2]	= 2; //1byte
+	gbpParameterEx[2]	= 2; //2byte
 	gbpParameterEx[3]	= 0;
 	if(txrx_PacketEx(bID, INST_READ_EX, 4)){
 		mResult = 1;
@@ -164,5 +174,140 @@ byte DynamixelPro::writeDword( byte bID, int wAddress, unsigned int value ){
 	gbpParameterEx[5]	= DXL_HIBYTE(DXL_HIWORD(value));
 
 	mResult = txrx_PacketEx(bID, INST_WRITE_EX, 6); //// parameter length 4 = 2(address)+2(data)
+	return mResult;
+}
+uint32 DynamixelPro::readDword( byte bID, int wAddress ){
+	mResult = 0;
+	gbpParameterEx[0]	= (unsigned char)DXL_LOBYTE(wAddress);
+	gbpParameterEx[1]	= (unsigned char)DXL_HIBYTE(wAddress);
+	gbpParameterEx[2]	= 4; //4byte
+	gbpParameterEx[3]	= 0;
+	if(txrx_PacketEx(bID, INST_READ_EX, 4)){
+		mResult = 1;
+		return DXL_MAKEDWORD( DXL_MAKEWORD( gbpRxBufferEx[9], gbpRxBufferEx[10]),
+							  DXL_MAKEWORD( gbpRxBufferEx[11], gbpRxBufferEx[12])
+							 );
+	}else{
+		mResult = 0;
+		return 0xff;
+	}
+}
+
+
+
+byte DynamixelPro::syncWrite(int start_addr, int data_length, byte *param, int param_length)
+{
+	mResult = 0;
+	int i=0;
+    gbpParameterEx[0]     = (unsigned char)DXL_LOBYTE(start_addr);
+    gbpParameterEx[1]   = (unsigned char)DXL_HIBYTE(start_addr);
+    gbpParameterEx[2]   = (unsigned char)DXL_LOBYTE(data_length);
+    gbpParameterEx[3]   = (unsigned char)DXL_HIBYTE(data_length);
+    for(i=0; i < param_length; i++){
+    	gbpParameterEx[4+i] = param[i];
+    }
+    mResult = txrx_PacketEx(BROADCAST_ID, INST_SYNC_WRITE_EX, 4+param_length);
+	return mResult;
+}
+int DynamixelPro::bulkRead(byte *param, int param_length){
+	mResult = 0;
+	uint32 bulkReadlength=0;
+
+	int n, i;
+	int num = param_length / 5; // each length : 5 (ID ADDR_L ADDR_H LEN_L LEN_H)
+	// int pkt_length = param_length + 3;  // 3 : INST CHKSUM_L CHKSUM_H
+	//   unsigned char txpacket[MAXNUM_TXPACKET] = {0};
+	//   unsigned char rxpacket[MAXNUM_RXPACKET] = {0};
+
+	for(n=0; n < param_length; n++){
+	gbpParameterEx[n] = param[n];
+
+	}
+
+	/************ TxRxPacket *************/
+	// Wait for Bus Idle
+	/*    while(comm->iBusUsing == 1)
+	{
+		//Sleep(0);
+	}*/
+
+	//mResult = txrx_PacketEx(BROADCAST_ID, INST_BULK_READ_EX, param_length);;
+	mResult = tx_PacketEx(BROADCAST_ID, INST_BULK_READ_EX, param_length);
+
+	if(mResult == 0)
+		return 0;
+
+	for(n = 0; n < num; n++){
+	   // int id = param[n*5+0];
+
+		bulkReadlength = rx_PacketEx(param_length+11);
+		/*result =  DXL_MAKEDWORD(	DXL_MAKEWORD(gbpRxBufferEx[9],gbpRxBufferEx[10]),
+						DXL_MAKEWORD(gbpRxBufferEx[11],gbpRxBufferEx[12])
+					  );*/
+		if(gbpRxBufferEx[PKT_INSTRUCTION] == 0x55){
+			mBulkData[n].iID = gbpRxBufferEx[PKT_ID];
+			mBulkData[n].iAddr = DXL_MAKEWORD(param[5*n+1],param[5*n+2]); //get address
+			mBulkData[n].iLength = DXL_MAKEWORD(param[5*n+3],param[5*n+4]);//DXL_MAKEWORD(gbpRxBufferEx[PKT_LENGTH_L],gbpRxBufferEx[PKT_LENGTH_H]);
+			//TxDStringC("iLength = ");TxDHex8C(mBulkData[n].iLength);TxDStringC("\r\n");
+			mBulkData[n].iError = gbpRxBufferEx[PKT_INSTRUCTION+1]; //Error code
+			for(i=0; i < mBulkData[n].iLength ; i++){
+				mBulkData[n].iData[i] = gbpRxBufferEx[PKT_INSTRUCTION+2+i]; //DATA1
+			}
+
+		}
+
+	}
+	return bulkReadlength;
+
+}
+byte DynamixelPro::getBulkByte(int id, int addr){
+	int i=0;
+	for(i=0;i < 32; i++){
+		if(mBulkData[i].iID == id && mBulkData[i].iAddr == addr){
+			return mBulkData[i].iData[0];
+		}
+
+	}
+	return 0;
+}
+uint16 DynamixelPro::getBulkWord(int id, int addr){
+	int i=0;
+	for(i=0;i < 32; i++){
+		if(mBulkData[i].iID == id && mBulkData[i].iAddr == addr){
+			return DXL_MAKEWORD(mBulkData[i].iData[0], mBulkData[i].iData[1]);
+		}
+
+	}
+	return 0;
+}
+int DynamixelPro::getBulkDword(int id, int addr){
+
+	int i=0;
+	for(i=0;i < 32; i++){
+		if(mBulkData[i].iID == id && mBulkData[i].iAddr == addr){
+			return  DXL_MAKEDWORD(	DXL_MAKEWORD(mBulkData[i].iData[0],mBulkData[i].iData[1]),
+    								DXL_MAKEWORD(mBulkData[i].iData[2],mBulkData[i].iData[3]) );
+		}
+
+	}
+	return 0;
+
+}
+int DynamixelPro::bulkWrite(byte *param, int param_length){
+	 mResult = 0;
+	 //uint32 bulkReadlength=0;
+	 //int result=0;
+	 int n;
+	 //int num = param_length / 5; // each length : 5 (ID ADDR_L ADDR_H LEN_L LEN_H)
+	   // int pkt_length = param_length + 3;  // 3 : INST CHKSUM_L CHKSUM_H
+	 //   unsigned char txpacket[MAXNUM_TXPACKET] = {0};
+	 //   unsigned char rxpacket[MAXNUM_RXPACKET] = {0};
+
+	for(n=0; n < param_length; n++){
+		gbpParameterEx[n] = param[n];
+
+	}
+	 mResult = txrx_PacketEx(BROADCAST_ID, INST_BULK_WRITE_EX, param_length);;
+
 	return mResult;
 }
