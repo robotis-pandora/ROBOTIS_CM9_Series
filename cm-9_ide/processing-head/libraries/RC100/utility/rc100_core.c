@@ -3,6 +3,7 @@
 #include "rc100_core.h"
 //#include "rc100_hal.h"
 #include "usart.h"
+#include "gpio.h"
 
 unsigned char gbRcvPacket[6];
 unsigned char gbRcvPacketNum;
@@ -85,6 +86,9 @@ int rc100Initialize(uint32 baudrate )
  *  Return: 0(Failed), 1(Succeed)
  *
  * */
+	gpio_set_mode(GPIOA, 2, GPIO_AF_OUTPUT_PP);
+	gpio_set_mode(GPIOA, 3, GPIO_INPUT_FLOATING);
+	
 	usart_init(USART2);
 	//TxDStringC("USART clock = ");TxDHex32C(STM32_PCLK2);TxDStringC("\r\n");
 	usart_set_baud_rate(USART2, STM32_PCLK1, baudrate);
