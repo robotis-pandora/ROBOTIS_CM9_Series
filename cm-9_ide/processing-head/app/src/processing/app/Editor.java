@@ -2602,24 +2602,26 @@ public class Editor extends JFrame implements RunnerListener {
       } catch (SerialException e1) {
 		// TODO Auto-generated catch block
     	//System.out.println("[ROBOTIS] Re-connect fail -> Reset your board and press download button");
+    	e1.printStackTrace();		
+  		clearAllToolbar();
     	statusError("Serial Exception occurs");    	
-		e1.printStackTrace();		
-		clearAllToolbar();
+		
 		return;
       }
       if(uploadSerialRobotis.IsConnectedSerial() == false){
     	  //System.out.println("[ROBOTIS] Re-connect fail -> Reset your board and press download button");
-    	  statusError("Re-connect Fail!");    	 
     	  clearAllToolbar();
+    	  statusError("Re-connect Fail!");
     	  return;
       }
       if(success == false){
     	  if(uploadSerialRobotis.IsConnectedSerial()){
 			  uploadSerialRobotis.write("AT&RST");
 			  //System.out.println("[ROBOTIS] Escaped from download mode!");
-			  clearAllToolbar();
-			  return;
+			 
 		  }
+    	  clearAllToolbar();
+		  return;
       }
       statusNotice("Flash-writing started...");
       uploadSerialRobotis.SetBinaryPath(buildPath);
@@ -2640,8 +2642,9 @@ public class Editor extends JFrame implements RunnerListener {
       		uploadSerialRobotis.write("AT&LD");
       		statusNotice("Transmitted download signal");
       	}else{
-      		statusError("Board is not connected!");
       		clearAllToolbar();
+      		statusError("Board is not connected!");
+      		
       		return;
       	}
      	//System.out.println("[ROBOTIS]Transmit the download signal");
@@ -2649,12 +2652,12 @@ public class Editor extends JFrame implements RunnerListener {
         count++;
         //System.out.println("[ROBOTIS] Download is running...("+count+")");
         dSuccess = sharedObject.sleepingBaby();//we need to check if board is valid status
-        if(sharedObject.getBoardIsExist() == false){        
-        	statusError("Board is not responding");
-        	if(uploadSerialRobotis.IsConnectedSerial()){
-   			  uploadSerialRobotis.write("AT&RST"); //escaped from download mode
-   			}
+        if(sharedObject.getBoardIsExist() == false){
         	clearAllToolbar();
+        	statusError("Board is not responding");
+        	/*if(uploadSerialRobotis.IsConnectedSerial()){
+   			  uploadSerialRobotis.write("AT&RST"); //escaped from download mode
+   			}*/        	
         	return;        	
         }	
      	if( dSuccess == false)
@@ -2675,8 +2678,9 @@ public class Editor extends JFrame implements RunnerListener {
     	  uploadSerialRobotis.write("AT&GO");
     	  statusNotice("Transmitted execution signal");
 	  }else{
+		  clearAllToolbar();
 		  statusError("Board is not connected, can not excute program");
-    	  clearAllToolbar();
+    	 
     	  return;
       }
       
