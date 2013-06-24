@@ -48,6 +48,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -88,6 +89,7 @@ import javax.swing.undo.UndoManager;
 import processing.app.debug.AvrdudeUploader;
 import processing.app.debug.RunnerException;
 import processing.app.debug.RunnerListener;
+import processing.app.debug.Target;
 import processing.app.debug.Uploader;
 import processing.app.syntax.JEditTextArea;
 import processing.app.syntax.PdeKeywords;
@@ -723,14 +725,70 @@ public class Editor extends JFrame implements RunnerListener {
 
     return sketchMenu;
   }
-
-
+/*
+ * This method was referred from http://ra2kstar.tistory.com/139
+ * Thank you for sharing this good method.
+ * */
+  public boolean removeDIR(String source){
+	  	File sourceDir = new File(source);
+	  	if(!sourceDir.exists()){
+	  		//System.out.println("")
+	  		return false;
+	  	}
+		File[] listFile = new File(source).listFiles(); 
+		try{
+			if(listFile.length > 0){
+				for(int i = 0 ; i < listFile.length ; i++){
+					//System.out.println("list file["+i+"]"+listFile[i].getAbsolutePath());
+					if(listFile[i].isFile()){
+						listFile[i].delete(); 
+					}else{
+						removeDIR(listFile[i].getPath());
+					}
+					listFile[i].delete();
+					
+				}
+				if(sourceDir.delete()){
+					return true;
+				}else{
+					return false;
+				}
+				
+			}
+		}catch(Exception e){
+			System.err.println(System.err);
+			return false;
+			//System.exit(-1); 
+		}
+		return false;
+			
+	}
   protected JMenu buildToolsMenu() {
     toolsMenu = new JMenu(_("Tools"));
     JMenu menu = toolsMenu;
     JMenuItem item;
 
     addInternalTools(menu);
+    //System.out.println("Tools menu");
+    item = newJMenuItemShift("Clean Objects", 'L');
+    item.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+         // System.out.println("Selected Clean");
+          Target t = Base.getTarget();
+          File coreFolder = new File(new File(t.getFolder(), "cores"), boardPrefs.get("build.core"));
+          String objFolder = coreFolder.getAbsoluteFile()+File.separator+"objCache"+boardPrefs.get("build.board")+File.separator;
+          String cleanMessage = null;
+    	  if(removeDIR(objFolder)){
+    		  cleanMessage = "The object cache was removed successfully : "+objFolder;
+              //JOptionPane.showMessageDialog(null, cleanMessage);    
+    		  System.out.println(cleanMessage);
+    	  }else{
+    		  cleanMessage = "The object cache directory is not exist!";
+    		  JOptionPane.showMessageDialog(null, cleanMessage);    
+    	  }
+        }
+      });
+    toolsMenu.add(item);
     
     item = newJMenuItemShift(_("Serial Monitor"), 'M');
     item.addActionListener(new ActionListener() {
@@ -2544,13 +2602,14 @@ public class Editor extends JFrame implements RunnerListener {
 		  
 		  //System.out.println("[ROBOTIS]Transmit the reset signal");
 		  if(uploadSerialRobotis.IsConnectedSerial()){
-			  uploadSerialRobotis.write("CM9X");
 			  statusNotice("Reset the board");
+			  uploadSerialRobotis.write("CM9X");			  
+			  uploadSerialRobotis.dispose();
 		  }else{
 			  statusError("Can not reset the board!");
 			  clearAllToolbar();
 		  }
-	      uploadSerialRobotis.dispose();
+	      
 		  //uploadSerialRobotis = null;
 	    	 
 		} catch (SerialException e) {
@@ -2565,6 +2624,30 @@ public class Editor extends JFrame implements RunnerListener {
         
         uploading = true;
      
+        try {
+    		Thread.sleep(1000);
+    	} catch (InterruptedException e2) {
+    		// TODO Auto-generated catch block
+    		e2.printStackTrace();
+    	}
+        try {
+        	uploadSerialRobotis = new Serial(115200,sharedObject);
+        } catch (SerialException e1) {
+			// TODO Auto-generated catch block
+			//System.out.println("[ROBOTIS] Re-connect fail -> Reset your board and press download button");
+			e1.printStackTrace();		
+			clearAllToolbar();
+			statusError("Serial Exception occurs");
+			return;
+        }
+        if(uploadSerialRobotis.IsConnectedSerial() == false){
+      	  //System.out.println("[ROBOTIS] Re-connect fail -> Reset your board and press download button");
+      	  clearAllToolbar();
+      	  statusError("Re-connect Fail!");
+      	  return;
+        }else{
+        	statusNotice("Re-connect OK...");
+        }  
         success = sketch.exportApplet(false);
         buildPath = sketch.GetFullBuildBinaryPath();
        
@@ -2597,23 +2680,7 @@ public class Editor extends JFrame implements RunnerListener {
         //return;
       }
       //After compile, open the serial port again for flash download
-      try {
-		uploadSerialRobotis = new Serial(115200,sharedObject);
-      } catch (SerialException e1) {
-		// TODO Auto-generated catch block
-    	//System.out.println("[ROBOTIS] Re-connect fail -> Reset your board and press download button");
-    	e1.printStackTrace();		
-  		clearAllToolbar();
-    	statusError("Serial Exception occurs");    	
-		
-		return;
-      }
-      if(uploadSerialRobotis.IsConnectedSerial() == false){
-    	  //System.out.println("[ROBOTIS] Re-connect fail -> Reset your board and press download button");
-    	  clearAllToolbar();
-    	  statusError("Re-connect Fail!");
-    	  return;
-      }
+
       if(success == false){
     	  if(uploadSerialRobotis.IsConnectedSerial()){
 			  uploadSerialRobotis.write("AT&RST");

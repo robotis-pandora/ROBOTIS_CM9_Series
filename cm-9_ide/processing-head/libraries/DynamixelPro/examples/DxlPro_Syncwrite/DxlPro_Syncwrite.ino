@@ -1,11 +1,21 @@
+/*
+  Dynamixel Syncwrite exmaples
+
+  Write goal position with velocity to ID 1 dynamixel pro.
+  Dynamixel pro use DXL protocol 2.0. 
+  You can also find all information about DYNAMIXEL PRO and protocol 2.0
+  http://support.robotis.com/
+
+  24 Jun. 2013  ported to CM9  by ROBOTIS,.LTD.
+*/
 #include "DynamixelPro.h"
 DynamixelPro DxlEx;
 
 int itemp1[3];
 int itemp2[3];
 void setup() {
-  DxlEx.begin(5);
-  Serial2.begin(57600);
+  DxlEx.begin(1);// Baud num 1 is 57600 bps in DXL 2.0 control table
+  
   DxlEx.writeByte(1,562,1);
   itemp1[0] = 1;
   itemp1[1] = 151875; //goal posiotion 1

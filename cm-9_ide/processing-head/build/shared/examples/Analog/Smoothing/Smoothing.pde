@@ -62,4 +62,5 @@ void loop() {
     average = total / numReadings;
     // Send it to the computer (as ASCII digits)
     SerialUSB.println(average, DEC);
+    delay(100);
 }

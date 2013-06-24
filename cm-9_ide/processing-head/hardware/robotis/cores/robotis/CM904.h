@@ -45,7 +45,7 @@
  * [ROBOTIS][CHANGE] CM-900 Do not have built-in button.
  * 2013-04-22
  * */
-/*#define BOARD_BUTTON_PIN        2//38*/
+#define BOARD_BUTTON_PIN        25//38
 #define BOARD_LED_PIN           14//16
 
 /* Total number of GPIO pins that are broken out to headers and

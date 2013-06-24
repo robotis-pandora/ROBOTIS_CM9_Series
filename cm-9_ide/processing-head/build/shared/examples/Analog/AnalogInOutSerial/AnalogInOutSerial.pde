@@ -53,4 +53,5 @@ void loop() {
     SerialUSB.print(sensorValue);
     SerialUSB.print("\t output = ");
     SerialUSB.println(outputValue);
+    delay(100);
 }

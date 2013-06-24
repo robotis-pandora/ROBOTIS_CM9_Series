@@ -50,7 +50,7 @@ cm900.build.density=STM32_MEDIUM_DENSITY
 
 ##############################################################
 
-cm904.name=ROBOTIS CM-904
+cm904.name=ROBOTIS CM-9.04
 
 cm904.upload.file_type=bin
 cm904.upload.maximum_size=118000

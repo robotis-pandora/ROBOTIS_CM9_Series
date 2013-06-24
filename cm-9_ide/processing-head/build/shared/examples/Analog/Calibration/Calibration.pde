@@ -76,4 +76,5 @@ void loop() {
 
     // Fade the LED using the calibrated value:
     pwmWrite(pwmLEDPin, sensorValue);
+    delay(100);
 }

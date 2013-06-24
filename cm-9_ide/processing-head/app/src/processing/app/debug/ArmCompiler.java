@@ -32,6 +32,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -126,12 +127,12 @@ public class ArmCompiler extends Compiler {
     sketch.setCompilingProgress(70);
     // 4. link it all together into the .bin file
     File binFile = linkFiles(objectFiles);
-   // System.out.println("[ARM Compiler] #### 4. link it all together into the .bin file ####");
+    //System.out.println("[ARM Compiler] #### 4. link it all together into the .bin file ####");
     
     sketch.setCompilingProgress(80);
     
     // 5. compute binary sizes and report to user
-   // System.out.println("[ArmCompiler] #####5. compute binary sizes and report to user ####");
+    //System.out.println("[ArmCompiler] #####5. compute binary sizes and report to user ####");
     sizeBinary(binFile);
     //[ROBOTIS][START] 2012-12-18 to limit binary size for each board.
     long sizeOfBinary = binFile.length();
@@ -182,14 +183,42 @@ public class ArmCompiler extends Compiler {
                                   String sourcePath, boolean recurse)
     throws RunnerException {
 
-	  
+	
     // getCommandCompilerFoo will destructively modify objectPaths
     // with any object files the command produces.
-    List<File> objectPaths = new ArrayList<File>();
-
-  //  System.out.println("[ArmCompiler]compileFiles() includePaths : "+includePaths+"sourcePath : "+sourcePath);
+	  List<File> objectPaths = new ArrayList<File>();
+	  
+	  /*
+	   * [ROBOTIS][ADD][START] 2013-06-21 To speed up compilation core source files.
+	   * */
+  	//System.out.println("[ArmCompiler] Build path = "+buildPath);
+	String objCacheFolderName  = sourcePath+File.separator+"objCache"+boardPrefs.get("build.board")+File.separator;			
+	
+	File objCacheFolder = new File(objCacheFolderName);
+	//System.out.println("[FFFF]objCacheFolderName  =  "+objCacheFolderName);    
+	String destPath = null;
+	if(objCacheFolder.exists() && recurse == true){
+		File objFiles[] = objCacheFolder.listFiles();
+		for(File file : objFiles){
+			//System.out.println("Source files = "+ file.getPath());
+			destPath = buildPath + File.separator+file.getName();	
+			//System.out.println("Dest files = "+ destPath);
+			File dest = new File(destPath);
+			objectPaths.add(dest);
+			copyObj(file,dest);
+		}
+		
+		//System.out.println("[FFFF]objectPaths  =  "+objectPaths.size());
+		return objectPaths;
+	}	
+   
+    /*
+     * [ROBOTIS][ADD][END]2013-06-21 To speed up compilation core source files.
+     * */
+    //System.out.println("[ArmCompiler]compileFiles() includePaths : "+includePaths+"sourcePath : "+sourcePath);
     // Compile assembly files
     for (File file : findFilesInPath(sourcePath, "S", recurse)) { //[ROBOTIS] changed "S" -> "s" to compile startup assembly code
+      //System.out.println("Count = "+i++);
       if(verboseOut != true)
     	 // System.out.print(".");
       execAsynchronously(getCommandCompilerS(includePaths,
@@ -203,6 +232,7 @@ public class ArmCompiler extends Compiler {
     // Compile C files
     for (File file : findFilesInPath(sourcePath, "c", recurse)) {
       //System.out.println("[ArmCompiler]compileFiles() file name : "+file);
+    	//System.out.println("Count = "+i++);
       if(verboseOut != true)
     	  //System.out.print(".");
       execAsynchronously(getCommandCompilerC(includePaths,
@@ -210,11 +240,12 @@ public class ArmCompiler extends Compiler {
                                              buildPath,
                                              objectPaths));
     }
-
+    
     if (recurse == true)
-    	sketch.setCompilingProgress(40);
+    	sketch.setCompilingProgress(45);
     // Compile C++ files
     for (File file : findFilesInPath(sourcePath, "cpp", recurse)) {
+    	//System.out.println("Count = "+i++);
       if(verboseOut != true)
       	  //System.out.print(".");
       execAsynchronously(getCommandCompilerCPP(includePaths,
@@ -222,9 +253,40 @@ public class ArmCompiler extends Compiler {
                                                buildPath,
                                                objectPaths));
     }
+    
 
     if (recurse == true)
     	sketch.setCompilingProgress(50);
+        
+    if(recurse == false){ //[ROBOTIS] 2013-06-21 Not core compilation case, do not make cache files.
+    	//System.out.println("This process is sketch compilation!");
+    	return objectPaths;
+    }
+   
+    /*
+	   * [ROBOTIS][ADD][START] 2013-06-21 To speed up compilation core source files.
+	   * */
+    
+    // copy object files to core folder
+	if(!objCacheFolder.exists()){
+    	objCacheFolder.mkdirs();
+    	for(File file : objectPaths){
+        	//System.out.println("Object dis-assemble =  "+file+" exist= "+file.equals(file));
+    		destPath = objCacheFolderName + File.separator+file.getName();
+        	File dest = new File(destPath);
+        	copyObj(file,dest);
+        	//System.out.println("Dest =  "+destPath+" exist= "+file.equals(destPath));
+        	
+        }
+    }/*else{
+        	System.out.println("objCacheFolder folder =  "+objCacheFolderName);	
+        }*/        
+        //System.out.println("[AAAA]objectPaths  =  "+objectPaths.size());	
+   
+    /*
+	   * [ROBOTIS][ADD][END] 2013-06-21 To speed up compilation core source files.
+	   * */
+    	
     return objectPaths;
   }
 
@@ -343,7 +405,31 @@ public class ArmCompiler extends Compiler {
    
     messagesNonError = false;
   }
- 
+  private boolean copyObj(File src, File dest){
+	
+	try {
+		FileInputStream fileInput = new FileInputStream(src);
+		FileOutputStream fileOutput = new FileOutputStream(dest);
+		
+		int len =0;
+		byte[] buf = new byte[1024];
+		while((len = fileInput.read(buf)) != -1){
+			fileOutput.write(buf,0,len);
+		}
+		fileInput.close();
+		fileOutput.close();
+		
+	} catch( FileNotFoundException e){
+		e.printStackTrace();
+		return false;
+	}catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		return false;
+	}
+	return true;
+	  
+  }
   private byte CalculateChecksumFromBinary(File binFile){
 	   
 	byte checkSumByte=0;
