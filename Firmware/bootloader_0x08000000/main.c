@@ -17,7 +17,9 @@
  * @Brief : main function for the bootloader of cm-9 series board.
  * changed by ROBOTIS,.LTD.
  */
+
 /* Includes ------------------------------------------------------------------*/
+
 #include "stm32f10x_lib.h"
 #include "USBInit.h"
 
@@ -41,7 +43,6 @@ typedef  void (*pFunction)(void);
 #define PARA_NUM 10
 
 #define P_OPERATING_MODE      19
-
 
 /* Private macro -------------------------------------------------------------*/
 
@@ -74,7 +75,9 @@ void Timer_Configuration(void);
 void ADC_Configuration(void);
 #endif
 
-void USART_Configuration(u32 nBaud);
+//void USART_Configuration(u32 nBaud);
+void USART_Configuration(u8 PORT, u32 baudrate);
+
 void TxDByte(u8 dat);
 void TxD_Dec_U8(u8 bByte);  // 2012-05-15 jason added from CM-530 Bootloader 1.01
 void TxDString(char *str);
@@ -85,7 +88,7 @@ void TxDHex32(u32 lSentData);
 void SerialMonitor(void);
 u16 StringProcess(char *bpCommand, u32 *wpPara, char *bpString);
 u16 GetCommandFromHost(char *bpStringPointer);
-u16 StringCompare(char *bpA, char *bpB);
+u16 StringCompare(char *bpA, char *bpB,int limit);
 u16 StringCopy(char *bpDst, char *bpSrc);
 void Delay(u32 nTime);
 //void PrintProtectStatus();
@@ -108,6 +111,13 @@ void Interrupt1ms(void);
 vu32  gu32TimingCounter1ms = 0;
 //vu32  gw1msCounter=0;
 void ClearTimeOutBuffer(void);
+
+u32 dxl_get_baudrate(int baudnum, u8 option);
+volatile u8  gbDXLWritePointer;
+volatile u8  gbDXLReadPointer;
+volatile u8  gbpDXLDataBuffer[256];
+void ClearBuffer256(void);
+
 
 vu32 gwAddressPointer=0, gwRxTotalCount=0, gwReceivedCheckSumFromHost=0;
 vu32 gwCalculatedCheckSum=0;
@@ -175,7 +185,7 @@ int main(void)
 
 
 	/* USART Configuration */
-	USART_Configuration(57600);
+	USART_Configuration(2,57600); //Initialize USART 2 device
 	USART_BUFFER_CLEAR;
 	Delay(70);
 
@@ -186,8 +196,9 @@ int main(void)
 	if(GPIO_ReadInputDataBit(GPIOA , GPIO_Pin_0) == SET )
 		TxDString("Detect Pin!\r\n");
 
-
-	//TxDString("CM-900 SYSTEM INIT!\r\n");
+#ifdef DEBUG_ENABLE_BY_USART2
+	TxDString("CM-9 SERISE SYSTEM INIT!\r\n");
+#endif
 
 	if(RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET || GPIO_ReadInputDataBit(GPIOA , GPIO_Pin_0) == SET)
 	{
@@ -195,9 +206,9 @@ int main(void)
 
 		RCC_ClearFlag();
 		while(bDeviceState != CONFIGURED);  //Wait until USB CDC is fully initialized
-
-		//TxDString("CM-900 USB CDC CONFIGURED\r\n");
-		//TxDString("START USB MONITOR\r\n");
+#ifdef DEBUG_ENABLE_BY_USART2
+		TxDString("Start serial monitor\r\n");
+#endif
 		SerialMonitor();
 	}
 
@@ -273,7 +284,45 @@ void Timer_Configuration(void)
 
 
 }
+void ClearBuffer256(void)
+{
+	gbDXLReadPointer = gbDXLWritePointer = 0;
+}
 
+u32 dxl_get_baudrate(int baudnum, u8 option)
+{
+	if(option == 1){
+		if(baudnum >= 2400)
+		        return baudnum;
+
+		    switch(baudnum)
+		    {
+		    case 0:
+		        return 2400;
+		    case 1:
+		        return 57600;
+		    case 2:
+		        return 115200;
+		    case 3:
+		        return 1000000;
+		    case 4:
+		        return 2000000;
+		    case 5:
+		        return 3000000;
+		    case 6:
+		        return 4000000;
+		    case 7:
+		        return 4500000;
+		    case 8:
+		        return 10500000;
+		    default:
+		        return 57600;
+		    }
+
+	}else{
+		return (2000000 / (baudnum + 1));
+	}
+}
 /*
 void PrintProtectStatus()
 {
@@ -447,18 +496,24 @@ void Delay(u32 nTime)
 }
 
 u8 gbCount =0;
-#define IDE_COMMAND_LENGTH 5
+#define IDE_COMMAND_LENGTH 10
 extern volatile u16 USB_Rx_Cnt;
 extern u8 USB_Rx_Buffer[VIRTUAL_COM_PORT_DATA_SIZE];
 void SerialMonitor(void)
 {
 	u16 bTerminate;//,bRxData;
+	u8 dxlBaudrate =0;
 	char bpCommand[COMMAND_LENGTH];
+	int i;
+	for(i=0;i<COMMAND_LENGTH;i++){
+		bpCommand[i]='\0';
+	}
 	u8 bRxData=0;
 	u8 usbRxCount = 0;
 	//PrintProtectStatus();
-	GPIO_ResetBits(PORT_LED, PIN_LED);		// LED On modified @new CM-900 with jason 2012-07-24
 
+	GPIO_ResetBits(PORT_LED, PIN_LED);					// LED On modified @new CM-900 with jason 2012-07-24
+	GPIO_ResetBits(CM904_PORT_LED, CM904_PIN_LED);		// LED On modified @new CM-904
 	USART_BUFFER_CLEAR;
 
 	bTerminate = 0;
@@ -500,15 +555,18 @@ void SerialMonitor(void)
 	TxDString("bpCommand = ");	TxDString(bpCommand);	TxDString("\r\n");
 	TxDString("gbCount = ");	TxDHex8(gbCount);	TxDString("\r\n");
 #endif
+	USB_Rx_Cnt = 0;
+	for(i=0;i < VIRTUAL_COM_PORT_DATA_SIZE;i++ ){
+		 USB_Rx_Buffer[i] = '\0';
 
+	}
 		//bParaNum = StringProcess(bpCommand,ulpParameter,gbpRxBuffer);
 		//bParaNum =1;
 		//if(bParaNum != 0)
-		if(gbCount == IDE_COMMAND_LENGTH && bpCommand[0] == 'A' && bpCommand[2] == '&')
+		if(/*gbCount == IDE_COMMAND_LENGTH &&*/gbCount > 3 && bpCommand[0] == 'A' && bpCommand[2] == '&')
 		{
 			//if(bParaNum > PARA_NUM) bParaNum = PARA_NUM;
-
-			if( StringCompare(bpCommand,"AT&LD") )//if( StringCompare(bpCommand,"LD")|| StringCompare(bpCommand,"L") || bRxData == 'l' )
+			if( StringCompare(bpCommand,"AT&LD",5) )//if( StringCompare(bpCommand,"LD")|| StringCompare(bpCommand,"L") || bRxData == 'l' )
 			{
 				//TxDString("download\r\n");
 				u32 EraseCounter = 0x00;
@@ -523,10 +581,8 @@ void SerialMonitor(void)
 				FLASHStatus = FLASH_COMPLETE;
 				MemoryProgramStatus = PASSED;
 
-
-
 				gwAddressPointer = FLASH_START_ADDRESS;
-				gwEndAddressPointer = FLASH_START_ADDRESS + 0x11FF0;//(52*1024);//
+				gwEndAddressPointer = FLASH_START_ADDRESS + 0xF800;
 
 #ifdef DEBUG_ENABLE_BY_USART2
 				TxDString("gwAddressPointer =");
@@ -536,8 +592,6 @@ void SerialMonitor(void)
 				TxDHex32(gwEndAddressPointer);
 				TxDString("\r\n");
 #endif
-
-
 	/*			if( gwAddressPointer <  FLASH_START_ADDRESS || gwAddressPointer > FLASH_END_ADDRESS ||
 						gwEndAddressPointer <  FLASH_START_ADDRESS || gwEndAddressPointer > FLASH_END_ADDRESS )
 				{
@@ -572,11 +626,11 @@ void SerialMonitor(void)
 				/* Erase the FLASH pages */
 				for(EraseCounter = 0; (EraseCounter < NbrOfPage) && (FLASHStatus == FLASH_COMPLETE) ; EraseCounter++)
 				{
-
 					//u16 percent;
-
+					if( (gwAddressPointer + (FLASH_PAGE_SIZE * EraseCounter)) > 0x0800F000)
+						break;
 					FLASHStatus = FLASH_ErasePage(gwAddressPointer + (FLASH_PAGE_SIZE * EraseCounter));
-
+					TxDHex32(gwAddressPointer + (FLASH_PAGE_SIZE * EraseCounter));
 					//USB_TxDString("\b\b\b\b");
 					//percent = (u16)EraseCounter * 100 / (u16)NbrOfPage;
 					//USB_TxD_Dec_U8(percent);
@@ -586,8 +640,6 @@ void SerialMonitor(void)
 				//USB_TxD_Dec_U8(100);
 				//USB_TxDString("\%");
 				//TxDString("complete!\r\n");
-
-
 				if( FLASHStatus != FLASH_COMPLETE )
 				{
 					FLASH_Lock();
@@ -639,7 +691,7 @@ void SerialMonitor(void)
 				Delay(100);
 
 			}
-			else if(StringCompare(bpCommand,"AT&GO"))//else if(StringCompare(bpCommand,"GO")|| StringCompare(bpCommand,"G") || bRxData == 'g' )
+			else if(StringCompare(bpCommand,"AT&GO",5))//else if(StringCompare(bpCommand,"GO")|| StringCompare(bpCommand,"G") || bRxData == 'g' )
 			{
 
 				//TxDString("Jump to user application!\r\n");
@@ -667,19 +719,103 @@ void SerialMonitor(void)
 #ifdef DEBUG_ENABLE_BY_USART2
 				TxDString("USB Power Off!\r\n");
 #endif
-				Delay(500);
-
+				Delay(100);
 				Jump_To_Application();
+			}
+			else if(StringCompare(bpCommand,"AT&RST",6)){
+#ifdef DEBUG_ENABLE_BY_USART2
+				TxDString("system reset \r\n ");
+#endif
+				NVIC_GenerateSystemReset();
+			}
+			else if(StringCompare(bpCommand,"AT&TOSS",7)){
+#ifdef DEBUG_ENABLE_BY_USART2
+				TxDString("TOSS Mode for dynamixel \r\n ");
+#endif
+				USB_TxDString("TOSS MODE OK\r\n ");
+				if(bpCommand [7] == '=' || bpCommand [7] == '*' ){
+
+					if(gbCount == 9){
+						if(bpCommand[8] > 47 && bpCommand[8] < 58){
+							dxlBaudrate = bpCommand[8] - 48;
+						}
+
+					}else if(gbCount == 10){
+						if(bpCommand[8] > 47 && bpCommand[8] < 58 && bpCommand[9] > 47 && bpCommand[9] < 58 ){
+							dxlBaudrate = (bpCommand[8] - 48)*10 + (bpCommand[9] - 48);
+						}
+
+					}else{
+					//nothing...
+					}
+#ifdef DEBUG_ENABLE_BY_USART2
+					//TxDString("Dxl baud rate =  ");TxD_Dec_U8(dxlBaudrate);TxDString("\r\n ");
+#endif
+					if(bpCommand[7] == '='){
+					// Dynamixel 1.0
+						USART_Configuration(1, dxl_get_baudrate(dxlBaudrate,0));
+						//TxDString("Dxl baud rate =  ");TxDHex32(dxl_get_baudrate(dxlBaudrate,0));TxDString("\r\n ");
+					}else{
+					// Dynamixel 2.0
+						USART_Configuration(1, dxl_get_baudrate(dxlBaudrate,1));
+					}
+					USART_BUFFER_CLEAR
+					gbDXLWritePointer = gbDXLReadPointer = 0;
+					USB_Rx_Cnt = 0;
+					while(1)
+					{
+
+						if(USB_Rx_Cnt > 0)//if(gwUSARTReadPtr != gwUSARTWritePtr) //USB -> DXL
+						{
+#ifdef DEBUG_ENABLE_BY_USART2
+							TxDString("USB_Rx_Cnt = ");	TxDHex8(USB_Rx_Cnt);	TxDString("\r\n");
+							TxDString("USB_Rx_Buffer = ");	TxDString(USB_Rx_Buffer);	TxDString("\r\n");
+#endif
+							if(USB_Rx_Buffer[0] == '!' && USB_Rx_Buffer[1] == '!' && USB_Rx_Buffer[2] == '!'){
+								//TxDString("Escaped!!\r\n");
+								USART_BUFFER_CLEAR
+								USB_Rx_Cnt = 0;
+								gbDXLWritePointer = gbDXLReadPointer = 0;
+								break;
+							}
+							GPIO_SetBits(GPIOB, GPIO_Pin_5);	// TX Enable
+							for(i=0; i < USB_Rx_Cnt; i++){
+								USART_SendData(USART1,(u8)USB_Rx_Buffer[i]);
+								while( USART_GetFlagStatus(USART1, USART_FLAG_TC)==RESET );
+							}
+							USB_Rx_Cnt = 0;
+							GPIO_ResetBits(GPIOB, GPIO_Pin_5);	// RX Enable
+
+						}
+
+						if(gbDXLWritePointer != gbDXLReadPointer){
+							while(gbDXLWritePointer != gbDXLReadPointer)//DXL -> USB
+							{
+								USB_TxDByte(gbpDXLDataBuffer[gbDXLReadPointer++]);
+								gbDXLReadPointer = gbDXLReadPointer & USART_BUFFER_SIZE;
+							}
+						}
+					}
+				}
+			}
+			else if(StringCompare(bpCommand,"AT&NAME",7)){
+				USB_TxDString("CM-904\n");
 			}
 			else{
 				TxDString("No IDE Command!\r\n");
 			}
-			gbCount = 0;
-			bpCommand[0]='\0';bpCommand[1]='\0';bpCommand[2]='\0';bpCommand[3]='\0';bpCommand[4]='\0';
 
+		}else{
+			if(bpCommand[0] == 'A' && bpCommand[1] == 'T'){
+				USB_TxDString("OK\n");
+			}
+		}
+		gbCount = 0;
+		for(i=0;i<COMMAND_LENGTH;i++){
+				bpCommand[i]='\0'; //clear command buffer
 		}
 		USART_BUFFER_CLEAR;
-		gwpUSARTBuffer[0]='\0';
+
 
 	}//while()
 
@@ -742,6 +878,7 @@ u16 StringProcess(char *bpCommand, u32 *wpPara, char *bpString)
 }
 */
 
+/*
 
 u16 GetCommandFromHost(char *bpStringPointer)
 {
@@ -805,15 +942,16 @@ u16 GetCommandFromHost(char *bpStringPointer)
 	}
 	return 0;
 }
+*/
 
-u16 StringCompare(char *bpA, char *bpB)
+u16 StringCompare(char *bpA, char *bpB, int limit)
 {
 	u16 wCount;
 	wCount = 0;
 	while(bpA[wCount] == bpB[wCount])
 	{
 		wCount++;
-		if ( wCount >= IDE_COMMAND_LENGTH)
+		if ( wCount >= limit)
 			return wCount;
 		if((bpA[wCount] == '\0' && bpB[wCount] == '\0') || wCount > COMMAND_BUFFER_SIZE-1 ) return wCount;
 	}
@@ -891,8 +1029,65 @@ void EEPROM_Clear( void )
 	FLASH_Lock();
 }
 #endif
+void USART_Configuration(u8 PORT, u32 baudrate)
+{
+	USART_InitTypeDef USART_InitStructure;
 
+	USART_StructInit(&USART_InitStructure);
 
+	USART_InitStructure.USART_BaudRate = baudrate;
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;
+	USART_InitStructure.USART_Parity = USART_Parity_No ;
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+
+	if( PORT == 1 )
+	{
+		USART_DeInit(USART1);
+		Delay(10);
+		/* Configure the USART1 */
+		USART_Init(USART1, &USART_InitStructure);
+
+		/* Enable USART1 Receive and Transmit interrupts */
+		USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);
+		//USART_ITConfig(USART1, USART_IT_TC, ENABLE);
+
+		/* Enable the USART1 */
+		USART_Cmd(USART1, ENABLE);
+	}
+
+	else if( PORT == 2 )
+	{
+		USART_DeInit(USART2);
+		Delay(10);
+		/* Configure the UART5 */
+		USART_Init(USART2, &USART_InitStructure);
+
+		/* Enable UART5 Receive and Transmit interrupts */
+		USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+
+		/* Enable the UART5 */
+		USART_Cmd(USART2, ENABLE);
+	}
+
+	else if( PORT == 3 )
+	{
+
+		USART_DeInit(USART3);
+		Delay(10);
+		/* Configure the USART3 */
+		USART_Init(USART3, &USART_InitStructure);
+
+		/* Enable USART3 Receive and Transmit interrupts */
+		USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
+		//USART_ITConfig(USART3, USART_IT_TC, ENABLE);
+
+		/* Enable the USART3 */
+		USART_Cmd(USART3, ENABLE);
+	}
+}
+#if 0
 void USART_Configuration(u32 nBaud)
 {
 //	USART_InitTypeDef USART_InitStructure;
@@ -927,7 +1122,7 @@ void USART_Configuration(u32 nBaud)
 	/* Enable the USART2 */
 	USART_Cmd(USART2, ENABLE);
 }
-
+#endif
 /*******************************************************************************
 * Function Name  : RCC_Configuration
 * Description    : Configures the different system clocks.
@@ -1054,6 +1249,12 @@ void GPIO_Configuration(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(PORT_LED, &GPIO_InitStructure);
 
+/* Configure LED (PB.2) as output push-pull */
+	GPIO_InitStructure.GPIO_Pin = CM904_PIN_LED;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_Init(CM904_PORT_LED, &GPIO_InitStructure);
+
 /* Configure USB Disconnect pin (PA.8) as output push-pull */
 	GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_PIN;/*test for USB disconnect*/
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;// GPIO_Speed_50MHz;//GPIO_Speed_10MHz; PC13~15 is limited their' speed to 2Mhz
@@ -1061,11 +1262,31 @@ void GPIO_Configuration(void)
 	GPIO_Init(USB_DISCONNECT_PORT, &GPIO_InitStructure);
 
 	GPIO_SetBits(USB_DISCONNECT_PORT, USB_DISCONNECT_PIN);//USB Pull-up must be disabled(go to High) during system power on
-	GPIO_SetBits(PORT_LED, PIN_LED);		// LED Off
 
-	/* Configure USART3 Remap enable */
-	//GPIO_PinRemapConfig( GPIO_Remap_USART3, ENABLE);
-	//GPIO_PinRemapConfig( GPIO_Remap_SWJ_Disable, ENABLE); // if you want to use JTAG SWJ(PA14,15...) as GPIO, activate this code
+	GPIO_InitStructure.GPIO_Pin = 	GPIO_Pin_5; //DXL DIR
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7; //DXL RXD
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6; //DXL TXD
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	GPIO_ResetBits(GPIOB, GPIO_Pin_5);	// TX Disable // RX Enable
+
+	GPIO_SetBits(PORT_LED, PIN_LED);		// LED Off
+	GPIO_SetBits(CM904_PORT_LED, CM904_PIN_LED);		// 904 LED Off
+
+	/* Configure USART1 Remap enable */
+	GPIO_PinRemapConfig( GPIO_Remap_USART1, ENABLE);
+	/* If use both DXL Enable_TX/RX pin and JTAG Debug/Downloading, need GPIO_Remap_SWJ_NoJTRST option */
+	GPIO_PinRemapConfig( GPIO_Remap_SWJ_NoJTRST,ENABLE);//GPIO_Remap_SWJ_Disable, ENABLE);
+
 
 }
 
@@ -1103,16 +1324,23 @@ void NVIC_Configuration(void)
 	 NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	 NVIC_Init(&NVIC_InitStructure);
 
-	 /* Enable the USART2 Interrupt */
-	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQChannel;// USART interrupt when connect to Zigbee USART
+	// Enable the USART1 Interrupt for DXL
+	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQChannel;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
-	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQChannel;
+	 /* Enable the USART2 Interrupt */
+	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQChannel;// USART interrupt when connect to Zigbee USART
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+
+	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQChannel;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 

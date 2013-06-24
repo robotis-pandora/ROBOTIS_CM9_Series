@@ -1,6 +1,6 @@
-COMPILE_OPTS = -Os -g -mcpu=cortex-m3 -mthumb -march=armv7-m -nostdlib -ffunction-sections -fdata-sections -Wl,--gc-sections -DBOARD_CM900_REV10 -DMCU_STM32F103C8 -DSTM32_MEDIUM_DENSITY -DVECT_TAB_FLASH 
-COMPILEAS_OPTS = -mcpu=cortex-m3 -march=armv7-m -mthumb -DBOARD_CM900_REV10 -DMCU_STM32F103C8 -DSTM32_MEDIUM_DENSITY -DVECT_TAB_FLASH 
-COMPILECPP_OPTS = -Os -g -mcpu=cortex-m3 -mthumb -march=armv7-m -nostdlib -ffunction-sections -fdata-sections -Wl,--gc-sections -fno-rtti -fno-exceptions -Wall -DBOARD_CM900_REV10 -DMCU_STM32F103C8 -DSTM32_MEDIUM_DENSITY -DVECT_TAB_FLASH 
+COMPILE_OPTS = -Os -g -mcpu=cortex-m3 -mthumb -march=armv7-m -nostdlib -ffunction-sections -fdata-sections -Wl,--gc-sections -DBOARD_CM900_REV10 -DMCU_STM32F103C8 -DSTM32_MEDIUM_DENSITY -DVECT_TAB_FLASH -DCM9_DEBUG
+COMPILEAS_OPTS = -mcpu=cortex-m3 -march=armv7-m -mthumb -DBOARD_CM900_REV10 -DMCU_STM32F103C8 -DSTM32_MEDIUM_DENSITY -DVECT_TAB_FLASH -DCM9_DEBUG
+COMPILECPP_OPTS = -Os -g -mcpu=cortex-m3 -mthumb -march=armv7-m -nostdlib -ffunction-sections -fdata-sections -Wl,--gc-sections -fno-rtti -fno-exceptions -Wall -DBOARD_CM900_REV10 -DMCU_STM32F103C8 -DSTM32_MEDIUM_DENSITY -DVECT_TAB_FLASH -DCM9_DEBUG 
 INCLUDE_DIRS = -I . -I lib/inc
 LIBRARY_DIRS = -L
 
@@ -36,6 +36,7 @@ MAIN_OUT_BIN = $(MAIN_OUT).bin
 MAIN_OUT_LSS = $(MAIN_OUT).lss
 
 # all
+#여기는 최종 target 파일이 3개가 있다. 각각 3개의 target이 자동으로 생성된다. 
 all: $(MAIN_OUT_ELF) $(MAIN_OUT_BIN) 
 #$(MAIN_OUT_LSS)
 
@@ -75,8 +76,17 @@ MAIN_OBJS = exc.o\
  lib/src/usb_serial.o \
  template.o \
  main.o \
+ dxl_pro.o \
+ DynamixelPro.o \
+ OLLO.o	\
+ bkp_core.o	\
+ BKP.o	\
+ eeprom_core.o	\
+ EEPROM.o	\
+ RC100.o	\
+ rc100_core.o	\
  lib/src/CM900.o \
- lib/src/CM904.o \ 
+ lib/src/CM904.o \
  lib/src/Dynamixel.o \
  lib/src/dxl.o \
  lib/src/Arduino-compatibles.o

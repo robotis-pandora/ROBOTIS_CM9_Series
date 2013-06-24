@@ -582,19 +582,16 @@ void SPI2_IRQHandler(void)
 *******************************************************************************/
 extern volatile u8 gwpUSARTBuffer[USART_BUFFER_SIZE+1];
 extern volatile u16 gwUSARTWritePtr;
+
+extern volatile u8  gbDXLWritePointer;
+extern volatile u8  gbpDXLDataBuffer[256];
+
 void USART1_IRQHandler(void)
 {
-/*
-	u16 ReceivedData;
+	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET){
+		gbpDXLDataBuffer[gbDXLWritePointer++] = USART_ReceiveData(USART1);
 
-	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
-	{
-		// Read one byte from the receive data register
-		ReceivedData = USART_ReceiveData(USART1); 
-		//USART_SendData(USART1,(u8)ReceivedData);
-		gwpUSARTBuffer[(++gwUSARTWritePtr)&USART_BUFFER_SIZE] = ReceivedData;	
-	}*/
-	
+	}
 
 }
 

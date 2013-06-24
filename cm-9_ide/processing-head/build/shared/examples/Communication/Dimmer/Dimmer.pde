@@ -7,15 +7,13 @@
   these bytes and uses them to set the brightness of the LED.
 
   The circuit:
-  LED must be connected to Pin 6 in CM-9 board, there is no built-in LED in Pin 6
-  Serial connection to Processing, Max/MSP, or another serial application.
-
+  LED must be connected to Pin 6 in CM-9 board as current sink
+  
   created 2006
   by David A. Mellis
   modified 14 Apr 2009
   by Tom Igoe and Scott Fitzgerald
 
-  http://www.arduino.cc/en/Tutorial/Dimmer
   http://leaflabs.com/docs/lang/api/pwmwrite.html
 
   Ported to the Maple 28 May 2010
@@ -26,11 +24,12 @@ int ledPin = 6;
 
 void setup() {
     // Declare ledPin as an OUTPUT:
-    pinMode(ledPin, OUTPUT);
+    pinMode(ledPin, PWM);
 }
 
 void loop() {
     int brightness;
+    int temp=0;
 
     // Check if data has been sent from the computer:
     if (SerialUSB.available()) {

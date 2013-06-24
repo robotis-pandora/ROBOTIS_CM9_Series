@@ -38,6 +38,10 @@
 #define PORT_LED 							GPIOB
 #define PIN_LED  							GPIO_Pin_2
 
+#define CM904_PORT_LED 							GPIOB
+#define CM904_PIN_LED  							GPIO_Pin_9
+
+
 #ifdef POWER_SOURCE_DETECT
 #define PORT_USB_POWER 						GPIOA
 #define PIN_USB_POWER  						GPIO_Pin_7
