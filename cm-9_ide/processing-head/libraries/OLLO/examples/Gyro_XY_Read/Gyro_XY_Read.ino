@@ -16,7 +16,7 @@
 OLLO myOLLO;
 
 void setup(){
-  myOLLO.begin(1);//Gyro X Axis must be connected at port 2.
+  myOLLO.begin(1);//Gyro X Axis must be connected at port 1.
   myOLLO.begin(2);//Gyro Y Axis must be connected at port 2.
 }
 void loop(){

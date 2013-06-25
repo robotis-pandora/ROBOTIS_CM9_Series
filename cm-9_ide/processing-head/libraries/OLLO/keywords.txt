@@ -10,14 +10,17 @@ write	KEYWORD2
 writeLED	KEYWORD2
 beginIR	KEYWORD2
 beginButton	KEYWORD2
+readColor	KEYWORD2
 #######################################
 # Class (KEYWORD3)
 #######################################
 OLLO	KEYWORD3
 myOLLO	KEYWORD3
-
 #######################################
 # Constants (LITERAL1)
 #######################################
-#RC100_BTN_U		LITERAL1
+RED		LITERAL1
+GREEN		LITERAL1
+BLUE		LITERAL1
+
 

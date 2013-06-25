@@ -22,6 +22,8 @@ void OLLO::begin(int devNum){
 	if( devNum == 0 || devNum > 4){
 			return;
 	}
+	mMot_plus = 0;
+	mMot_minus = 0;
 	switch(devNum){
 	case 1:
 		pinMode(6, OUTPUT); //RED  (right)
@@ -192,5 +194,57 @@ void OLLO::write(int devNum, uint8 leftVal, uint8 centerVal, uint8 rightVal){
 		default:
 			break;
 	}
+
+}
+int OLLO::readColor(int devNum, int colorIndex){
+
+	setColor(colorIndex);
+	switch(devNum){
+		case 1:
+			 digitalWrite(6,mMot_minus);
+			 digitalWrite(7,mMot_plus);
+			 delay(30);
+			 return (int)analogRead(2);
+			break;
+		case 2:
+			digitalWrite(8,mMot_minus);
+			digitalWrite(9,mMot_plus);
+			delay(30);
+			return (int)analogRead(3);
+			break;
+		case 3:
+			digitalWrite(10,mMot_minus);
+			digitalWrite(11,mMot_plus);
+			delay(30);
+			return (int)analogRead(0);
+			break;
+		case 4:
+			digitalWrite(12,mMot_minus);
+			digitalWrite(13,mMot_plus);
+			delay(30);
+			return (int)analogRead(1);
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
+void OLLO::setColor(int colorIndex){
+	switch(colorIndex){
+			case 1: //Red
+				mMot_minus = LOW;
+				mMot_plus = LOW;
+				break;
+			case 2://Green
+				mMot_minus = LOW;
+				mMot_plus = HIGH;
+				break;
+			case 3://Blue
+				mMot_minus = HIGH;
+				mMot_plus = LOW;
+				break;
+			default:
+				break;
+		}
 
 }
