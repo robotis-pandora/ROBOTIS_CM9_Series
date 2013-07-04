@@ -16,11 +16,11 @@
 OLLO myOLLO;
 
 void setup(){
-  myOLLO.beginIR(1);//IR Module must be connected at port 1.
+  myOLLO.begin(1, IR_SENSOR);//IR Module must be connected at port 1.
 }
 void loop(){
   SerialUSB.print("IR Sensor ADC = ");
-  SerialUSB.println(myOLLO.read(1)); //read ADC value from OLLO port 1
+  SerialUSB.println(myOLLO.read(1, IR_SENSOR)); //read ADC value from OLLO port 1
   delay(60);
 }
 

@@ -1,7 +1,7 @@
 /*
  OLLO LED Module example
 
- Blink OLLO LED Module on CM-904(not CM-900), it has 4 OLLO 5Pin port
+ Blink OLLO LED Display Module on CM-904(not CM-900), it has 4 OLLO 5Pin port
  connect LED Module to port 3.
 
  You can buy DYNAMIXEL in ROBOTIS-SHOP
@@ -16,13 +16,13 @@
 OLLO myOLLO;
 
 void setup(){
-  myOLLO.begin(3);//LED Module must be connected at port 3.
+  myOLLO.begin(3);//LED Display Module must be connected at port 3.
 }
 void loop(){
-  //writeLED( port number, left LED(blue), right LED(yellow) )
-  myOLLO.writeLED(3,1,0);
+  //write( port number, left LED(blue), right LED(yellow) )
+  myOLLO.write(3,1,0);// or use myOLLO.write(3,1,0,0);
   delay(100);
-  myOLLO.writeLED(3,0,1);
+  myOLLO.write(3,0,1);// or use myOLLO.write(3,0,0,1);
   delay(100);
 }
 
