@@ -40,7 +40,7 @@ uint8_t HaViMo2_Controller::recover(void)
 		Dxl.setTxPacketInstruction(INST_READ);
 		Dxl.setTxPacketParameter(0, ((iter+1)*16));
 		Dxl.setTxPacketParameter(1, 16);
-		Dxl.setTxPacketLength(4);
+		Dxl.setTxPacketLength(2);
 
 		Dxl.txrxPacket();
 
