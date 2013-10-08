@@ -178,7 +178,8 @@ byte  Dynamixel::reset( byte  bID ){
 }
 
 byte  Dynamixel::getResult(void){
-	return mCommStatus;
+//	return mCommStatus;
+	return getTxRxStatus();
 }
 
 /*

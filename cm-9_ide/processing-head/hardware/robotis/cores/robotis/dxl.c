@@ -71,6 +71,11 @@ void nDelay(uint32 nTime) { //100ns
 	//tmpdly = tmp;
 }
 
+byte getTxRxStatus(void)
+{
+	return gbDXLtxrxStatus;
+}
+
 void clearBuffer256(void){
 	gbDXLReadPointer = gbDXLWritePointer = 0;
 }
@@ -103,6 +108,8 @@ byte RxByteFromDXL(void){
 byte txrx_Packet(byte bID, byte bInst, byte bTxParaLen){
 	#define TRY_NUM 2//;;2
 
+	gbDXLtxrxStatus = 0;
+
 	byte bTxLen, bRxLenEx, bTryCount;
 
 	gbBusUsed = 1;
@@ -112,6 +119,15 @@ byte txrx_Packet(byte bID, byte bInst, byte bTxParaLen){
 	{
 		gbDXLReadPointer = gbDXLWritePointer; //BufferClear050728
 		bTxLen = tx_Packet(bID, bInst, bTxParaLen);
+
+		if (bTxLen == (bTxParaLen+4+2))
+		{
+			gbDXLtxrxStatus = (1<<COMM_TXSUCCESS);
+		}
+		else
+		{
+			return 0;
+		}
 
 		if(bInst == INST_PING)
 		{
@@ -212,6 +228,8 @@ byte txrx_Packet(byte bID, byte bInst, byte bTxParaLen){
 	PrintBuffer(gbpRxBuffer,gbRxLength);
 #endif
 
+	gbDXLtxrxStatus = (1<<COMM_RXSUCCESS);
+
 	//gbLengthForPacketMaking =0;
 	return 1;
 }
@@ -257,6 +275,7 @@ byte rx_Packet(byte bRxLength){
 			TxDString("Rx Timeout");
 			TxDByte(bLength);
 #endif
+			gbDXLtxrxStatus |= (1<<COMM_RXTIMEOUT);
 			clearBuffer256();
 
 			//return 0;
@@ -268,6 +287,7 @@ byte rx_Packet(byte bRxLength){
 #ifdef PRINT_OUT_COMMUNICATION_ERROR_TO_USART2
 				TxDStringC("Wrong Header");//[Wrong Header]
 #endif
+				gbDXLtxrxStatus |= (1<<COMM_RXHEADER);
 				clearBuffer256();
 				return 0;
 			}
@@ -276,6 +296,7 @@ byte rx_Packet(byte bRxLength){
 #ifdef PRINT_OUT_COMMUNICATION_ERROR_TO_USART2
 				TxDStringC("[Error:TxID != RxID]");
 #endif
+				gbDXLtxrxStatus |= (1<<COMM_RXID);
 				clearBuffer256();
 				return 0;
 			}
@@ -284,6 +305,7 @@ byte rx_Packet(byte bRxLength){
 #ifdef PRINT_OUT_COMMUNICATION_ERROR_TO_USART2
 				TxDStringC("RxLength Error");
 #endif
+				gbDXLtxrxStatus |= (1<<COMM_RXLENGTH);
 				clearBuffer256();
 				return 0;
 			}
@@ -293,6 +315,7 @@ byte rx_Packet(byte bRxLength){
 #ifdef PRINT_OUT_COMMUNICATION_ERROR_TO_USART2
 				TxDStringC("[RxChksum Error]");
 #endif
+				gbDXLtxrxStatus |= (1<<COMM_RXCHECKSUM);
 				clearBuffer256();
 				return 0;
 			}

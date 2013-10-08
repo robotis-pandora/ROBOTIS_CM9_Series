@@ -49,36 +49,35 @@ uint8_t HaViMo2_Controller::recover(void)
 		if ( (Dxl.getResult()==COMM_RXSUCCESS) &&
 				(Dxl.getRxPacketLength()==(16+2)) )
 		{
-			hvm2rb.valid++;
-		}
-		else
-		{
-			return hvm2rb.valid;
-		}
+			if (Dxl.getRxPacketParameter(1)>0)
+			{
+				hvm2rb.valid++;
 
-		hvm2rb.rb[iter].Index=Dxl.getRxPacketParameter(0);
-		hvm2rb.rb[iter].Color=Dxl.getRxPacketParameter(1);
-		hvm2rb.rb[iter].NumPix=
-			(
-				(uint16_t)Dxl.getRxPacketParameter(2)+
-				((uint16_t)Dxl.getRxPacketParameter(3)<<8)
-			);
-		hvm2rb.rb[iter].SumX=
-			(
-				((uint32_t)Dxl.getRxPacketParameter(4)+
-				((uint32_t)Dxl.getRxPacketParameter(5)<<8)+
-				((uint32_t)Dxl.getRxPacketParameter(6)<<16))
-			);
-		hvm2rb.rb[iter].SumY=
-			(
-				((uint32_t)Dxl.getRxPacketParameter(8)+
-				((uint32_t)Dxl.getRxPacketParameter(9)<<8)+
-				((uint32_t)Dxl.getRxPacketParameter(10)<<16))
-			);
-		hvm2rb.rb[iter].MaxX=Dxl.getRxPacketParameter(12);
-		hvm2rb.rb[iter].MinX=Dxl.getRxPacketParameter(13);
-		hvm2rb.rb[iter].MaxY=Dxl.getRxPacketParameter(14);
-		hvm2rb.rb[iter].MinY=Dxl.getRxPacketParameter(15);
+				hvm2rb.rb[hvm2rb.valid-1].Index=Dxl.getRxPacketParameter(0);
+				hvm2rb.rb[hvm2rb.valid-1].Color=Dxl.getRxPacketParameter(1);
+				hvm2rb.rb[hvm2rb.valid-1].NumPix=
+					(
+						(uint16_t)Dxl.getRxPacketParameter(2)+
+						((uint16_t)Dxl.getRxPacketParameter(3)<<8)
+					);
+				hvm2rb.rb[hvm2rb.valid-1].SumX=
+					(
+						((uint32_t)Dxl.getRxPacketParameter(4)+
+						((uint32_t)Dxl.getRxPacketParameter(5)<<8)+
+						((uint32_t)Dxl.getRxPacketParameter(6)<<16))
+					);
+				hvm2rb.rb[hvm2rb.valid-1].SumY=
+					(
+						((uint32_t)Dxl.getRxPacketParameter(8)+
+						((uint32_t)Dxl.getRxPacketParameter(9)<<8)+
+						((uint32_t)Dxl.getRxPacketParameter(10)<<16))
+					);
+				hvm2rb.rb[hvm2rb.valid-1].MaxX=Dxl.getRxPacketParameter(12);
+				hvm2rb.rb[hvm2rb.valid-1].MinX=Dxl.getRxPacketParameter(13);
+				hvm2rb.rb[hvm2rb.valid-1].MaxY=Dxl.getRxPacketParameter(14);
+				hvm2rb.rb[hvm2rb.valid-1].MinY=Dxl.getRxPacketParameter(15);
+			}
+		}
  	}
    return hvm2rb.valid;
 }
