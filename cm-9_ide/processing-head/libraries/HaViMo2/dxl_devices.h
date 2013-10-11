@@ -149,7 +149,7 @@ enum{
     JHFPS_REAR_OUTSIDE_H              = 33
 };
 
-#include <HaViMo2.h>
+//#include <HaViMo2.h>
 
 // AX-12+/18F address table
 enum{
