@@ -13,6 +13,7 @@ int RcvData = 0;
 #include <CarBotCon.h>
 CarBotCon carbo;
 unsigned int timeout_count;
+int velo, radi;
 
 void setup()
 {
@@ -41,6 +42,7 @@ void setup()
 	carbo.SetLeftServos(2, lefties);
 	carbo.SetWheelMode(true);
 	timeout_count = 1000;
+	velo = 0; radi = 0;
 }
 
 void loop()
@@ -82,6 +84,38 @@ void loop()
 #ifdef VERBOSE_STEERING
 				SerialUSB.print("SpinRight\n");
 #endif
+			}
+			else if (RcvData & RC100_BTN_1)
+			{
+				velo+=10;
+				if (velo>100)
+					velo = 100;
+				carbo.Go(velo, radi);
+				timeout_count = 0;
+			}
+			else if (RcvData & RC100_BTN_2)
+			{
+				radi+=10;
+				if (radi>100)
+					radi = 100;
+				carbo.Go(velo, radi);
+				timeout_count = 0;
+			}
+			else if (RcvData & RC100_BTN_3)
+			{
+				velo-=10;
+				if (velo<-100)
+					velo = -100;
+				carbo.Go(velo, radi);
+				timeout_count = 0;
+			}
+			else if (RcvData & RC100_BTN_4)
+			{
+				radi-=10;
+				if (radi<-100)
+					radi = -100;
+				carbo.Go(velo, radi);
+				timeout_count = 0;
 			}
 			else
 			{

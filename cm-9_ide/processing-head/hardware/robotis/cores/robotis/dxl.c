@@ -287,7 +287,7 @@ byte rx_Packet(byte bRxLength){
 #ifdef PRINT_OUT_COMMUNICATION_ERROR_TO_USART2
 				TxDStringC("Wrong Header");//[Wrong Header]
 #endif
-				gbDXLtxrxStatus |= (1<<COMM_RXHEADER);
+				gbDXLtxrxStatus |= (1<<COMM_RXCORRUPT);//RXHEADER);
 				clearBuffer256();
 				return 0;
 			}
@@ -296,7 +296,7 @@ byte rx_Packet(byte bRxLength){
 #ifdef PRINT_OUT_COMMUNICATION_ERROR_TO_USART2
 				TxDStringC("[Error:TxID != RxID]");
 #endif
-				gbDXLtxrxStatus |= (1<<COMM_RXID);
+				gbDXLtxrxStatus |= (1<<COMM_RXCORRUPT);//RXID);
 				clearBuffer256();
 				return 0;
 			}
@@ -305,7 +305,7 @@ byte rx_Packet(byte bRxLength){
 #ifdef PRINT_OUT_COMMUNICATION_ERROR_TO_USART2
 				TxDStringC("RxLength Error");
 #endif
-				gbDXLtxrxStatus |= (1<<COMM_RXLENGTH);
+				gbDXLtxrxStatus |= (1<<COMM_RXCORRUPT);//RXLENGTH);
 				clearBuffer256();
 				return 0;
 			}
@@ -315,7 +315,7 @@ byte rx_Packet(byte bRxLength){
 #ifdef PRINT_OUT_COMMUNICATION_ERROR_TO_USART2
 				TxDStringC("[RxChksum Error]");
 #endif
-				gbDXLtxrxStatus |= (1<<COMM_RXCHECKSUM);
+				gbDXLtxrxStatus |= (1<<COMM_RXCORRUPT);//RXCHECKSUM);
 				clearBuffer256();
 				return 0;
 			}
