@@ -9,9 +9,10 @@
 RC100 Remo;
 int RcvData = 0;
 
-
+//#define VERBOSE_STEERING
 #include <CarBotCon.h>
 CarBotCon carbo;
+unsigned int timeout_count;
 
 void setup()
 {
@@ -30,14 +31,16 @@ void setup()
 		delay(1000);
 		digitalWrite(BOARD_LED_PIN, HIGH);
 	}
-	SerialUSB.print("Now starting program\n");
 */
+	SerialUSB.print("Now starting program\n");
+
 	Remo.begin();
 	int righties[] = {1,3};
 	carbo.SetRightServos(2, righties);
 	int lefties[] = {2,4};
 	carbo.SetLeftServos(2, lefties);
 	carbo.SetWheelMode(true);
+	timeout_count = 1000;
 }
 
 void loop()
@@ -51,29 +54,53 @@ void loop()
 			if(RcvData & RC100_BTN_U)
 			{
 				carbo.Forward(100);
+				timeout_count = 0;
+#ifdef VERBOSE_STEERING
 				SerialUSB.print("Forward\n");
+#endif
 			}
 			else if (RcvData & RC100_BTN_D)
 			{
 				carbo.Backward(100);
+				timeout_count = 0;
+#ifdef VERBOSE_STEERING
 				SerialUSB.print("Backward\n");
+#endif
 			}
 			else if (RcvData & RC100_BTN_L)
 			{
 				carbo.SpinLeft(100);
+				timeout_count = 0;
+#ifdef VERBOSE_STEERING
 				SerialUSB.print("SpinLeft\n");
+#endif
 			}
 			else if (RcvData & RC100_BTN_R)
 			{
 				carbo.SpinRight(100);
+				timeout_count = 0;
+#ifdef VERBOSE_STEERING
 				SerialUSB.print("SpinRight\n");
+#endif
+			}
+			else
+			{
+				timeout_count = 1000;
 			}
 		}
 		else
 		{
-			carbo.Stop();
-//			SerialUSB.print("Stop\n");
+			timeout_count++;
+			delay(5);
 		}
-		delay(100);
+
+		if (timeout_count>50)
+		{
+			carbo.Stop();
+#ifdef VERBOSE_STEERING
+			SerialUSB.print("Stop\n");
+#endif
+		}
+
 	}
 }

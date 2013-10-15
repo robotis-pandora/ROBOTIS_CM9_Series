@@ -5,6 +5,9 @@
  */
  
 #include "CarBotCon.h"
+/// Printing out to USB here can cause program to hang if not actually
+///   listening to the SerialUSB output in the CM-9 IDE's terminal.
+//#define VERBOSE_CARBOT_OUTPUT
 
 int CarBotCon::SetLeftServos(int num, int * array)
 {
@@ -135,11 +138,12 @@ int CarBotCon::Go(int vel, int rot)
 		{
 			rs = (rs&0x3FF)|SET_DIR_CW;
 		}
-
+#ifdef VERBOSE_CARBOT_OUTPUT
 		SerialUSB.print("Right-side: ");
 		SerialUSB.println(rs);
 		SerialUSB.print("Left-side: ");
 		SerialUSB.println(ls);
+#endif
 	}
 
 	int iter;

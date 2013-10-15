@@ -55,7 +55,6 @@ public:
 
 	int Go(int,int);
 	int Stop(void);
-	
 
 	int SpinLeft(int);
 	int SpinRight(int);
