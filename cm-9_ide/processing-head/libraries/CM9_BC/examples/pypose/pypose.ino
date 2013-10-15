@@ -281,7 +281,7 @@ void loop()
 					{
 						int i;
 						// pass thru
-						if(ins == AX_READ_DATA)
+						if(ins == INST_READ)
 						{
 							int i;
 							Dxl.setTxPacketId(id);
@@ -300,7 +300,7 @@ void loop()
 								}
 							}
 						}
-						else if(ins == AX_WRITE_DATA)
+						else if(ins == INST_WRITE)
 						{
 							if(length == 4)
 							{
