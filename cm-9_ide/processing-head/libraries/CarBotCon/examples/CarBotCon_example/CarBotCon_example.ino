@@ -117,6 +117,11 @@ void loop()
 				carbo.Go(velo, radi);
 				timeout_count = 0;
 			}
+			else if (RcvData & RC100_BTN_5)
+			{
+				carbo.Go(velo, radi);
+				timeout_count = 0;
+			}
 			else
 			{
 				timeout_count = 1000;
