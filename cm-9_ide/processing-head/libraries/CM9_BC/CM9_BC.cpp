@@ -42,8 +42,8 @@ void BioloidController::setup(int servo_cnt)
 	for(i=0;i<poseSize;i++)
 	{
 		id_[i] = i+1;
-		pose_[i] = 512;
-		nextpose_[i] = 512;
+		pose_[i] = 512 << BIOLOID_SHIFT;
+		nextpose_[i] = 512 << BIOLOID_SHIFT;
 	}
 	interpolating = 0;
 	playing = 0;
@@ -62,21 +62,30 @@ int BioloidController::getId(int index)
 void BioloidController::loadPose( unsigned int * addr )
 {
 	int i;
-	poseSize = *(addr); // number of servos in this pose
+	poseSize = addr[0]; // number of servos in this pose
+//	SerialUSB.print("\nLoading Pose");
 	for(i=0; i<poseSize; i++)
 	{
-		nextpose_[i] = (*(addr+1+i)) << BIOLOID_SHIFT;
-//		SerialUSB.print("Servo: ");SerialUSB.println(id_[i]);
-//		SerialUSB.print("Value: ");SerialUSB.println(nextpose_[i]);
+		nextpose_[i] = addr[1+i] << BIOLOID_SHIFT;
+//		SerialUSB.print("\n  Servo ID=");SerialUSB.print(id_[i]);
+//		SerialUSB.print(" to goal=");SerialUSB.print(nextpose_[i]);
+//		SerialUSB.print(".  Current position=");SerialUSB.println(pose_[i]);
 	}
 }
 /* read in current servo positions to the pose. */
 void BioloidController::readPose()
 {
+//	SerialUSB.print("\nCurrent Pose");
 	for(int i=0;i<poseSize;i++)
 	{
-		pose_[i] = Dxl.readWord(id_[i],AXM_PRESENT_POSITION_L)<<BIOLOID_SHIFT;
-		delay(25);
+		int temp = Dxl.readWord(id_[i],AXM_PRESENT_POSITION_L);
+		if ((temp < 1024) && (temp > 0))
+			pose_[i] = temp<<BIOLOID_SHIFT;
+		else
+			pose_[i] = 512<<BIOLOID_SHIFT;
+//		SerialUSB.print("\n  Servo ID=");SerialUSB.print(id_[i]);
+//		SerialUSB.print(" at present=");SerialUSB.println(pose_[i]);
+//		delay(25);
 	}
 }
 /* write pose out to servos using sync write. */
@@ -90,9 +99,12 @@ void BioloidController::writePose()
 	Dxl.setTxPacketLength( numParams );
 	Dxl.setTxPacketParameter( 0, AXM_GOAL_POSITION_L );
 	Dxl.setTxPacketParameter( 1, 2 );	// writing two bytes
+//	SerialUSB.print("\nNext Pose Packet");
 	for(int i=0; i<poseSize; i++)
 	{
 		temp = pose_[i] >> BIOLOID_SHIFT;
+//		SerialUSB.print("\n  Servo ID=");SerialUSB.print(id_[i]);
+//		SerialUSB.print(" to goal=");SerialUSB.println(temp);
 		Dxl.setTxPacketParameter( 2 + 3*i + 0, id_[i] );
 		Dxl.setTxPacketParameter( 2 + 3*i + 1, (temp)&0xff );
 		Dxl.setTxPacketParameter( 2 + 3*i + 2, (temp>>8)&0xff );
@@ -107,6 +119,7 @@ void BioloidController::interpolateSetup(int time)
 	int i;
 	int frames = (time/BIOLOID_FRAME_LENGTH) + 1;
 	lastframe_ = millis();
+	readPose();
 	// set speed each servo...
 	for(i=0;i<poseSize;i++)
 	{
@@ -129,6 +142,7 @@ void BioloidController::interpolateStep()
 	int complete = poseSize;
 	while(millis() - lastframe_ < BIOLOID_FRAME_LENGTH);
 	lastframe_ = millis();
+//	readPose();
 	// update each servo
 	for(i=0;i<poseSize;i++)
 	{
