@@ -31,9 +31,9 @@
  
 #ifndef _HAVIMO2_H_
 #define _HAVIMO2_H_
-#include "utility/dxl_devices.h"
+#include "dxl_devices.h"
 //#include "wirish.h"
-#include "Dynamixel.h"
+#include <Dynamixel.h>
 
 // HaViMo2
 #define HaViMo2_ID                      100

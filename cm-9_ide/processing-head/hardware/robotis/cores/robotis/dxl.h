@@ -65,6 +65,9 @@ byte gbpTxBuffer[255];
 
 uint8 gbIsDynmixelUsed; //[ROBOTIS]2012-12-13
 
+uint8 gbDXLtxrxStatus;
+byte getTxRxStatus(void);
+
 /*
  * Raw methods for basic packet methods
  * */

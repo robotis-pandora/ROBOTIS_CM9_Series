@@ -16,7 +16,8 @@
 
 #include <HaViMo2.h>
 
-#define VERBOSE_IMAGE_PROCESSING
+//#define VERBOSE_IMAGE_PROCESSING
+//#define VERBOSE_IMAGE_TRACKING
 #define DXL_PAN_SERVO                   19
 #define DXL_TILT_SERVO                  20
 
@@ -136,6 +137,10 @@ int ProcessImage(uint8_t TrackingColor)
 
 // Recover current Region Buffer
 	uint8_t valid_regions = hvm2.recover();
+#ifdef VERBOSE_IMAGE_PROCESSING
+	SerialUSB.print("\nNumber of Color Regions found: ");
+	SerialUSB.print(valid_regions);
+#endif
 // Start capture of next image
 	hvm2.capture();
 
@@ -153,9 +158,7 @@ int ProcessImage(uint8_t TrackingColor)
 #ifdef VERBOSE_IMAGE_PROCESSING
 			if (matches == 1)
 			{
-				SerialUSB.print("\nNumber of Regions found: ");
-				SerialUSB.print(valid_regions);
-				SerialUSB.print("\nColor Matched Regions: ");
+				SerialUSB.print("\nTracked Color Matched in Region: ");
 			}
 			SerialUSB.print(iter+1);
 			SerialUSB.print(" ");
@@ -169,5 +172,8 @@ int ProcessImage(uint8_t TrackingColor)
 			}
 		}
 	}
+#ifdef VERBOSE_IMAGE_PROCESSING
+	SerialUSB.print("\n");
+#endif
 	return matches;
 }
