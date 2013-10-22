@@ -145,10 +145,10 @@ void loop()
 						SerialUSB.write(0xff);
 						SerialUSB.write(id);
 						SerialUSB.write(2);
-//						SerialUSB.write((unsigned char)0);
-//						SerialUSB.write(255-((2+id)&0xFF));
-						SerialUSB.write(ins);
-						SerialUSB.write(255-((2+ins+id)&0xFF));
+						SerialUSB.write((unsigned char)0);
+						SerialUSB.write(255-((2+id)&0xFF));
+//						SerialUSB.write(ins);
+//						SerialUSB.write(255-((2+ins+id)&0xFF));
 						// special ArbotiX instructions
 						// Pose Size = 7, followed by single param: size of pose
 						// Load Pose = 8, followed by index, then pose positions (# of param = 2*pose_size+1)
