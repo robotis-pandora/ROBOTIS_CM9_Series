@@ -71,9 +71,19 @@ void nDelay(uint32 nTime) { //100ns
 	//tmpdly = tmp;
 }
 
-byte getTxRxStatus(void)
+uint8 getTxRxStatus(void)
 {
 	return gbDXLtxrxStatus;
+}
+uint8 setDxlLibStatRtnLvl(uint8 num)
+{
+	gbDXLStatusReturnLevel = num;
+	return gbDXLStatusReturnLevel;
+}
+uint8 setDxlLibNumTries(uint8 num)
+{
+	gbDXLNumberTxRxAttempts = num;
+	return gbDXLNumberTxRxAttempts;
 }
 
 void clearBuffer256(void){
@@ -106,7 +116,6 @@ byte RxByteFromDXL(void){
  */
 
 byte txrx_Packet(byte bID, byte bInst, byte bTxParaLen){
-	#define TRY_NUM 2//;;2
 
 	gbDXLtxrxStatus = 0;
 
@@ -115,7 +124,7 @@ byte txrx_Packet(byte bID, byte bInst, byte bTxParaLen){
 	gbBusUsed = 1;
 
 
-	for(bTryCount = 0; bTryCount < TRY_NUM; bTryCount++)
+	for(bTryCount = 0; bTryCount < gbDXLNumberTxRxAttempts; bTryCount++)
 	{
 		gbDXLReadPointer = gbDXLWritePointer; //BufferClear050728
 		bTxLen = tx_Packet(bID, bInst, bTxParaLen);
@@ -123,10 +132,6 @@ byte txrx_Packet(byte bID, byte bInst, byte bTxParaLen){
 		if (bTxLen == (bTxParaLen+4+2))
 		{
 			gbDXLtxrxStatus = (1<<COMM_TXSUCCESS);
-		}
-		else
-		{
-			return 0;
 		}
 
 		if(bInst == INST_PING)
@@ -142,7 +147,10 @@ byte txrx_Packet(byte bID, byte bInst, byte bTxParaLen){
 		}
 		else if(bInst == INST_READ)
 		{
-			gbRxLength = bRxLenEx = 6+gbpParameter[1];
+			if (gbDXLStatusReturnLevel>0)
+				gbRxLength = bRxLenEx = 6+gbpParameter[1];
+			else
+				gbRxLength = bRxLenEx = 0;
 		}
 		else if( bID == BROADCAST_ID )
 		{
@@ -151,7 +159,10 @@ byte txrx_Packet(byte bID, byte bInst, byte bTxParaLen){
 		}
 		else
 		{
-			gbRxLength = bRxLenEx = 6;
+			if (gbDXLStatusReturnLevel>1)
+				gbRxLength = bRxLenEx = 6;
+			else
+				gbRxLength = bRxLenEx = 0;
 		}
 
 
