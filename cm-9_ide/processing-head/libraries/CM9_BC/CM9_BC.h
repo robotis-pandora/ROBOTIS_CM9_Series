@@ -22,90 +22,192 @@
 #ifndef CM9_BC_h
 #define CM9_BC_h
 
-
 #include <Arduino-compatibles.h>
 #include "stdlib.h"
 #include <Dynamixel.h>
 #include <libpandora_types.h>
 
-/* poses:
- *  PROGMEM prog_uint16_t name[] = {4,512,512,482,542}; // first number is # of servos
- * sequences:
- *  PROGMEM transition_t name[] = {{NULL,count},{pose_name,1000},...} 
- */
-
+#ifndef __FLASH__
 #define __FLASH__ __attr_flash
+#endif
 
-/* pose engine runs at 30Hz (33ms between frames) 
-   recommended values for interpolateSetup are of the form X*BIOLOID_FRAME_LENGTH - 1 */
-#define BIOLOID_FRAME_LENGTH		33
-/* we need some extra resolution, use 13 bits, rather than 10, during interpolation */
+/// Desire some extra resolution, use 13 bits, rather than 10, during interpolation
 #define BIOLOID_SHIFT				3
 
-/** a structure to hold transitions **/
+/// Transition structure
 typedef struct
 {
 	unsigned int * pose;					// addr of pose to transition to 
 	int time;								// time for transition
 } transition_t; 
 
-/** Bioloid Controller Class for CM9 clients. **/
+/// Pose format (array of integers):
+//	unsigned int pose_name[] __FLASH__ = {4,512,512,482,542};
+ 		// First number is number of servos used by the pose
+ 		// Subsequent entries are servo positions
+
+/// Sequence format (array of pose pointers and integers):
+//	transition_t seq_name[] __FLASH__ = {{NULL,count},{pose_name,1000},...};
+		// First "time" entry in array contains number of poses in sequence.
+			// The CM-9 IDE may complain if the "pose" component of the first
+			//  entry is not an unsigned int pointer.  Can be useful to store
+			//  pointer to an array containing the servo IDs used by sequence.
+		// Subsequent entries are pointers to pose arrays and timelength of pose.
+
+/// RoboPlus Motion File Assistance
+typedef struct
+{
+	transition_t* seq;
+	unsigned int next;
+	unsigned int stop;
+} sequencer_t;
+
+/// Bioloid Controller Class for CM9 clients.
 class BioloidController
 {
 public:
-	/* New-style constructor/setup */ 
+/// Constructor and setup
 	BioloidController() {};
-	void setup(int servo_cnt);
+	void setup(unsigned int servo_count);
 
-	/* Pose Manipulation */
-	void loadPose( unsigned int * addr );	// load a named pose from FLASH
-	void readPose();						// read a pose in from the servos
-	void writePose();						// write a pose out to the servos
-	int getCurPose(int id);					// get a servo value in the current pose
-	int getNextPose(int id);				// get a servo value in the next pose
-	void setNextPose(int id, int pos);		// set a servo value in the next pose
-	void setId(int index, int id);			// set the id of a particular storage index
-	int getId(int index);					// get the id of a particular storage index
+/// Pose Manipulation functions
+	// Load a named pose from FLASH
+	void loadPose( unsigned int * addr );
+	// Read a pose in from the servos
+	void readPose();
+	// Write a pose out to the servos
+	void writePose();
+	// Get a servo value in the current pose
+	int getCurPose(int id);	
+	// Get a servo value in the next pose
+	int getNextPose(int id);
+	// Set a servo value in the next pose
+	void setNextPose(int id, int pos);
 
-	/* Pose Engine */
-	void interpolateSetup(int time);		// calculate speeds for smooth transition
-	void interpolateStep();					// move forward one step in current interpolation
-	unsigned char interpolating;			// are we in an interpolation? 0=No, 1=Yes
-	unsigned char runningSeq;				// are we running a sequence? 0=No, 1=Yes
-	int poseSize;							// how many servos are in this pose, used by Sync()
+/// Servo ID manipulation
+	// Set the ID of a particular storage index
+	void setId(int index, int id);	
+	// Set the ID of a particular storage index
+	int getId(int index);
 
-/* to interpolate between present servo locations and loaded pose:
+/// Pose Engine
+	// Calculates speeds for smooth transition
+	// Calls readPose() to ensure starting pose is actual servo locations
+	void interpolateSetup(int time);
+	// Moves forward one step in current interpolation
+	void interpolateStep();
+	// Currently interpolating? (can be used to stop interpolating)
+	bool interpolating;
+	// Number of servos used by this pose.
+	int poseSize;
+
+/// Pose Engine Usage: Load a pose and interpolate from present servo locations.
+/*
 	bioloid.loadPose(myPose);
 	bioloid.interpolateSetup(67);
 	while(bioloid.interpolating > 0)
 	{
 		bioloid.interpolateStep();
-		delay(1);
+		delay(10);
 	}
 */
 
-	/* Sequence Engine */
-	void playSeq( transition_t * addr );	// load a sequence and play it from FLASH
-	void play();							// keep moving forward in time
-	unsigned char playing;					// are we playing a sequence? 0=No, 1=Yes
+/// Sequence Engine
+	// Load a sequence and play it from FLASH
+	void playSeq( transition_t * addr );
+	// Keep moving forward in time
+	void play();
+	// Are we playing a sequence? (can be used to stop playing)
+	bool playing;
+	// What sequence is being played?
+	transition_t* checkSeq() {return sequence_;}
 
-/* to run the sequence engine:
+/// Sequence Engine Usage: Load a sequence and play it.
+/*
 	bioloid.playSeq(walk);
 	while(bioloid.playing)
 	{
 		bioloid.play();
+		delay(10);
 	}
 */
+
+
+/// RoboPlus Compatibility functions
+	// Start a series of motion pages from RoboPlusMotion_Array
+	void MotionPage(unsigned int page);
+	// Check status of motions
+	bool MotionStatus(void);
+	// Check currently running motion page from RoboPlusMotion_Array
+	unsigned int MotionPage();
+	// Load a RoboPlusMotion_Array
+	void LoadMotionArray(sequencer_t* array);
+
+
+/// Debug/Emergency controls
+	void suspend() { pause(true); }	// set runState_ = 1
+	void resume() { pause(false); }	// set runState_ = 2
+	// Pause/Resume motion engine
+	bool pause(bool);
+	// Emergency Stop
+	void kill(void);					// set runState_ = 0
+
+/// Engine Modifiers
+	// Set the temporal multiplier
+	float setTimeModifier(float mult);
+	// Set the interpolation time length
+	unsigned int setFrameLength(unsigned int time);
+
+private:
+	// Present servo positions
+	unsigned int * pose_;
+	// Goal servo positions
+	unsigned int * nextpose_;
+	// Change in each servo position per interpolation step
+	int * deltas_;
 	
-  private:  
-	unsigned int * pose_;					// the current pose, updated by Step(), set out by Sync()
-	unsigned int * nextpose_;				// the destination pose, where we put on load
-	int * speed_;							// speeds for interpolation
-	unsigned char * id_;					// servo id for this index
+	// Calibration offsets for each servo
+	int * offsets_;
 
-	unsigned long lastframe_;				// time last frame was sent out
+	// Servo IDs for this BioloidController object
+	unsigned char * id_;
+	// Number of servos controlled by this BioloidController object
+	unsigned int numServos_;
 
-	transition_t * sequence;				// sequence we are running
-	int transitions;						// how many transitions we have left to load
+	// Time {from millis()} when last position change occurred
+	unsigned long lastframe_;
+
+	// Currently running sequence
+	transition_t * sequence_;
+	// Number of transitions remaining in current interpolation
+	int transitions_;
+	unsigned int seqIndex_;
+
+	// RoboPlusMotion Array pointer
+	sequencer_t * rpmArray_;
+	// RoboPlusMotion Array index
+	unsigned int rpmIndexNow_;
+	unsigned int rpmIndexNext_;
+	unsigned int rpmIndexStop_;
+	
+
+	enum
+	{
+		KILLED,
+		PAUSED,
+		RUNNING,
+		WAITING,
+		TRANSITIONING,
+		STOPPING
+	};
+
+	// Debug/Emergency control state
+	unsigned int runState_;
+
+	// Temporal modifier
+	float timeModder_;
+	// Length (in milliseconds) of each step in interpolation
+	unsigned int frameLength_;
+	
 };
 #endif
