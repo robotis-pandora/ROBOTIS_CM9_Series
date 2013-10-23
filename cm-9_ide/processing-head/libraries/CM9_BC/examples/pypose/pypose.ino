@@ -77,7 +77,7 @@ void setup()
 
 void loop()
 {
-	int i;
+//	int i;
 
 	// process messages
 	while(SerialUSB.available() > 0)
@@ -156,33 +156,35 @@ void loop()
 						// Play Seq = A, no params
 						if(ins == ARB_SIZE_POSE)
 						{
-							bioloid.poseSize = params[0];
+//							bioloid.poseSize = params[0];
+							bioloid.setPoseSize(params[0]);
 							bioloid.readPose();
-							//SerialUSB.println(bioloid.poseSize);
+							//SerialUSB.println(poseSize);
 						}
 						else if(ins == ARB_LOAD_POSE)
 						{
-							int i;
+							int poseSize = bioloid.getPoseSize();
+							int iter;
 //							SerialUSB.print("New Pose:");
-							for(i=0; i<bioloid.poseSize; i++)
+							for (iter=0; iter<poseSize; iter++)
 							{
-								poses[params[0]][i] = (params[(2*i)+1]+(params[(2*i)+2]<<8));
-//								SerialUSB.print(poses[params[0]][i]);
+								poses[params[0]][iter] = (params[(2*iter)+1]+(params[(2*iter)+2]<<8));
+//								SerialUSB.print(poses[params[0]][iter]);
 //								SerialUSB.print(",");
 							}
 //							SerialUSB.println("");
 						}
 						else if(ins == ARB_LOAD_SEQ)
 						{
-							int i;
-							for(i=0;i<(length-2)/3;i++)
+							int iter;
+							for (iter=0; iter<(length-2)/3; iter++)
 							{
-								sequence[i].pose = params[(i*3)];
-								sequence[i].time = params[(i*3)+1] + (params[(i*3)+2]<<8);
+								sequence[iter].pose = params[(iter*3)];
+								sequence[iter].time = params[(iter*3)+1] + (params[(iter*3)+2]<<8);
 								//SerialUSB.print("New Transition:");
-								//SerialUSB.print((int)sequence[i].pose);
+								//SerialUSB.print((int)sequence[iter].pose);
 								//SerialUSB.print(" in ");
-								//SerialUSB.println(sequence[i].time);
+								//SerialUSB.println(sequence[iter].time);
 							}
 						}
 						else if(ins == ARB_PLAY_SEQ)
@@ -190,15 +192,21 @@ void loop()
 							seqPos = 0;
 							while(sequence[seqPos].pose != 0xff)
 							{
-								int i;
-								int p = sequence[seqPos].pose;
 								// are we HALT?
 								if (SerialUSB.available())
-									if(SerialUSB.read() == 'H') return;
-								// load pose
-								for(i=0; i<bioloid.poseSize; i++)
 								{
-									bioloid.setNextPose(i+1,poses[p][i]);
+									if(SerialUSB.read() == 'H')
+										return;
+								}
+
+								int p = sequence[seqPos].pose;
+								int poseSize = bioloid.getPoseSize();
+
+								// load pose
+								int iter;
+								for (iter=0; iter<poseSize; iter++)
+								{
+									bioloid.setNextPose(iter+1,poses[p][iter]);
 								}
 								// interpolate
 								bioloid.interpolateSetup(sequence[seqPos].time);
@@ -215,14 +223,21 @@ void loop()
 								seqPos = 0;
 								while(sequence[seqPos].pose != 0xff)
 								{
-									int i;
-									int p = sequence[seqPos].pose;
 									// are we HALT?
-									if(SerialUSB.read() == 'H') return;
-									// load pose
-									for(i=0; i<bioloid.poseSize; i++)
+									if (SerialUSB.available())
 									{
-										bioloid.setNextPose(i+1,poses[p][i]);
+										if(SerialUSB.read() == 'H')
+											return;
+									}
+
+									int p = sequence[seqPos].pose;
+									int poseSize = bioloid.getPoseSize();
+
+									// load pose
+									int iter;
+									for(iter=0; iter<poseSize; iter++)
+									{
+										bioloid.setNextPose(iter+1,poses[p][iter]);
 									}
 									// interpolate
 									bioloid.interpolateSetup(sequence[seqPos].time);
@@ -283,11 +298,9 @@ void loop()
 					}
 					else
 					{
-						int i;
 						// pass thru
 						if(ins == INST_READ)
 						{
-							int i;
 							Dxl.setTxPacketId(id);
 							Dxl.setTxPacketInstruction(INST_READ);
 							Dxl.setTxPacketParameter(0,params[0]);
@@ -300,9 +313,10 @@ void loop()
 								int lennie = Dxl.getRxPacketLength()+4;
 								if (lennie >= 6)
 								{
-									for (i=0; i<lennie; i++)
+									int iter;
+									for (iter=0; iter<lennie; iter++)
 									{
-										SerialUSB.write(Dxl.getRxPacketParameter(i-5));
+										SerialUSB.write(Dxl.getRxPacketParameter(iter-5));
 									}
 								}
 							}
@@ -334,9 +348,10 @@ void loop()
 								int lennie = Dxl.getRxPacketLength()+4;
 								if (lennie >= 6)
 								{
-									for (i=0; i<lennie; i++)
+									int iter;
+									for (iter=0; iter<lennie; iter++)
 									{
-										SerialUSB.write(Dxl.getRxPacketParameter(i-5));
+										SerialUSB.write(Dxl.getRxPacketParameter(iter-5));
 									}
 								}
 							}

@@ -54,7 +54,7 @@ typedef struct
 			//  pointer to an array containing the servo IDs used by sequence.
 		// Subsequent entries are pointers to pose arrays and timelength of pose.
 
-/// RoboPlus Motion File Assistance
+/// RoboPlus Motion File Assistance structure
 typedef struct
 {
 	transition_t* seq;
@@ -62,6 +62,8 @@ typedef struct
 	unsigned int stop;
 } sequencer_t;
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Bioloid Controller Class for CM9 clients.
 class BioloidController
 {
@@ -70,6 +72,18 @@ public:
 	BioloidController() {};
 	void setup(unsigned int servo_count);
 
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/// Debug/Emergency controls
+	void suspend() { pause(true); }	// set bcState_ = PAUSED
+	void resume() { pause(false); }	// set bcState_ = RUNNING
+	// Pause/Restart motion engine
+	bool pause(bool);
+	// Emergency Stop (disables servo torque and stops all engine-based servo usage)
+	void kill(void);					// set bcState_ = KILLED
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Pose Manipulation functions
 	// Load a named pose from FLASH
 	void loadPose( unsigned int * addr );
@@ -77,6 +91,7 @@ public:
 	void readPose();
 	// Write a pose out to the servos
 	void writePose();
+
 	// Get a servo value in the current pose
 	int getCurPose(int id);	
 	// Get a servo value in the next pose
@@ -84,13 +99,27 @@ public:
 	// Set a servo value in the next pose
 	void setNextPose(int id, int pos);
 
-/// Servo ID manipulation
+	// Set number of servos in current pose
+	void setPoseSize(unsigned int num);
+	// Get number of servos in current pose
+	unsigned int getPoseSize();
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/// Servo Manipulation functions
 	// Set the ID of a particular storage index
 	void setId(int index, int id);	
 	// Set the ID of a particular storage index
 	int getId(int index);
+	// Set servo resolution
+	unsigned int setResolution(unsigned int id, unsigned int res);
 
-/// Pose Engine
+	// Load servo offsets from FLASH
+	void loadOffsets( unsigned int * addr );
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/// Pose Interpolation
 	// Calculates speeds for smooth transition
 	// Calls readPose() to ensure starting pose is actual servo locations
 	void interpolateSetup(int time);
@@ -98,10 +127,8 @@ public:
 	void interpolateStep();
 	// Currently interpolating? (can be used to stop interpolating)
 	bool interpolating;
-	// Number of servos used by this pose.
-	int poseSize;
 
-/// Pose Engine Usage: Load a pose and interpolate from present servo locations.
+/// Pose Interpolation Usage: Load a pose and interpolate from present servo locations.
 /*
 	bioloid.loadPose(myPose);
 	bioloid.interpolateSetup(67);
@@ -112,6 +139,7 @@ public:
 	}
 */
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Sequence Engine
 	// Load a sequence and play it from FLASH
 	void playSeq( transition_t * addr );
@@ -120,7 +148,7 @@ public:
 	// Are we playing a sequence? (can be used to stop playing)
 	bool playing;
 	// What sequence is being played?
-	transition_t* checkSeq() {return sequence_;}
+//	transition_t* checkSeq() {return sequence_;}
 
 /// Sequence Engine Usage: Load a sequence and play it.
 /*
@@ -133,6 +161,7 @@ public:
 */
 
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// RoboPlus Compatibility functions
 	// Start a series of motion pages from RoboPlusMotion_Array
 	void MotionPage(unsigned int page);
@@ -141,48 +170,62 @@ public:
 	// Check currently running motion page from RoboPlusMotion_Array
 	unsigned int MotionPage();
 	// Load a RoboPlusMotion_Array
-	void LoadMotionArray(sequencer_t* array);
+	void RPM_Setup(sequencer_t* array);
 
 
-/// Debug/Emergency controls
-	void suspend() { pause(true); }	// set runState_ = 1
-	void resume() { pause(false); }	// set runState_ = 2
-	// Pause/Resume motion engine
-	bool pause(bool);
-	// Emergency Stop
-	void kill(void);					// set runState_ = 0
-
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Engine Modifiers
 	// Set the temporal multiplier
 	float setTimeModifier(float mult);
 	// Set the interpolation time length
 	unsigned int setFrameLength(unsigned int time);
 
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
+	// Servo IDs for this BioloidController object
+	unsigned char * id_;
 	// Present servo positions
 	unsigned int * pose_;
 	// Goal servo positions
 	unsigned int * nextpose_;
 	// Change in each servo position per interpolation step
 	int * deltas_;
-	
 	// Calibration offsets for each servo
 	int * offsets_;
+	// Resolution of each servo
+	unsigned int * resolutions_;
 
-	// Servo IDs for this BioloidController object
-	unsigned char * id_;
-	// Number of servos controlled by this BioloidController object
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// Number of servos used by current pose.
+	unsigned int poseSize_;
+	// Number of servos controllable by this BioloidController object
 	unsigned int numServos_;
 
 	// Time {from millis()} when last position change occurred
 	unsigned long lastframe_;
 
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Currently running sequence
 	transition_t * sequence_;
 	// Number of transitions remaining in current interpolation
 	int transitions_;
 	unsigned int seqIndex_;
 
+	// MotionEngine control state
+	enum
+	{
+		NEED_POSE,
+		INTERPOSE,
+		NEXT_POSE
+	};
+	unsigned int seqState_;
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// RoboPlusMotion Array pointer
 	sequencer_t * rpmArray_;
 	// RoboPlusMotion Array index
@@ -190,20 +233,30 @@ private:
 	unsigned int rpmIndexNext_;
 	unsigned int rpmIndexStop_;
 	
+	// RoboPlusMotion control state
+	enum
+	{
+		STOPPED,
+		PLAYING,
+		SWITCHING,
+		STOPPING
+	};
+	unsigned int rpmState_;
 
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// Debug/Emergency control state
 	enum
 	{
 		KILLED,
 		PAUSED,
-		RUNNING,
-		WAITING,
-		TRANSITIONING,
-		STOPPING
+		RUNNING
 	};
+	unsigned int bcState_;
 
-	// Debug/Emergency control state
-	unsigned int runState_;
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Temporal modifier
 	float timeModder_;
 	// Length (in milliseconds) of each step in interpolation
