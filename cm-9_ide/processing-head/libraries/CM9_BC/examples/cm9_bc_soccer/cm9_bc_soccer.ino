@@ -30,7 +30,6 @@ void setup()
 	SerialUSB.read();
 	SerialUSB.print("Now starting program\n");
 
-//	SerialUSB.print("*** Boots_RoboPlusMotion_Array: ");SerialUSB.print((unsigned int) Boots_RoboPlusMotion_Array);SerialUSB.print(" ***\n\n");
 	// Load the RoboPlusMotion_Array from our _RPM header file
 	BioCon.RPM_Setup(Boots_RoboPlusMotion_Array);
 	//  This gives the motion engine the location of the RPM page file
@@ -42,28 +41,17 @@ void setup()
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void loop()
 {
-//	SerialUSB.print("*** Boots_Init: ");SerialUSB.print((unsigned int) Boots_Init);SerialUSB.print(" ***\n");
-//	SerialUSB.print("*** Boots_id: ");SerialUSB.print((unsigned int) Boots_Init[0].pose);SerialUSB.print(" ***\n");
-//	SerialUSB.print("*** Boots_Init_1: ");SerialUSB.print((unsigned int) Boots_Init[1].pose);SerialUSB.print(" ***\n\n");
-
-//	SerialUSB.print("*** Boots_D_Left: ");SerialUSB.print((unsigned int) Boots_D_Left);SerialUSB.print(" ***\n");
-//	SerialUSB.print("*** Boots_id: ");SerialUSB.print((unsigned int) Boots_D_Left[0].pose);SerialUSB.print(" ***\n");
-//	SerialUSB.print("*** Boots_D_Left_1: ");SerialUSB.print((unsigned int) Boots_D_Left[1].pose);SerialUSB.print(" ***\n\n");
-
-
-
 /// Set bot to an initial/ready position
-	SerialUSB.print("loop() started. Going to Ready Position...\n");
+	SerialUSB.print("loop() started. Going to Ready Position...");
 	BioCon.MotionPage(1);	// Boots_Init
-//	SerialUSB.print("\n*** successfully loaded Boots_Init? ***\n");
 	while (BioCon.MotionStatus())
 	{
-//		SerialUSB.print("\n*** successfully checked MotionStatus() ***\n");
 		delay(1);
 		BioCon.Play();
 	}
 	SerialUSB.print(" done.\nStarting main loop for user code.\n");
 	while(1);
+
 /// Main loop where all user code occurs
 // Do not modify anthing outside this while loop unless you are very, very
 //  certain of what you are doing.

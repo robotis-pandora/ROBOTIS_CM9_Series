@@ -72,7 +72,7 @@ void BioloidController::setup(unsigned int servo_count)
 void BioloidController::loadPose( unsigned int * addr )
 {
 	unsigned int servo_count = addr[0];
-	SerialUSB.print("*** servo_count is ");SerialUSB.print(servo_count);SerialUSB.print(" ***\n");
+
 	if (servo_count > numServos_)
 	{
 		SerialUSB.print("The pose you attempted to load requires more servos than the object allocated during setup. Doing this leads to bad, bad things...\n");
@@ -350,26 +350,16 @@ bool BioloidController::interpolating(bool bolly)
 /// Load and begin playing a sequence.
 void BioloidController::playSeq( transition_t * addr )
 {
-//	SerialUSB.print("*** sequence_: ");SerialUSB.print((unsigned int)sequence_);SerialUSB.print(" ***\n");
-
 	sequence_ = addr;
-
-//	SerialUSB.print("*** sequence_: ");SerialUSB.print((unsigned int)sequence_);SerialUSB.print(" ***\n");
-
-//	SerialUSB.print("*** sequence_[0].pose: ");SerialUSB.print((unsigned int)sequence_[0].pose);SerialUSB.print(" ***\n");
-//	SerialUSB.print("*** sequence_[0].time: ");SerialUSB.print((unsigned int)sequence_[0].time);SerialUSB.print(" ***\n");
 
 	seqIndex_ = 0;
 	// Number of poses in sequence
 	transitions_ = sequence_[seqIndex_].time;
 	seqIndex_++;
-//	SerialUSB.print("*** transitions_: ");SerialUSB.print(transitions_);SerialUSB.print(" ***\n");
 
 	loadPose( sequence_[seqIndex_].pose );
-//	SerialUSB.print("*** loadPose() works ***\n");
 	int time = (int) (sequence_[seqIndex_].time * timeModder_);
 	interpolateSetup( time );
-//	SerialUSB.print("*** interpolateSetup() works ***\n");
 
 	// Start transitioning between current pose and goal pose
 	seqState_ = INTERPOLATING;
@@ -430,17 +420,12 @@ bool BioloidController::playing(bool bolly)
 void BioloidController::RPM_Setup(sequencer_t* array)
 {
 	rpmArray_ = array;
-//	SerialUSB.print("*** rpmArray_: ");SerialUSB.print((unsigned int) rpmArray_);SerialUSB.print(" ***\n");
-//	SerialUSB.print("*** &rpmArray_: ");SerialUSB.print((unsigned int) &rpmArray_);SerialUSB.print(" ***\n");
-	
+
 	// Load servo IDs from sequence #1 of RoboPlusMotion file
 	transition_t *ref_seq = rpmArray_[1].seq;
 	unsigned int *servo_ids = ref_seq[0].pose;
 	unsigned int num_servos = servo_ids[0];
 	setup(num_servos);
-
-//	SerialUSB.print("*** rpmArray_: ");SerialUSB.print((unsigned int) rpmArray_);SerialUSB.print(" ***\n");
-//	SerialUSB.print("*** &rpmArray_: ");SerialUSB.print((unsigned int) &rpmArray_);SerialUSB.print(" ***\n");
 
 	int iter;
 //	SerialUSB.println("Setting Servo IDs");
@@ -450,11 +435,6 @@ void BioloidController::RPM_Setup(sequencer_t* array)
 //		SerialUSB.print(" Servo #");SerialUSB.print(iter);
 //		SerialUSB.print(" is ID=");SerialUSB.println(id_[iter]);
 	}
-
-	
-//	SerialUSB.print("*** rpmArray_[0].seq: ");SerialUSB.print((unsigned int) rpmArray_[0].seq);SerialUSB.print(" ***\n");
-//	SerialUSB.print("*** rpmArray_[0].next: ");SerialUSB.print((unsigned int) rpmArray_[0].next);SerialUSB.print(" ***\n");
-//	SerialUSB.print("*** rpmArray_[0].stop: ");SerialUSB.print((unsigned int) rpmArray_[0].stop);SerialUSB.print(" ***\n");
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Check status of motions
@@ -519,16 +499,7 @@ void BioloidController::MotionPage(unsigned int page)
 			rpmIndexNow_ = rpmIndexInput_;
 			rpmIndexInput_ = 0;
 			rpmState_ = PLAYING;
-
-			SerialUSB.print("*** rpmIndexNow_: ");SerialUSB.print((unsigned int) rpmIndexNow_);SerialUSB.print(" ***\n");
-
-			SerialUSB.print("*** seq: ");SerialUSB.print((unsigned int) rpmArray_[rpmIndexNow_].seq);SerialUSB.print(" ***\n");
-			SerialUSB.print("*** next: ");SerialUSB.print((unsigned int) rpmArray_[rpmIndexNow_].next);SerialUSB.print(" ***\n");
-			SerialUSB.print("*** stop: ");SerialUSB.print((unsigned int) rpmArray_[rpmIndexNow_].stop);SerialUSB.print(" ***\n");
-
 			playSeq(rpmArray_[rpmIndexNow_].seq);
-
-			SerialUSB.print("*** playSeq() works ***\n");
 		}
 	}
 }
