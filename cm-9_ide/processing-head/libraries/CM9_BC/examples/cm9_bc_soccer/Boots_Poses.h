@@ -43,24 +43,7 @@ Maneuvering
 	StrafeRight		- Sidestep Right
 	StrafeLeft		- Sidestep Left
 
-
-
-Uncertain and Unused
-	FRT_R_M			- ForwardRightTurn_Right_Mid?
-						-> transitions to FRT_R_M
-						-> quits with Forward_L_R -> Forward_R_I
-	FRT_L_M			- ForwardLeftTurn_Left_Mid?
-						-> transitions to FLT_L_M
-						-> quits with Forward_R_L -> Forward_L_I
-
-	RFT				- Right_Forward_Turn?
-	LFT				- Left_Forward_Turn?
-	RBT				- Right_Backward_Turn?
-	LBT				- Left_Backward_Turn?
-	Fst_R			- Fast Right Turn?
-	Fst_L			- Fast Left Turn?
-
-Unused Soccer moves
+Soccer moves
 	F_Shoot_R		- Forward Kick with Right foot
 	F_Shoot_L		- Forward Kick with Left foot
 	R_Shoot			- Side Kick with Right foot
@@ -78,6 +61,21 @@ Unused Soccer moves
 						-> transitions to D_Ready
 	D_Left			- Defend Left
 						-> transitions to D_Ready
+
+Uncertain and Unused
+	FRT_R_M			- ForwardRightTurn_Right_Mid?
+						-> transitions to FRT_R_M
+						-> quits with Forward_L_R -> Forward_R_I
+	FRT_L_M			- ForwardLeftTurn_Left_Mid?
+						-> transitions to FLT_L_M
+						-> quits with Forward_R_L -> Forward_L_I
+
+	RFT				- Right_Forward_Turn?
+	LFT				- Left_Forward_Turn?
+	RBT				- Right_Backward_Turn?
+	LBT				- Left_Backward_Turn?
+	Fst_R			- Fast Right Turn?
+	Fst_L			- Fast Left Turn?
 
 Incomplete (only part of sequence retained by script because of unnamed page)
 	F_PShoot_R		- Forward Step then Shoot with Right foot

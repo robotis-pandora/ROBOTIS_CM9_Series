@@ -39,10 +39,50 @@ void setup()
 	bioloid.setup(1);
 	bioloid.setId(0, cm9_bc_ex_id[0+1]);
 	SerialUSB.print("Done loading sequence.\n");
+
+/*
+	// Can load servo IDs from any transition_t sequence produced by mtn2cm9.py
+	unsigned int *servo_ids = Boots_Init[0].pose;
+	unsigned int num_servos = servo_ids[0];
+	bioloid.setup(num_servos);
+	int iter;
+	for (iter=0; iter<num_servos; iter++)
+	{
+		bioloid.setId(iter, servo_ids[iter+1]);
+		SerialUSB.print("Servo ");
+		SerialUSB.print(iter);
+		SerialUSB.print(" is ID ");
+		SerialUSB.println(bioloid.getId(iter));//servo_ids[iter+1]);
+	}
+	SerialUSB.print("Done setting servo IDs.\n");
+*/
 }
 
 void loop()
 {
+/*
+	// Manual interpolation of poses
+	SerialUSB.print("Going to initial pose...");
+	bioloid.loadPose(cm9_bc_Init_1);
+	bioloid.interpolateSetup(100);
+	while(bioloid.interpolating > 0)
+	{
+		bioloid.interpolateStep();
+		delay(1000);
+	}
+	SerialUSB.print("done.\n");
+*/
+/*
+	// Playing a complete sequence from memory
+	SerialUSB.print("Starting sequence...");
+	bioloid.playSeq(cm9_bc_Init);
+	while (bioloid.playing)
+	{
+		bioloid.play();
+	}
+	SerialUSB.print("done.\n");
+*/
+
 	SerialUSB.print("Starting sequence...");
 	bioloid.playSeq(backnforth);
 //	SerialUSB.print("Starting loop.\n");

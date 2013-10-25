@@ -27,20 +27,6 @@
 #include <Dynamixel.h>
 #include <libpandora_types.h>
 
-#ifndef __FLASH__
-#define __FLASH__ __attr_flash
-#endif
-
-/// Desire some extra resolution, use 13 bits, rather than 10, during interpolation
-#define BIOLOID_SHIFT				3
-
-/// Transition structure
-typedef struct
-{
-	unsigned int * pose;					// addr of pose to transition to 
-	int time;								// time for transition
-} transition_t; 
-
 /// Pose format (array of integers):
 //	unsigned int pose_name[] __FLASH__ = {4,512,512,482,542};
  		// First number is number of servos used by the pose
@@ -54,13 +40,27 @@ typedef struct
 			//  pointer to an array containing the servo IDs used by sequence.
 		// Subsequent entries are pointers to pose arrays and timelength of pose.
 
+#ifndef __FLASH__
+#define __FLASH__ __attr_flash
+#endif
+
+/// Desire some extra resolution, use 13 bits, rather than 10, during interpolation
+#define BIOLOID_SHIFT				3
+
+/// Transition structure
+typedef struct
+{
+	unsigned int * pose;					// address of pose
+	unsigned int time;						// time interval for transition
+} transition_t; 							// BC sequence
+
 /// RoboPlus Motion File Assistance structure
 typedef struct
 {
-	transition_t* seq;
-	unsigned int next;
-	unsigned int stop;
-} sequencer_t;
+	transition_t * seq;						// address of sequence
+	unsigned int next;						// index of next sequence
+	unsigned int stop;						// index of stop sequence
+} sequencer_t;								// RPM sequence
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -122,17 +122,17 @@ public:
 /// Pose Interpolation
 	// Calculates speeds for smooth transition
 	// Calls readPose() to ensure starting pose is actual servo locations
-	void interpolateSetup(int time);
+	void interpolateSetup(unsigned int time);
 	// Moves forward one step in current interpolation
 	void interpolateStep();
 	// Currently interpolating? (can be used to stop interpolating)
-	bool interpolating;
+	bool interpolating(bool);
 
 /// Pose Interpolation Usage: Load a pose and interpolate from present servo locations.
 /*
 	bioloid.loadPose(myPose);
 	bioloid.interpolateSetup(67);
-	while(bioloid.interpolating > 0)
+	while(bioloid.interpolating())
 	{
 		bioloid.interpolateStep();
 		delay(10);
@@ -146,14 +146,14 @@ public:
 	// Keep moving forward in time
 	void play();
 	// Are we playing a sequence? (can be used to stop playing)
-	bool playing;
+	bool playing(bool);
 	// What sequence is being played?
-//	transition_t* checkSeq() {return sequence_;}
+	transition_t* checkSeq() {return sequence_;}
 
 /// Sequence Engine Usage: Load a sequence and play it.
 /*
 	bioloid.playSeq(walk);
-	while(bioloid.playing)
+	while(bioloid.playing())
 	{
 		bioloid.play();
 		delay(10);
@@ -169,6 +169,8 @@ public:
 	bool MotionStatus(void);
 	// Check currently running motion page from RoboPlusMotion_Array
 	unsigned int MotionPage();
+	// Keep playing a RoboPlusMotion series of sequences
+	void Play();
 	// Load a RoboPlusMotion_Array
 	void RPM_Setup(sequencer_t* array);
 
@@ -212,17 +214,16 @@ private:
 	// Currently running sequence
 	transition_t * sequence_;
 	// Number of transitions remaining in current interpolation
-	int transitions_;
+	unsigned int transitions_;
 	unsigned int seqIndex_;
 
 	// MotionEngine control state
 	enum
 	{
-		NEED_POSE,
-		INTERPOSE,
-		NEXT_POSE
-	};
-	unsigned int seqState_;
+		INTERPOLATING,
+		INTERPOLATION_DONE,
+		SEQUENCE_DONE
+	} seqState_;
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -230,20 +231,15 @@ private:
 	sequencer_t * rpmArray_;
 	// RoboPlusMotion Array index
 	unsigned int rpmIndexNow_;
-	unsigned int rpmIndexNext_;
-	unsigned int rpmIndexStop_;
-	
+	unsigned int rpmIndexInput_;
+
 	// RoboPlusMotion control state
 	enum
 	{
-		STOPPED,
 		PLAYING,
-		SWITCHING,
-		STOPPING
-	};
-	unsigned int rpmState_;
-
-
+		STOPPING,
+		STOPPED
+	} rpmState_;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Debug/Emergency control state
@@ -252,8 +248,7 @@ private:
 		KILLED,
 		PAUSED,
 		RUNNING
-	};
-	unsigned int bcState_;
+	} bcState_;
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

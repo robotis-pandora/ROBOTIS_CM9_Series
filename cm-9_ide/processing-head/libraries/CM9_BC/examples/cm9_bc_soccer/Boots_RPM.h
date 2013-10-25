@@ -4,7 +4,8 @@
 #include "Boots_Sequences.h"
 
 sequencer_t Boots_RoboPlusMotion_Array[] __FLASH__ = {
-	{(transition_t*) 0,		1,		29},	// 0
+//	{(transition_t*) 0,		0,		29},	// 0 (INVALID) (STOP)
+	{0,						0,		29},	// 0 (INVALID) (STOP)
 
 	{Boots_Init, 			0,		0},		// 1
 

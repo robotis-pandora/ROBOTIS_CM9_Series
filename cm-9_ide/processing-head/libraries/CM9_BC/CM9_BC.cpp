@@ -32,7 +32,7 @@ void BioloidController::setup(unsigned int servo_count)
 	else
 		numServos_ = servo_count;
 
-	// setup storage
+	// Allocate storage
 	id_ = (unsigned char *) malloc(numServos_ * sizeof(unsigned char));
 	pose_ = (unsigned int *) malloc(numServos_ * sizeof(unsigned int));
 	nextpose_ = (unsigned int *) malloc(numServos_ * sizeof(unsigned int));
@@ -40,7 +40,7 @@ void BioloidController::setup(unsigned int servo_count)
 	offsets_ = (int *) malloc(numServos_ * sizeof(int));
 	resolutions_ = (unsigned int *) malloc(numServos_ * sizeof(unsigned int));
 
-	// initialize
+	// Initialize everything
 	int iter;
 	for(iter=0;iter<numServos_;iter++)
 	{
@@ -53,22 +53,17 @@ void BioloidController::setup(unsigned int servo_count)
 	}
 	
 	poseSize_ = 0;
-
-	interpolating = false;
-	playing = false;
-
 	lastframe_ = millis();
-
 	frameLength_ = 33;	// default is 33[ms] to get ~30[Hz] update rate
-
+	timeModder_ = 1.0;
+	transitions_ = 0;
 
 	bcState_ = RUNNING;
+	seqState_ = SEQUENCE_DONE;
+	rpmState_ = STOPPED;
 
-	rpmArray_ = 0;
 	rpmIndexNow_ = 0;
-	rpmIndexNext_ = 0;
-	rpmIndexStop_ = 0;
-	rpmState_ = WAITING;
+	rpmIndexInput_ = 0;
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -77,6 +72,7 @@ void BioloidController::setup(unsigned int servo_count)
 void BioloidController::loadPose( unsigned int * addr )
 {
 	unsigned int servo_count = addr[0];
+	SerialUSB.print("*** servo_count is ");SerialUSB.print(servo_count);SerialUSB.print(" ***\n");
 	if (servo_count > numServos_)
 	{
 		SerialUSB.print("The pose you attempted to load requires more servos than the object allocated during setup. Doing this leads to bad, bad things...\n");
@@ -108,11 +104,12 @@ void BioloidController::readPose()
 /// Write the next pose out to servos using sync write.
 void BioloidController::writePose()
 {
+	// Were we paused or killed?
 	if (bcState_ != RUNNING)
 		return;
 
 	int temp;
-	int numParams = 2 + (poseSize * 3);   // 3 = id + GOAL_L + GOAL_H
+	int numParams = 2 + (poseSize_ * 3);   // 3 = id + GOAL_L + GOAL_H
 
 	Dxl.setTxPacketId( BROADCAST_ID );
 	Dxl.setTxPacketInstruction( INST_SYNC_WRITE );
@@ -208,7 +205,7 @@ void BioloidController::setPoseSize(unsigned int num)
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Get number of servos in current pose
-unsigned int BioloidController::setPoseSize()
+unsigned int BioloidController::getPoseSize()
 {
 	return poseSize_;
 }
@@ -266,7 +263,7 @@ void BioloidController::setNextPose(int id, int pos)
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Setup for interpolating from pose to nextpose over TIME milliseconds
-void BioloidController::interpolateSetup(int time)
+void BioloidController::interpolateSetup(unsigned int time)
 {
 	time = (int) (time * timeModder_);
 	int frames = (time/frameLength_) + 1;
@@ -281,28 +278,21 @@ void BioloidController::interpolateSetup(int time)
 	int iter;
 	for(iter=0; iter<poseSize_; iter++)
 	{
-/*
-		if(nextpose_[iter] > pose_[iter])
-		{
-			deltas_[iter] = (nextpose_[iter] - pose_[iter])/frames + 1;
-		}
-		else
-		{
-			deltas_[iter] = (pose_[iter] - nextpose_[iter])/frames + 1;
-		}
-*/
 		deltas_[iter] = (nextpose_[iter] - pose_[iter])/frames + 1;
 	}
-	interpolating = true;
+	// Start transitioning between current pose and goal pose
+	seqState_ = INTERPOLATING;
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Write next intermediate pose of the interpolation
 void BioloidController::interpolateStep()
 {
+	// Were we paused or killed?
 	if (bcState_ != RUNNING)
 		return;
 
-	if (!interpolating)
+	// Are we transitioning between current pose and a goal pose?
+	if (seqState_ != INTERPOLATING)
 		return;
 
 	int complete = poseSize_;
@@ -311,7 +301,7 @@ void BioloidController::interpolateStep()
 
 	// Update intermediate goal position of each servo
 	int iter;
-	for(iter=0; iter<poseSize; iter++)
+	for(iter=0; iter<poseSize_; iter++)
 	{
 		int diff = nextpose_[iter] - pose_[iter];
 		if(diff == 0)
@@ -320,32 +310,6 @@ void BioloidController::interpolateStep()
 		}
 		else
 		{
-/*
-			if(diff > 0)
-			{
-				if(diff < deltas_[iter])
-				{
-					pose_[iter] = nextpose_[iter];
-					complete--;
-				}
-				else
-				{
-					pose_[iter] += deltas_[iter];
-				}
-			}
-			else
-			{
-				if((-diff) < deltas_[iter])
-				{
-					pose_[iter] = nextpose_[iter];
-					complete--;
-				}
-				else
-				{
-					pose_[iter] -= deltas_[iter];
-				}
-			}
-*/
 			if (abs(diff) > abs(deltas_[iter]))
 			{
 				pose_[iter] += deltas_[iter];
@@ -357,11 +321,22 @@ void BioloidController::interpolateStep()
 			}
 		}
 	}
+	// Did we finish moving all servos to their values in the goal pose.
 	if(complete <= 0)
 	{
-		interpolating = false;
+		// Wait for new pose to be loaded.
+		seqState_ = INTERPOLATION_DONE;
 	}
 	writePose();
+}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/// Are we interpolating? (can be used to stop interpolating)
+bool BioloidController::interpolating(bool bolly)
+{
+	if (seqState_ == INTERPOLATING)
+		return true;
+	else
+		return false;
 }
 
 
@@ -375,65 +350,75 @@ void BioloidController::interpolateStep()
 /// Load and begin playing a sequence.
 void BioloidController::playSeq( transition_t * addr )
 {
-	sequence_ = (transition_t *) addr;
+//	SerialUSB.print("*** sequence_: ");SerialUSB.print((unsigned int)sequence_);SerialUSB.print(" ***\n");
 
-	// number of transitions left to load
-//	transitions_ = ( sequence_->time );
-//	sequence_++;
+	sequence_ = addr;
+
+//	SerialUSB.print("*** sequence_: ");SerialUSB.print((unsigned int)sequence_);SerialUSB.print(" ***\n");
+
+//	SerialUSB.print("*** sequence_[0].pose: ");SerialUSB.print((unsigned int)sequence_[0].pose);SerialUSB.print(" ***\n");
+//	SerialUSB.print("*** sequence_[0].time: ");SerialUSB.print((unsigned int)sequence_[0].time);SerialUSB.print(" ***\n");
 
 	seqIndex_ = 0;
 	// Number of poses in sequence
 	transitions_ = sequence_[seqIndex_].time;
 	seqIndex_++;
-
-//	SerialUSB.print("Number Transitions: ");SerialUSB.println(transitions_);
-	// load a transition
-//	loadPose( sequence_->pose );
-//	interpolateSetup( sequence_->time );
-//	transitions_--;
+//	SerialUSB.print("*** transitions_: ");SerialUSB.print(transitions_);SerialUSB.print(" ***\n");
 
 	loadPose( sequence_[seqIndex_].pose );
-//	interpolateSetup( sequence_[seqIndex_].time );
+//	SerialUSB.print("*** loadPose() works ***\n");
 	int time = (int) (sequence_[seqIndex_].time * timeModder_);
 	interpolateSetup( time );
+//	SerialUSB.print("*** interpolateSetup() works ***\n");
 
-	playing = true;
+	// Start transitioning between current pose and goal pose
+	seqState_ = INTERPOLATING;
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Keep playing the current sequence.
 void BioloidController::play()
 {
+	// Were we paused or killed?
 	if (bcState_ != RUNNING)
 		return;
 
-	if (!playing)
+	// No poses or sequences loaded and ready to play.
+	if (seqState_ == SEQUENCE_DONE)
 		return;
-	if (interpolating)
+
+	// Still transitioning to goal pose.
+	if (seqState_ == INTERPOLATING)
 	{
 		interpolateStep();
 	}
-	else  // Move on to next pose
+	// Fished transition to goal pose, need to load next goal pose.
+	else if (seqState_ == INTERPOLATION_DONE)
 	{
-//		sequence_++;
-//		if (transitions_ > 0)
-//		{
-//			loadPose( sequence_->pose );
-//			interpolateSetup( sequence_->time );
-//			transitions_--;
-//		}
 		seqIndex_++;
+		// Still more poses in the current sequence.
 		if (seqIndex_ <= transitions_)
 		{
 			loadPose( sequence_[seqIndex_].pose );
-//			interpolateSetup( sequence_[seqIndex_].time );
+			
 			int time = (int) (sequence_[seqIndex_].time * timeModder_);
 			interpolateSetup( time );
 		}
+		// Current sequence is finished.
 		else
 		{
-			playing = false;
+			//  Start waiting for new pose/sequence to be loaded.
+			seqState_ = SEQUENCE_DONE;
 		}
 	}
+}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/// Are we playing a sequence? (can be used to stop playing)
+bool BioloidController::playing(bool bolly)
+{
+	if (seqState_ != SEQUENCE_DONE)
+		return false;
+	else
+		return true;
 }
 
 
@@ -441,17 +426,35 @@ void BioloidController::play()
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/// Start a series of motion pages from RoboPlusMotion_Array
-void BioloidController::MotionPage(unsigned int page)
+/// Load a RoboPlusMotion_Array
+void BioloidController::RPM_Setup(sequencer_t* array)
 {
-	if (page > rpmArray_[0].stop)
-		return;
+	rpmArray_ = array;
+//	SerialUSB.print("*** rpmArray_: ");SerialUSB.print((unsigned int) rpmArray_);SerialUSB.print(" ***\n");
+//	SerialUSB.print("*** &rpmArray_: ");SerialUSB.print((unsigned int) &rpmArray_);SerialUSB.print(" ***\n");
+	
+	// Load servo IDs from sequence #1 of RoboPlusMotion file
+	transition_t *ref_seq = rpmArray_[1].seq;
+	unsigned int *servo_ids = ref_seq[0].pose;
+	unsigned int num_servos = servo_ids[0];
+	setup(num_servos);
 
-	rpmIndexNow_ = page;
-	rpmIndexNext_ = rpmArray_[page].next;
-	rpmIndexStop_ = rpmArray_[page].stop;
+//	SerialUSB.print("*** rpmArray_: ");SerialUSB.print((unsigned int) rpmArray_);SerialUSB.print(" ***\n");
+//	SerialUSB.print("*** &rpmArray_: ");SerialUSB.print((unsigned int) &rpmArray_);SerialUSB.print(" ***\n");
 
-	playSeq(rpmArray_[page].seq);
+	int iter;
+//	SerialUSB.println("Setting Servo IDs");
+	for (iter=0; iter<numServos_; iter++)
+	{
+		id_[iter] = servo_ids[iter+1];
+//		SerialUSB.print(" Servo #");SerialUSB.print(iter);
+//		SerialUSB.print(" is ID=");SerialUSB.println(id_[iter]);
+	}
+
+	
+//	SerialUSB.print("*** rpmArray_[0].seq: ");SerialUSB.print((unsigned int) rpmArray_[0].seq);SerialUSB.print(" ***\n");
+//	SerialUSB.print("*** rpmArray_[0].next: ");SerialUSB.print((unsigned int) rpmArray_[0].next);SerialUSB.print(" ***\n");
+//	SerialUSB.print("*** rpmArray_[0].stop: ");SerialUSB.print((unsigned int) rpmArray_[0].stop);SerialUSB.print(" ***\n");
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Check status of motions
@@ -466,29 +469,141 @@ bool BioloidController::MotionStatus(void)
 /// Check currently running motion page from RoboPlusMotion_Array
 unsigned int BioloidController::MotionPage()
 {
-	if (MotionStatus())
-		return rpmIndexNow_;
-	else
-		return 0;
+	return rpmIndexNow_;
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/// Load a RoboPlusMotion_Array
-void BioloidController::RPM_Setup(sequencer_t* array)
+/// Start a (series of) motion sequences from RoboPlusMotion_Array
+void BioloidController::MotionPage(unsigned int page)
 {
-	rpmArray_ = array;
+	if (page > rpmArray_[0].stop)
+		return;
 
-	// Load servo IDs from sequence #1 of RoboPlusMotion file
-	transition_t *ref_seq = rpmArray_[1].seq;
-	unsigned int *servo_ids = ref_seq[0].pose;
-	unsigned int num_servos = servo_ids[0];
-	setup(num_servos);
-
-	int iter;
-	for (iter=0; iter<numServos_; iter++)
+	rpmIndexInput_ = page;
+	// Are we still running a sequence?
+	if (rpmState_ != STOPPED)
 	{
-		id_[iter] = servo_ids[iter+1];
+		// Check if input is stop.
+		if (rpmIndexInput_ == 0)
+		{
+			// If input==0, finish current sequence, then
+			//  run the stop sequence specified by current sequence
+			rpmState_ = STOPPING;
+		}
+		else
+		{
+			// Does the currently running sequence follow the input sequence
+			//  in the RPM series?
+			if (	(rpmIndexNow_ == rpmArray_[rpmIndexInput_].next) ||
+					(rpmIndexNow_ == rpmArray_[rpmIndexInput_].stop)	)
+			{
+				// Does current sequence loop into itself?
+				if (rpmArray_[rpmIndexNow_].next == rpmIndexNow_)
+				{
+					// Probably want to restart RPM series?
+					rpmState_ = STOPPING;
+				}
+			}
+			else
+			{
+				// Continue running current RPM series of sequences instead of
+				// stopping then restarting same RPM series.
+			}
+		}
+	}
+	else
+	{
+		// Check if input is not stop.
+		if (rpmIndexInput_ > 0)
+		{
+			// Start user's input sequence
+			rpmIndexNow_ = rpmIndexInput_;
+			rpmIndexInput_ = 0;
+			rpmState_ = PLAYING;
+
+			SerialUSB.print("*** rpmIndexNow_: ");SerialUSB.print((unsigned int) rpmIndexNow_);SerialUSB.print(" ***\n");
+
+			SerialUSB.print("*** seq: ");SerialUSB.print((unsigned int) rpmArray_[rpmIndexNow_].seq);SerialUSB.print(" ***\n");
+			SerialUSB.print("*** next: ");SerialUSB.print((unsigned int) rpmArray_[rpmIndexNow_].next);SerialUSB.print(" ***\n");
+			SerialUSB.print("*** stop: ");SerialUSB.print((unsigned int) rpmArray_[rpmIndexNow_].stop);SerialUSB.print(" ***\n");
+
+			playSeq(rpmArray_[rpmIndexNow_].seq);
+
+			SerialUSB.print("*** playSeq() works ***\n");
+		}
 	}
 }
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/// Keep playing a RoboPlusMotion series of sequences
+void BioloidController::Play()
+{
+	if (bcState_ != RUNNING)
+		return;
+
+	// Has the current RPM series of sequences been finished?
+	if (rpmState_ == STOPPED)
+	{
+		// Is there a user sequence waiting to be started?
+		if (rpmIndexInput_ > 0)
+		{
+			rpmIndexNow_ = rpmIndexInput_;
+			rpmIndexInput_ = 0;
+			rpmState_ = PLAYING;
+			playSeq(rpmArray_[rpmIndexNow_].seq);
+		}
+		return;
+	}
+
+	// Has current sequence in RPM series finished and ready for next sequence
+	//  in RPM series to be loaded?
+	if (seqState_ == SEQUENCE_DONE)
+	{
+		// Is there more to process in this RPM series of sequences?
+		if (rpmIndexNow_ > 0)
+		{
+			// Need to run stop sequence indicated by current sequence
+			if (rpmState_ == STOPPING)
+			{
+				rpmIndexNow_ = rpmArray_[rpmIndexNow_].stop;
+			}
+			// Need to run next sequence indicated by current sequence
+			else if (rpmState_ == PLAYING)
+			{
+				rpmIndexNow_ = rpmArray_[rpmIndexNow_].next;
+			}
+		}
+
+		// No stop/next sequence specified by current sequence (done moving)
+		if (rpmIndexNow_ == 0)
+		{
+			// Is there a user sequence waiting to be started?
+			if (rpmIndexInput_ > 0)
+			{
+				rpmIndexNow_ = rpmIndexInput_;
+				rpmIndexInput_ = 0;
+				rpmState_ = PLAYING;
+			}
+			// Nothing left to do in this RPM series and nothing to be started.
+			else
+			{
+				rpmState_ = STOPPED;
+				return;
+			}
+		}
+
+		// Load next sequence in series (next or stop) or user input
+		playSeq(rpmArray_[rpmIndexNow_].seq);
+	}
+	else
+	{
+		// Otherwise, continue the next transition in the current sequence.
+		play();
+	}
+}
+
+
+
+
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Pause the motion engine

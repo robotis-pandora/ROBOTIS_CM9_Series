@@ -4,7 +4,7 @@
 #include "Boots_Poses.h"
 
 /// Init
-transition_t Boots_Init[] __FLASH__ = {{Boots_id,1},{Boots_Init_1,1000}};
+transition_t Boots_Init[] __FLASH__ = {{Boots_id,1},{Boots_Init_1,3000}};
 
 /// Forward
 transition_t Boots_Forward_I_R[] __FLASH__ = {{Boots_id,3},{Boots_Forward_I_R_1,72},{Boots_Forward_I_R_2,72},{Boots_Forward_I_R_3,96}};
