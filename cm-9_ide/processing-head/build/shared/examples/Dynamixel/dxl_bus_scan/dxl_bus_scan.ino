@@ -16,6 +16,7 @@ void setup()
 {
 	SerialUSB.begin();
 	Dxl.begin(DXL_BAUDRATE_NUMBER);
+	Dxl.setLibNumberTxRxAttempts(5);
 
 	pinMode(BOARD_LED_PIN, OUTPUT);
 
@@ -44,7 +45,7 @@ void loop()
 		// Read model number
 		model = Dxl.readWord(i, AXM_MODEL_NUMBER_L);
 		// If got a response, then device exists
-		if (Dxl.getResult()==COMM_RXSUCCESS)
+		if (Dxl.getResult()==(1<<COMM_RXSUCCESS))
 		{
 			if (model == MODEL_AX12)
 				SerialUSB.println(": AX-12");

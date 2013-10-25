@@ -44,8 +44,8 @@
 #define __FLASH__ __attr_flash
 #endif
 
-/// Desire some extra resolution, use 13 bits, rather than 10, during interpolation
-#define BIOLOID_SHIFT				3
+/// Desire some extra resolution, use 16 bits, rather than 10, during interpolation
+#define BIOLOID_SHIFT				6
 
 /// Transition structure
 typedef struct
@@ -115,7 +115,7 @@ public:
 	unsigned int setResolution(unsigned int id, unsigned int res);
 
 	// Load servo offsets from FLASH
-	void loadOffsets( unsigned int * addr );
+	void loadOffsets( int * addr );
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -178,7 +178,8 @@ public:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Engine Modifiers
 	// Set the temporal multiplier
-	float setTimeModifier(float mult);
+//	float setTimeModifier(float mult);
+	unsigned int setTimeModifier(unsigned int mult);
 	// Set the interpolation time length
 	unsigned int setFrameLength(unsigned int time);
 
@@ -208,7 +209,6 @@ private:
 
 	// Time {from millis()} when last position change occurred
 	unsigned long lastframe_;
-
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Currently running sequence
@@ -253,7 +253,8 @@ private:
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Temporal modifier
-	float timeModder_;
+//	float timeModder_;
+	unsigned int timeModder_;
 	// Length (in milliseconds) of each step in interpolation
 	unsigned int frameLength_;
 	

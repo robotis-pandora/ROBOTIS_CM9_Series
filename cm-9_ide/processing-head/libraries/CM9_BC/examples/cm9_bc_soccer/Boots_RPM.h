@@ -37,7 +37,7 @@ sequencer_t Boots_RoboPlusMotion_Array[] __FLASH__ = {
 	{Boots_B_Shoot_R, 		0,		0},		// 24
 	{Boots_B_Shoot_L, 		0,		0},		// 25
 
-	{Boots_D_Ready,			26,		1},		// 26
+	{Boots_D_Ready,			26,		0},//1},		// 26
 	{Boots_D_Right,	 		26,		0},		// 27
 	{Boots_D_Front, 		26,		0},		// 28
 	{Boots_D_Left,	 		26,		0}		// 29

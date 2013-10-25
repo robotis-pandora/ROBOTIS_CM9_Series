@@ -54,8 +54,8 @@ void BioloidController::setup(unsigned int servo_count)
 	
 	poseSize_ = 0;
 	lastframe_ = millis();
-	frameLength_ = 33;	// default is 33[ms] to get ~30[Hz] update rate
-	timeModder_ = 1.0;
+	frameLength_ = 8;	// default is 33[ms] to get ~30[Hz] update rate
+	timeModder_ = 100;
 	transitions_ = 0;
 
 	bcState_ = RUNNING;
@@ -94,10 +94,17 @@ void BioloidController::readPose()
 	for(iter=0; iter<numServos_; iter++)
 	{
 		int temp = Dxl.readWord(id_[iter], P_PRESENT_POSITION_L);
-		if ((temp < resolutions_[iter]) && (temp > 0))
-			pose_[iter] = temp << BIOLOID_SHIFT;
+		if (Dxl.getResult()==(1<<COMM_RXSUCCESS))
+		{
+			if ((temp < resolutions_[iter]) && (temp > 0))
+				pose_[iter] = temp << BIOLOID_SHIFT;
+			else
+				pose_[iter] = (resolutions_[iter]>>1) << BIOLOID_SHIFT;
+		}
 		else
-			pose_[iter] = (resolutions_[iter]>>1) << BIOLOID_SHIFT;
+		{
+			SerialUSB.print("*** Servo ID=");SerialUSB.print(id_[iter]);SerialUSB.print(" not found ***\n");
+		}
 	}
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -153,7 +160,7 @@ int BioloidController::getId(int index)
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Load servo offsets from FLASH
-void BioloidController::loadOffsets(unsigned int * addr)
+void BioloidController::loadOffsets(int * addr)
 {
 	int num_servos;
 	if (addr[0] < numServos_)
@@ -265,7 +272,7 @@ void BioloidController::setNextPose(int id, int pos)
 /// Setup for interpolating from pose to nextpose over TIME milliseconds
 void BioloidController::interpolateSetup(unsigned int time)
 {
-	time = (int) (time * timeModder_);
+	time = (int) (time * timeModder_)/100;
 	int frames = (time/frameLength_) + 1;
 	lastframe_ = millis();
 
@@ -278,7 +285,15 @@ void BioloidController::interpolateSetup(unsigned int time)
 	int iter;
 	for(iter=0; iter<poseSize_; iter++)
 	{
-		deltas_[iter] = (nextpose_[iter] - pose_[iter])/frames + 1;
+		//deltas_[iter] = (nextpose_[iter] - pose_[iter])/frames) + 1;
+		// (nextpose_[iter]-pose_[iter]) is unsigned and can cause issues if attempt in single operation
+		deltas_[iter] = (nextpose_[iter] - pose_[iter]);
+//		deltas_[iter] = (deltas_[iter]/abs(frames-1));
+//		deltas_[iter] = (deltas_[iter]/frames);
+		if (deltas_[iter]>0)
+			deltas_[iter] = (deltas_[iter]/frames) + 1;
+		else if (deltas_[iter]<0)
+			deltas_[iter] = (deltas_[iter]/frames) - 1;
 	}
 	// Start transitioning between current pose and goal pose
 	seqState_ = INTERPOLATING;
@@ -301,6 +316,7 @@ void BioloidController::interpolateStep()
 
 	// Update intermediate goal position of each servo
 	int iter;
+//	SerialUSB.print("[servo,diff,delta]\n  ");
 	for(iter=0; iter<poseSize_; iter++)
 	{
 		int diff = nextpose_[iter] - pose_[iter];
@@ -312,7 +328,19 @@ void BioloidController::interpolateStep()
 		{
 			if (abs(diff) > abs(deltas_[iter]))
 			{
-				pose_[iter] += deltas_[iter];
+				if ( 	( (diff>0) && (deltas_[iter]>0) ) ||
+						( (diff<0) && (deltas_[iter]<0) ) )
+				{
+					pose_[iter] += deltas_[iter];
+				}
+				else
+				{
+					pose_[iter] -= (deltas_[iter]/2);
+				}
+//				SerialUSB.print("[");
+//				SerialUSB.print(id_[iter]);SerialUSB.print(",");
+//				SerialUSB.print(diff);SerialUSB.print(",");
+//				SerialUSB.print(deltas_[iter]);SerialUSB.print("] ");
 			}
 			else
 			{
@@ -321,12 +349,15 @@ void BioloidController::interpolateStep()
 			}
 		}
 	}
+//	SerialUSB.print("\n");
+//	SerialUSB.print("Complete: ");SerialUSB.println(complete);
 	// Did we finish moving all servos to their values in the goal pose.
 	if(complete <= 0)
 	{
 		// Wait for new pose to be loaded.
 		seqState_ = INTERPOLATION_DONE;
 	}
+
 	writePose();
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -358,8 +389,9 @@ void BioloidController::playSeq( transition_t * addr )
 	seqIndex_++;
 
 	loadPose( sequence_[seqIndex_].pose );
-	int time = (int) (sequence_[seqIndex_].time * timeModder_);
-	interpolateSetup( time );
+//	int time = (int) (sequence_[seqIndex_].time * timeModder_)/100;
+//	interpolateSetup( time );
+	interpolateSetup( sequence_[seqIndex_].time );
 
 	// Start transitioning between current pose and goal pose
 	seqState_ = INTERPOLATING;
@@ -390,8 +422,9 @@ void BioloidController::play()
 		{
 			loadPose( sequence_[seqIndex_].pose );
 			
-			int time = (int) (sequence_[seqIndex_].time * timeModder_);
-			interpolateSetup( time );
+//			int time = (int) (sequence_[seqIndex_].time * timeModder_)/100;
+//			interpolateSetup( time );
+			interpolateSetup( sequence_[seqIndex_].time );
 		}
 		// Current sequence is finished.
 		else
@@ -459,6 +492,13 @@ void BioloidController::MotionPage(unsigned int page)
 		return;
 
 	rpmIndexInput_ = page;
+
+	// Is the current sequence valid?
+	if (rpmIndexNow_ == 0)
+	{
+		rpmState_ = STOPPED;
+	}
+
 	// Are we still running a sequence?
 	if (rpmState_ != STOPPED)
 	{
@@ -469,26 +509,41 @@ void BioloidController::MotionPage(unsigned int page)
 			//  run the stop sequence specified by current sequence
 			rpmState_ = STOPPING;
 		}
+/*
+		else if (rpmIndexNow_ != rpmIndexInput_)
+		{
+			// Probably want to start new RPM series?
+			rpmState_ = STOPPING;
+		}
+*/
+
+//		else if (rpmIndexNow_ != rpmIndexInput_)
 		else
 		{
 			// Does the currently running sequence follow the input sequence
 			//  in the RPM series?
-			if (	(rpmIndexNow_ == rpmArray_[rpmIndexInput_].next) ||
-					(rpmIndexNow_ == rpmArray_[rpmIndexInput_].stop)	)
+			unsigned int next = rpmArray_[rpmIndexInput_].next;
+			if (	(rpmIndexNow_ == next) ||					// 1st gen child of input
+					(rpmIndexNow_ == rpmArray_[next].next)	)	// 2nd gen child of input
 			{
 				// Does current sequence loop into itself?
-				if (rpmArray_[rpmIndexNow_].next == rpmIndexNow_)
+				if (rpmIndexNow_ == rpmArray_[rpmIndexNow_].next)
 				{
 					// Probably want to restart RPM series?
 					rpmState_ = STOPPING;
 				}
+				// Otherwise, continue running current RPM series of sequences
+				//  instead of stopping then restarting same RPM series.
 			}
 			else
 			{
-				// Continue running current RPM series of sequences instead of
-				// stopping then restarting same RPM series.
+				// Likely not in the same RPM series, so finish out this RPM
+				//  series (progress through stop indices) and then start the
+				//  new RPM series the user input.
+				rpmState_ = STOPPING;
 			}
 		}
+
 	}
 	else
 	{
@@ -501,6 +556,7 @@ void BioloidController::MotionPage(unsigned int page)
 			rpmState_ = PLAYING;
 			playSeq(rpmArray_[rpmIndexNow_].seq);
 		}
+		// Do nothing otherwise (told to stop when already stopped)
 	}
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -599,9 +655,17 @@ void BioloidController::kill(void)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Set the Temporal modifier
+/*
 float BioloidController::setTimeModifier(float mult)
 {
 	if ((mult > 0.01) && (mult < 2.0))
+		timeModder_ = mult;
+	return timeModder_;
+}
+*/
+unsigned int BioloidController::setTimeModifier(unsigned int mult)
+{
+	if ((mult > 50) && (mult < 1000))
 		timeModder_ = mult;
 	return timeModder_;
 }
@@ -609,7 +673,7 @@ float BioloidController::setTimeModifier(float mult)
 /// Set the interpolation time length
 unsigned int BioloidController::setFrameLength(unsigned int time)
 {
-	if (time > 10)
+	if (time > 5)
 		frameLength_ = time;
 	return frameLength_;
 }

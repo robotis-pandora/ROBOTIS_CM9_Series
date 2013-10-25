@@ -88,9 +88,6 @@ Incomplete (only part of sequence retained by script because of unnamed page)
 unsigned int Boots_id[] __FLASH__ = {12,7,8,9,10,11,12,13,14,15,16,17,18};
 
 
-int Boots_Calibration[] __FLASH__ = {12,0,0,0,0,0,0,0,0,0,0,0,0};
-
-
 // Sequence: Init
 unsigned int Boots_Init_1[] __FLASH__ = {12,358,666,507,516,301,722,170,853,687,336,507,516};	//wait:0.000	//move:1.000
 
