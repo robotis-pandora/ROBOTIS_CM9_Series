@@ -47,20 +47,24 @@
 /// Desire some extra resolution, use 16 bits, rather than 10, during interpolation
 #define BIOLOID_SHIFT				6
 
-/// Transition structure
-typedef struct
-{
-	unsigned int * pose;					// address of pose
-	unsigned int time;						// time interval for transition
-} transition_t; 							// BC sequence
+/// BioloidController Pose type
+//typedef unsigned int bc_pose_t;
+#define bc_pose_t unsigned int
 
-/// RoboPlus Motion File Assistance structure
+/// BioloidController Sequence
 typedef struct
 {
-	transition_t * seq;						// address of sequence
-	unsigned int next;						// index of next sequence
-	unsigned int stop;						// index of stop sequence
-} sequencer_t;								// RPM sequence
+	bc_pose_t * pose;					// address of pose
+	unsigned int time;					// time interval for transition
+} bc_seq_t; 							// BC sequence
+
+/// RoboPlus Motion Page
+typedef struct
+{
+	bc_seq_t * steps;					// pointer to sequence of "steps"/poses
+	unsigned int next;					// index of next sequence
+	unsigned int stop;					// index of stop sequence
+} rpm_page_t;							// RPM sequence
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -86,7 +90,7 @@ public:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Pose Manipulation functions
 	// Load a named pose from FLASH
-	void loadPose( unsigned int * addr );
+	void loadPose( bc_pose_t * addr );
 	// Read a pose in from the servos
 	void readPose();
 	// Write a pose out to the servos
@@ -142,13 +146,13 @@ public:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Sequence Engine
 	// Load a sequence and play it from FLASH
-	void playSeq( transition_t * addr );
+	void playSeq( bc_seq_t * addr );
 	// Keep moving forward in time
 	void play();
 	// Are we playing a sequence? (can be used to stop playing)
 	bool playing(bool);
 	// What sequence is being played?
-	transition_t* checkSeq() {return sequence_;}
+	bc_seq_t* checkSeq() {return sequence_;}
 
 /// Sequence Engine Usage: Load a sequence and play it.
 /*
@@ -164,7 +168,7 @@ public:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// RoboPlus Compatibility functions
 	// Start a series of motion pages from RoboPlusMotion_Array
-	void MotionPage(unsigned int page);
+	void MotionPage(unsigned int page_index);
 	// Check status of motions
 	bool MotionStatus(void);
 	// Check currently running motion page from RoboPlusMotion_Array
@@ -172,7 +176,7 @@ public:
 	// Keep playing a RoboPlusMotion series of sequences
 	void Play();
 	// Load a RoboPlusMotion_Array
-	void RPM_Setup(sequencer_t* array);
+	void RPM_Setup(rpm_page_t* array);
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -191,9 +195,9 @@ private:
 	// Servo IDs for this BioloidController object
 	unsigned char * id_;
 	// Present servo positions
-	unsigned int * pose_;
+	bc_pose_t * pose_;
 	// Goal servo positions
-	unsigned int * nextpose_;
+	bc_pose_t * nextpose_;
 	// Change in each servo position per interpolation step
 	int * deltas_;
 	// Calibration offsets for each servo
@@ -212,7 +216,7 @@ private:
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// Currently running sequence
-	transition_t * sequence_;
+	bc_seq_t * sequence_;
 	// Number of transitions remaining in current interpolation
 	unsigned int transitions_;
 	unsigned int seqIndex_;
@@ -228,7 +232,7 @@ private:
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// RoboPlusMotion Array pointer
-	sequencer_t * rpmArray_;
+	rpm_page_t * rpmArray_;
 	// RoboPlusMotion Array index
 	unsigned int rpmIndexNow_;
 	unsigned int rpmIndexInput_;

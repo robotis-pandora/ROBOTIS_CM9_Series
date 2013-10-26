@@ -69,7 +69,7 @@ void BioloidController::setup(unsigned int servo_count)
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Load a named pose from FLASH into nextpose.
-void BioloidController::loadPose( unsigned int * addr )
+void BioloidController::loadPose( bc_pose_t * addr )
 {
 	unsigned int servo_count = addr[0];
 
@@ -379,7 +379,7 @@ bool BioloidController::interpolating(bool bolly)
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Load and begin playing a sequence.
-void BioloidController::playSeq( transition_t * addr )
+void BioloidController::playSeq( bc_seq_t * addr )
 {
 	sequence_ = addr;
 
@@ -450,12 +450,12 @@ bool BioloidController::playing(bool bolly)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Load a RoboPlusMotion_Array
-void BioloidController::RPM_Setup(sequencer_t* array)
+void BioloidController::RPM_Setup(rpm_page_t* array)
 {
 	rpmArray_ = array;
 
 	// Load servo IDs from sequence #1 of RoboPlusMotion file
-	transition_t *ref_seq = rpmArray_[1].seq;
+	bc_seq_t *ref_seq = rpmArray_[1].steps;
 	unsigned int *servo_ids = ref_seq[0].pose;
 	unsigned int num_servos = servo_ids[0];
 	setup(num_servos);
@@ -486,12 +486,16 @@ unsigned int BioloidController::MotionPage()
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /// Start a (series of) motion sequences from RoboPlusMotion_Array
-void BioloidController::MotionPage(unsigned int page)
+void BioloidController::MotionPage(unsigned int page_index)
 {
-	if (page > rpmArray_[0].stop)
+	if (page_index > rpmArray_[0].stop)
 		return;
 
-	rpmIndexInput_ = page;
+	if (rpmArray_[page_index].steps == 0)
+		SerialUSB.print("RPM Page ");SerialUSB.print(page_index);SerialUSB.print(" does not exist.\n");
+		return;
+
+	rpmIndexInput_ = page_index;
 
 	// Is the current sequence valid?
 	if (rpmIndexNow_ == 0)
@@ -554,7 +558,7 @@ void BioloidController::MotionPage(unsigned int page)
 			rpmIndexNow_ = rpmIndexInput_;
 			rpmIndexInput_ = 0;
 			rpmState_ = PLAYING;
-			playSeq(rpmArray_[rpmIndexNow_].seq);
+			playSeq(rpmArray_[rpmIndexNow_].steps);
 		}
 		// Do nothing otherwise (told to stop when already stopped)
 	}
@@ -575,7 +579,7 @@ void BioloidController::Play()
 			rpmIndexNow_ = rpmIndexInput_;
 			rpmIndexInput_ = 0;
 			rpmState_ = PLAYING;
-			playSeq(rpmArray_[rpmIndexNow_].seq);
+			playSeq(rpmArray_[rpmIndexNow_].steps);
 		}
 		return;
 	}
@@ -618,7 +622,7 @@ void BioloidController::Play()
 		}
 
 		// Load next sequence in series (next or stop) or user input
-		playSeq(rpmArray_[rpmIndexNow_].seq);
+		playSeq(rpmArray_[rpmIndexNow_].steps);
 	}
 	else
 	{

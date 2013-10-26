@@ -1,5 +1,5 @@
 #include <CM9_BC.h>
-#include "Boots_RPM.h"		// Only legs of Type-A Humanoid
+#include "HelloRobo_RPM.h"		// Only legs of Type-A Humanoid
 
 // Adjust for each bot
 int Offset_Calibration[] __FLASH__ = {12,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -34,14 +34,13 @@ void setup()
 		}
 		if (Boomer.available())
 		{
-			if (Boomer.readData()==RC100_BTN_U)
-				break;
+			break;
 		}
 	}
 	SerialUSB.print("Now starting program\n");
 
 	// Load the RoboPlusMotion_Array from our _RPM header file
-	BioCon.RPM_Setup(Boots_RoboPlusMotion_Array);
+	BioCon.RPM_Setup(HelloRobo_RoboPlusMotion_Array);
 	//  This gives the motion engine the location of the RPM page file
 	// 	Sets up the motion engine (allocates memory and initializes variables)
 	//  Loads the servo IDs from the first pose in the first sequence in the array
@@ -57,7 +56,7 @@ void loop()
 	SerialUSB.print("loop() started. Going to Ready Position...");
 //	BioCon.setTimeModifier(300);
 	BioCon.loadOffsets(Offset_Calibration);
-	BioCon.MotionPage(1);	// Boots_Init
+	BioCon.MotionPage(1);	// HelloRobo_Init_1
 	while (BioCon.MotionStatus())
 	{
 		delay(1);
@@ -97,52 +96,52 @@ void loop()
 		if (rang == RC100_BTN_U)
 		{
 			// Go forward
-			BioCon.MotionPage(2);	// Boots_Forward_I_R
+			BioCon.MotionPage(3);	// HelloRobo_F_R_S_3
 		}
 		else if (rang == RC100_BTN_D)
 		{
 			// Go Backward
-			BioCon.MotionPage(8);	// Boots_Backward_I_R
+			BioCon.MotionPage(13);	// HelloRobo_B_R_S_13
 		}
 		else if (rang == RC100_BTN_L)
 		{
 			// Strafe Left
-			BioCon.MotionPage(17);	// Boots_StrafeLeft
+			BioCon.MotionPage(24);	// HelloRobo_L_24
 		}
 		else if (rang == RC100_BTN_R)
 		{
 			// Strafe Right
-			BioCon.MotionPage(16);	// Boots_StrafeRight
+			BioCon.MotionPage(23);	// HelloRobo_R_23
 		}
 		else if (rang == RC100_BTN_6)
 		{
 			// Spin Left
-			BioCon.MotionPage(15);	// Boots_SpinLeft
+			BioCon.MotionPage(28);	// HelloRobo_LT_28
 		}
 		else if (rang == RC100_BTN_5)
 		{
 			// Spin Right
-			BioCon.MotionPage(14);	// Boots_SpinRight
+			BioCon.MotionPage(27);	// HelloRobo_RT_27
 		}
 		else if (rang == RC100_BTN_3)
 		{
 			// Go to Init
-			BioCon.MotionPage(1);	// Boots_Init
+			BioCon.MotionPage(1);	// HelloRobo_Init_1
 		}
 		else if (rang == RC100_BTN_1)
 		{
 			// Defend Front
-			BioCon.MotionPage(28);	// Boots_D_Front
+			BioCon.MotionPage(47);	// HelloRobo_D_Front_47
 		}
 		else if (rang == RC100_BTN_2)
 		{
 			// Defend Left
-			BioCon.MotionPage(29);	// Boots_D_Left
+			BioCon.MotionPage(48);	// HelloRobo_D_Left_48
 		}
 		else if (rang == RC100_BTN_4)
 		{
 			// Defend Right
-			BioCon.MotionPage(27);	// Boots_D_Right
+			BioCon.MotionPage(46);	// HelloRobo_D_Right_46
 		}
 		else if (rang > 0)
 		{
@@ -152,9 +151,6 @@ void loop()
 
 
 		
-/// DO NOT REMOVE ME!!!
-		BioCon.Play();	// TODO: replace with timer interrupt-based update.
-
 		heartbeat++;
 		if (heartbeat>500)
 		{
@@ -165,9 +161,13 @@ void loop()
 			{
 				if (BioCon.MotionPage()>0)
 				{
-					SerialUSB.print("Playing page: ");SerialUSB.println(BioCon.MotionPage());
+					SerialUSB.print("Playing page: ");
+					SerialUSB.println(BioCon.MotionPage());
 				}
 			}
 		}
+
+/// DO NOT REMOVE ME!!!
+		BioCon.Play();	// TODO: replace with timer interrupt-based update.
 	}
 }
