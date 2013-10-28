@@ -152,7 +152,7 @@ void loop()
 
 		
 		heartbeat++;
-		if (heartbeat>500)
+		if (heartbeat>5000)
 		{
 			heartbeat = 0;
 			SerialUSB.print(".");

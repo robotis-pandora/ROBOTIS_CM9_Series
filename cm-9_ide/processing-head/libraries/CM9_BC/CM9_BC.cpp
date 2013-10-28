@@ -492,9 +492,11 @@ void BioloidController::MotionPage(unsigned int page_index)
 		return;
 
 	if (rpmArray_[page_index].steps == 0)
+	{
 		SerialUSB.print("RPM Page ");SerialUSB.print(page_index);SerialUSB.print(" does not exist.\n");
+	
 		return;
-
+	}
 	rpmIndexInput_ = page_index;
 
 	// Is the current sequence valid?
