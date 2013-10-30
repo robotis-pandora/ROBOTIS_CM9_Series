@@ -149,8 +149,9 @@ public:
 	void playSeq( bc_seq_t * addr );
 	// Keep moving forward in time
 	void play();
-	// Are we playing a sequence? (can be used to stop playing)
-	bool playing(bool);
+	// Are we playing a sequence?
+	bool playing(void);	// Polls current state
+	bool playing(bool);	// Used to control playing state
 	// What sequence is being played?
 	bc_seq_t* checkSeq() {return sequence_;}
 
@@ -169,10 +170,12 @@ public:
 /// RoboPlus Compatibility functions
 	// Start a series of motion pages from RoboPlusMotion_Array
 	void MotionPage(unsigned int page_index);
+	void setMotionPage(unsigned int page_index) { MotionPage(page_index); }
 	// Check status of motions
 	bool MotionStatus(void);
 	// Check currently running motion page from RoboPlusMotion_Array
 	unsigned int MotionPage();
+	unsigned int getMotionPage() { return MotionPage; }
 	// Keep playing a RoboPlusMotion series of sequences
 	void Play();
 	// Load a RoboPlusMotion_Array

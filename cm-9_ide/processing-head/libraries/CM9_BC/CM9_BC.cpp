@@ -435,15 +435,20 @@ void BioloidController::play()
 	}
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/// Are we playing a sequence? (can be used to stop playing)
-bool BioloidController::playing(bool bolly)
+/// Are we playing a sequence?
+bool BioloidController::playing(void)
 {
 	if (seqState_ != SEQUENCE_DONE)
 		return false;
 	else
 		return true;
 }
-
+bool BioloidController::playing(bool bolly)
+{
+	if (!bolly)
+		seqState_ = SEQUENCE_DONE;
+	return playing();
+}
 
 
 
