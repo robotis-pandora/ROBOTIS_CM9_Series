@@ -54,7 +54,7 @@ void BioloidController::setup(unsigned int servo_count)
 	
 	poseSize_ = 0;
 	lastframe_ = millis();
-	frameLength_ = 8;	// default is 33[ms] to get ~30[Hz] update rate
+	frameLength_ = 32;	// default is 33[ms] to get ~30[Hz] update rate
 	timeModder_ = 100;
 	transitions_ = 0;
 
@@ -361,13 +361,19 @@ void BioloidController::interpolateStep()
 	writePose();
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/// Are we interpolating? (can be used to stop interpolating)
-bool BioloidController::interpolating(bool bolly)
+/// Are we interpolating?
+bool BioloidController::interpolating(void)
 {
 	if (seqState_ == INTERPOLATING)
 		return true;
 	else
 		return false;
+}
+bool BioloidController::interpolating(bool bolly)
+{
+	if (!bolly)
+		seqState_ = INTERPOLATION_DONE;
+	return interpolating();
 }
 
 

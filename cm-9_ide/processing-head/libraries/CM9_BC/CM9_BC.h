@@ -129,8 +129,9 @@ public:
 	void interpolateSetup(unsigned int time);
 	// Moves forward one step in current interpolation
 	void interpolateStep();
-	// Currently interpolating? (can be used to stop interpolating)
-	bool interpolating(bool);
+	// Currently interpolating?
+	bool interpolating(bool);	// Polls current state
+	bool interpolating(void);	// Used to control interpolation state
 
 /// Pose Interpolation Usage: Load a pose and interpolate from present servo locations.
 /*
