@@ -50,7 +50,7 @@ void setup()
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void loop()
 {
-	unsigned int heartbeat = 0;
+	unsigned int heartbeat = millis();
 
 /// Set bot to an initial/ready position
 	SerialUSB.print("loop() started. Going to Ready Position...");
@@ -62,8 +62,7 @@ void loop()
 		delay(1);
 		BioCon.Play();
 
-		heartbeat++;
-		if (heartbeat>200)
+		if ((millis()-heartbeat)>200)
 		{
 			heartbeat = 0;
 			SerialUSB.print(".");
@@ -151,10 +150,9 @@ void loop()
 
 
 		
-		heartbeat++;
-		if (heartbeat>5000)
+		if ((millis()-heartbeat)>200)
 		{
-			heartbeat = 0;
+			heartbeat = millis();
 			SerialUSB.print(".");
 
 			if (BioCon.MotionStatus())

@@ -4,21 +4,23 @@ int Offset_Calibration[] __FLASH__ = {4,0,0,0,0};
 
 bc_pose_t ServoIDs[] __FLASH__ = {4,1,2,3,4};
 
-bc_pose_t Middle_Mid[] __FLASH__ = {4,512,512,512,512};
+
+bc_pose_t ReadyPose[] __FLASH__ = {4,512,512,512,512};
+
 bc_pose_t Middle_Max[] __FLASH__ = {4,768,768,768,768};
 bc_pose_t Middle_Min[] __FLASH__ = {4,256,256,256,256};
 
-bc_seq_t Sweeper[] __FLASH__ = {{ServoIDs,4}, {Middle_Max,500}, {Middle_Mid,500}, {Middle_Min,500}, {Middle_Mid,500}};
-
-bc_pose_t Alter_1[] __FLASH__ = {4,512,512,512,512};
 bc_pose_t Alter_2[] __FLASH__ = {4,768,768,256,256};
 bc_pose_t Alter_3[] __FLASH__ = {4,256,256,768,768};
 
-bc_seq_t Alternator_1[] __FLASH__ = {{ServoIDs,2}, {Alter_2,500}, {Alter_1,500}};
-bc_seq_t Alternator_2[] __FLASH__ = {{ServoIDs,2}, {Alter_3,500}, {Alter_1,500}};
 
+bc_seq_t ReadyPage[] __FLASH__ = {{ServoIDs, 1}, {ReadyPose, 1000}};
 
-bc_seq_t ReadyPage[] __FLASH__ = {{ServoIDs, 1}, {Alter_1, 1000}};
+bc_seq_t Sweeper[] __FLASH__ = {{ServoIDs,4}, {Middle_Max,500}, {ReadyPose,500}, {Middle_Min,500}, {ReadyPose,500}};
+
+bc_seq_t Alternator_1[] __FLASH__ = {{ServoIDs,2}, {Alter_2,500}, {ReadyPose,500}};
+bc_seq_t Alternator_2[] __FLASH__ = {{ServoIDs,2}, {Alter_3,500}, {ReadyPose,500}};
+
 
 rpm_page_t Tutorial_RoboPlusMotion_Array[] __FLASH__ = {
 	{0,					0,		4},	// 0
@@ -63,7 +65,7 @@ void setup()
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void loop()
 {
-	unsigned int heartbeat = 0;
+	unsigned int heartbeat = millis();
 
 /// Set bot to an initial/ready position
 	SerialUSB.print("loop() started. Going to Ready Position...");
@@ -75,8 +77,7 @@ void loop()
 		delay(1);
 		BioCon.Play();
 
-		heartbeat++;
-		if (heartbeat>200)
+		if ((millis()-heartbeat)>200)
 		{
 			heartbeat = 0;
 			SerialUSB.print(".");
@@ -118,7 +119,7 @@ void loop()
 		{
 			BioCon.MotionPage(4);	// Alternator_2
 		}
-		else if (rang > 0)
+		else if (keypress > 0)
 		{
 			// Stop
 			BioCon.MotionPage(0);	// INVALID/STOP
@@ -126,10 +127,9 @@ void loop()
 
 
 		
-		heartbeat++;
-		if (heartbeat>5000)
+		if ((millis()-heartbeat)>200)
 		{
-			heartbeat = 0;
+			heartbeat = millis();
 			SerialUSB.print(".");
 
 			if (BioCon.MotionStatus())
