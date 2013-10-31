@@ -64,19 +64,19 @@ void loop()
 
 		if ((keypress == 'a') || (keypress == 'A'))
 		{
-			SerialUSB.print("Setting servo positions to 768");
+			SerialUSB.print("Setting servo positions to 768\n");
 			BioCon.loadPose(Middle_Max);
 			BioCon.interpolateSetup(1000);
 		}
 		else if ((keypress == 's') || (keypress == 'S'))
 		{
-			SerialUSB.print("Setting servo positions to 512");
+			SerialUSB.print("Setting servo positions to 512\n");
 			BioCon.loadPose(Middle_Mid);
 			BioCon.interpolateSetup(1000);
 		}
 		else if ((keypress == 'd') || (keypress == 'D'))
 		{
-			SerialUSB.print("Setting servo positions to 256");
+			SerialUSB.print("Setting servo positions to 256\n");
 			BioCon.loadPose(Middle_Min);
 			BioCon.interpolateSetup(1000);
 		}

@@ -267,7 +267,7 @@ public:
 	 * @return The index of the currently running motion "page".
 	 * @see MotionPage()
 	 */
-	unsigned int getMotionPage() { return MotionPage; }
+	unsigned int getMotionPage() { return MotionPage(); }
 	/**
 	 * Continue playing a motion "page".  Must be called periodically to progress to next intermediate pose, next goal pose, and/or next sequence.
 	 * @see MotionPage(unsigned int)

@@ -54,7 +54,7 @@ void BioloidController::setup(unsigned int servo_count)
 	
 	poseSize_ = 0;
 	lastframe_ = millis();
-	frameLength_ = 32;	// default is 33[ms] to get ~30[Hz] update rate
+	frameLength_ = 8;//32;	// default is 33[ms] to get ~30[Hz] update rate
 	timeModder_ = 100;
 	transitions_ = 0;
 
@@ -435,7 +435,7 @@ void BioloidController::play()
 		// Current sequence is finished.
 		else
 		{
-			//  Start waiting for new pose/sequence to be loaded.
+			// Start waiting for new pose/sequence to be loaded.
 			seqState_ = SEQUENCE_DONE;
 		}
 	}
@@ -445,9 +445,9 @@ void BioloidController::play()
 bool BioloidController::playing(void)
 {
 	if (seqState_ != SEQUENCE_DONE)
-		return false;
-	else
 		return true;
+	else
+		return false;
 }
 bool BioloidController::playing(bool bolly)
 {

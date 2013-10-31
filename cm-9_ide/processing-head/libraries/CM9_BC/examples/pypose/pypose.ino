@@ -44,12 +44,12 @@ int checksum;						// checksum
 
 typedef struct
 {
-	unsigned int pose;				// index of pose to transition to
+	bc_pose_t pose;				// index of pose to transition to
 	int time;						// time for transition
 } sp_trans_t;
 
 // pose and sequence storage
-unsigned int poses[30][MAX_NUM_SERVOS];		// poses [index][servo_id-1]
+bc_pose_t poses[30][MAX_NUM_SERVOS];		// poses [index][servo_id-1]
 sp_trans_t sequence[50];			// sequence
 int seqPos;							// step in current sequence	
 
@@ -77,8 +77,6 @@ void setup()
 
 void loop()
 {
-//	int i;
-
 	// process messages
 	while(SerialUSB.available() > 0)
 	{
@@ -156,7 +154,6 @@ void loop()
 						// Play Seq = A, no params
 						if(ins == ARB_SIZE_POSE)
 						{
-//							bioloid.poseSize = params[0];
 							bioloid.setPoseSize(params[0]);
 							bioloid.readPose();
 							//SerialUSB.println(poseSize);
@@ -210,8 +207,10 @@ void loop()
 								}
 								// interpolate
 								bioloid.interpolateSetup(sequence[seqPos].time);
-								while(bioloid.interpolating)
+								while(bioloid.interpolating())
+								{
 									bioloid.interpolateStep();
+								}
 								// next transition
 								seqPos++;
 							}
@@ -241,7 +240,7 @@ void loop()
 									}
 									// interpolate
 									bioloid.interpolateSetup(sequence[seqPos].time);
-									while(bioloid.interpolating)
+									while(bioloid.interpolating())
 										bioloid.interpolateStep();
 									// next transition
 									seqPos++;
@@ -338,7 +337,6 @@ void loop()
 							}
 							else
 							{
-//								int x = params[1] + (params[2]<<8);
 								int x = Dxl.makeWord(params[1], params[2]);
 								Dxl.writeWord(id,params[0],x);
 							}

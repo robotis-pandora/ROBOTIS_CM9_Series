@@ -28,7 +28,7 @@ rpm_page_t Tutorial_RoboPlusMotion_Array[] __FLASH__ = {
 	{Sweeper,			2,		0},	// 2
 	{Alternator_1,		4,		0},	// 3
 	{Alternator_2,		3,		0}	// 4
-}
+};
 
 BioloidController BioCon;
 

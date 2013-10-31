@@ -74,7 +74,7 @@ void loop()
 				BioCon.playSeq(Sweeper);
 			}
 		}
-		else if ((keypress == 'p') || (keypress == 'P'))
+		else if ((keypress == 's') || (keypress == 'S'))
 		{
 			// Check that there is a sequence running so we do not flood
 			//  the terminal with text
