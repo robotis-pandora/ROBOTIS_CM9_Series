@@ -43,6 +43,8 @@ public:
 	byte setPosition(byte ServoID, int Position, int Speed);
     byte getResult(void);
 
+	byte setLibStatusReturnLevel(byte);
+	byte setLibNumberTxRxAttempts(byte);
 
     /////// Methods for making a packet ////////
     void setTxPacketId( byte id );

@@ -32,26 +32,26 @@ void Dynamixel::begin(int baud) {
 	afio_cfg_debug_ports(AFIO_DEBUG_FULL_SWJ_NO_NJRST);
 #ifdef BOARD_CM900  //Engineering version case
 
-	 gpio_set_mode(PORT_ENABLE_TXD, PIN_ENABLE_TXD, GPIO_OUTPUT_PP);
-	 gpio_set_mode(PORT_ENABLE_RXD, PIN_ENABLE_RXD, GPIO_OUTPUT_PP);
-	 gpio_write_bit(PORT_ENABLE_TXD, PIN_ENABLE_TXD, 0 );// TX Disable
-	 gpio_write_bit(PORT_ENABLE_RXD, PIN_ENABLE_RXD, 1 );// RX Enable
+	gpio_set_mode(PORT_ENABLE_TXD, PIN_ENABLE_TXD, GPIO_OUTPUT_PP);
+	gpio_set_mode(PORT_ENABLE_RXD, PIN_ENABLE_RXD, GPIO_OUTPUT_PP);
+	gpio_write_bit(PORT_ENABLE_TXD, PIN_ENABLE_TXD, 0 );// TX Disable
+	gpio_write_bit(PORT_ENABLE_RXD, PIN_ENABLE_RXD, 1 );// RX Enable
 #else
-	 gpio_set_mode(PORT_TXRX_DIRECTION, PIN_TXRX_DIRECTION, GPIO_OUTPUT_PP);
-	 gpio_write_bit(PORT_TXRX_DIRECTION, PIN_TXRX_DIRECTION, 0 );// RX Enable
+	gpio_set_mode(PORT_TXRX_DIRECTION, PIN_TXRX_DIRECTION, GPIO_OUTPUT_PP);
+	gpio_write_bit(PORT_TXRX_DIRECTION, PIN_TXRX_DIRECTION, 0 );// RX Enable
 #endif
 
-	 // initialize GPIO D20(PB6), D21(PB7) as DXL TX, RX respectively
-	 gpio_set_mode(PORT_DXL_TXD, PIN_DXL_TXD, GPIO_AF_OUTPUT_PP);
-	 gpio_set_mode(PORT_DXL_RXD, PIN_DXL_RXD, GPIO_INPUT_FLOATING);
+	// initialize GPIO D20(PB6), D21(PB7) as DXL TX, RX respectively
+	gpio_set_mode(PORT_DXL_TXD, PIN_DXL_TXD, GPIO_AF_OUTPUT_PP);
+	gpio_set_mode(PORT_DXL_RXD, PIN_DXL_RXD, GPIO_INPUT_FLOATING);
 
 
-	 //Initialize USART 1 device
-	 usart_init(USART1);
+	//Initialize USART 1 device
+	usart_init(USART1);
 
 
-	 //Calculate baudrate, refer to ROBOTIS support page.
-	 Baudrate = 2000000 / (baud + 1);
+	//Calculate baudrate, refer to ROBOTIS support page.
+	Baudrate = 2000000 / (baud + 1);
 
 	usart_set_baud_rate(USART1, STM32_PCLK2, Baudrate);
 	nvic_irq_set_priority(USART1->irq_num, 0);//[ROBOTIS][ADD] 2013-04-10 set to priority 0
@@ -60,7 +60,9 @@ void Dynamixel::begin(int baud) {
 	gbIsDynmixelUsed = 1;  //[ROBOTIS]2012-12-13 to notify end of using dynamixel SDK to uart.c
 	clearBuffer256();
 	mCommStatus= 0;
-	 //dxl_initialize(0, baud);
+	//dxl_initialize(0, baud);
+	setLibStatusReturnLevel(2);
+	setLibNumberTxRxAttempts(1);
 }
 
 
@@ -180,6 +182,16 @@ byte  Dynamixel::reset( byte  bID ){
 byte  Dynamixel::getResult(void){
 //	return mCommStatus;
 	return getTxRxStatus();
+}
+
+byte Dynamixel::setLibStatusReturnLevel(byte num)
+{
+	return setDxlLibStatRtnLvl(num);
+}
+
+byte Dynamixel::setLibNumberTxRxAttempts(byte num)
+{
+	return setDxlLibNumTries(num);
 }
 
 /*

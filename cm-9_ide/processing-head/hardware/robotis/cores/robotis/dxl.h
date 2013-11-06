@@ -52,7 +52,7 @@ extern "C" {
 #define ERRBIT_INSTRUCTION	(64)
 
 
-/*Global Variables ----------------------------------------------------------------------------------------------*/
+/*Global Variables ------------------------------------------------------------------------------*/
 volatile byte  gbDXLWritePointer;
 volatile byte  gbDXLReadPointer;
 volatile byte  gbpDXLDataBuffer[256];
@@ -65,8 +65,15 @@ byte gbpTxBuffer[255];
 
 uint8 gbIsDynmixelUsed; //[ROBOTIS]2012-12-13
 
+// additions to return proper COMM_* status
 uint8 gbDXLtxrxStatus;
-byte getTxRxStatus(void);
+uint8 getTxRxStatus(void);
+// additions to permit non-default Status Return Level settings without returning errors
+uint8 gbDXLStatusReturnLevel;
+uint8 setDxlLibStatRtnLvl(uint8);
+// additions to adjust number of txrx attempts
+uint8 gbDXLNumberTxRxAttempts;
+uint8 setDxlLibNumTries(uint8);
 
 /*
  * Raw methods for basic packet methods
